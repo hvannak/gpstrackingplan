@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dashboard.dart';
 
 
 void main() => runApp(MyApp());
@@ -42,17 +43,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> fetchPost() async {
-    Map data = {
+    final headers = {'Content-Type': 'application/json'};
+    var body = {
       'UserName': _username.text,
       'Password': _password.text
     };
     final response =
-        await http.post('https://localhost:8184/api/ApplicationUser/Login',body: json.encode(data));
-
+        await http.post('http://192.168.100.93:8184/api/ApplicationUser/Login',body: json.encode(body),headers: headers);
     if (response.statusCode == 200) {
-      print(response.toString());
-      return response.toString();
+      Navigator.push(
+        context, 
+        MaterialPageRoute(builder: (context) => Dashboard()));
+      return response.body;
     } else {
+      print(response.statusCode);
       throw Exception('Failed to load post');
     }
   }
