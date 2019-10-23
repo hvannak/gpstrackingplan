@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:gpstrackingplan/appsetting.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
 
 
@@ -35,11 +37,19 @@ class _MyHomePageState extends State<MyHomePage> {
   final _globalKey = GlobalKey<ScaffoldState>();
   final _username = TextEditingController();
   final _password = TextEditingController();
+  String _urlSetting = '';
 
   void showSnackbar(BuildContext context) {
     fetchPost();
     final snackBar = SnackBar(content: Text('Pocessing data'));
     _globalKey.currentState.showSnackBar(snackBar);
+  }
+
+  _loadSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _urlSetting = (prefs.getString('url') ?? '');     
+    });
   }
 
   Future<String> fetchPost() async {
@@ -49,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
       'Password': _password.text
     };
     final response =
-        await http.post('http://192.168.100.93:8184/api/ApplicationUser/Login',body: json.encode(body),headers: headers);
+        // await http.post('http://192.168.100.93:8184/api/ApplicationUser/Login',body: json.encode(body),headers: headers);
+        await http.post(_urlSetting + '/api/ApplicationUser/Login',body: json.encode(body),headers: headers);
     if (response.statusCode == 200) {
       Navigator.push(
         context, 
@@ -61,6 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSetting();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,12 +97,19 @@ class _MyHomePageState extends State<MyHomePage> {
              children: <Widget>[
                Padding(
                  padding: EdgeInsets.all(20.0),
-                 child:Image.asset(
-                 'assets/images/user.png',
-                 color: Colors.blue,
-                 height: 180.0,
-                 width: 180.0,
-                 )
+                 child: InkWell(
+                    child:Image.asset(
+                    'assets/images/user.png',
+                    color: Colors.blue,
+                    height: 180.0,
+                    width: 180.0,
+                    ),
+                    onTap: (){
+                      Navigator.push(
+                                context, 
+                                MaterialPageRoute(builder: (context) => Appsetting()));
+                    },
+                 ),
                ),
                Stack(
                    children: <Widget>[
