@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisit.dart';
+import 'package:gpstrackingplan/takeleave.dart';
 
 class Dashboard extends StatelessWidget {
 
- Material MyItems(IconData icon,String heading,int color,BuildContext context,String page){
+ Material myItems(IconData icon,String heading,int color,BuildContext context,String page){
    return Material(
      color: Colors.white,
      elevation: 4.0,
@@ -50,6 +51,11 @@ class Dashboard extends StatelessWidget {
                                   context, 
                                   MaterialPageRoute(builder: (context) => Routevisit()));
                             break;
+                          case 'leave':
+                            Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(builder: (context) => Takeleave()));
+                            break;
                           default:
                         }
                         // Navigator.push(
@@ -87,12 +93,14 @@ class Dashboard extends StatelessWidget {
         mainAxisSpacing: 12.0,
         padding: EdgeInsets.symmetric(vertical: 16.0,horizontal: 8.0),
         children: <Widget>[
-          MyItems(Icons.map, "Route Visit", 0xffed622b,context,'visit'),
-          MyItems(Icons.graphic_eq, "Feedback", 0xffed622b,context,'feedback')
+          myItems(Icons.map, "Route Visit", 0xffed622b,context,'visit'),
+          myItems(Icons.graphic_eq, "Feedback", 0xffed622b,context,'feedback'),
+          myItems(Icons.time_to_leave, "Take Leave", 0xffed622b,context,'leave')
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
-          StaggeredTile.extent(1, 130.0)
+          StaggeredTile.extent(1, 130.0),
+          StaggeredTile.extent(2, 130.0)
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
@@ -50,23 +51,37 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  _setAppSetting(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('token', token);
+    });
+  }
+
   Future<String> fetchPost() async {
-    _loadSetting();
-    final headers = {'Content-Type': 'application/json'};
     var body = {'UserName': _username.text, 'Password': _password.text};
     final response =
-        // await http.post('http://192.168.100.93:8184/api/ApplicationUser/Login',body: json.encode(body),headers: headers);
         await http.post(_urlSetting + '/api/ApplicationUser/Login',
-            body: json.encode(body), headers: headers);
+            body: json.encode(body), headers: {
+              HttpHeaders.contentTypeHeader: 'application/json'
+            });
     if (response.statusCode == 200) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => Dashboard()));
+      Map<String, dynamic> tokenget = jsonDecode(response.body);
+      _setAppSetting(tokenget['token']);
       return response.body;
     } else {
       final snackBar = SnackBar(content: Text('Failed to login'));
       _globalKey.currentState.showSnackBar(snackBar);
       throw Exception('Failed to load post');
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSetting();
   }
 
   @override
@@ -320,5 +335,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
     );
   }
-
 }
