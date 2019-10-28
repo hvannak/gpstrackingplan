@@ -80,7 +80,6 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   }
 
   Future<Leave> deletLeaveData(int leaveId) async {
-    print('IN');
     final response = await http.delete(
         _urlSetting + '/api/TakeLeaves/' + leaveId.toString(),
         headers: {
@@ -118,12 +117,12 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-              showSearch(context: context, delegate: DataSearchLeave(_listLeave));
+              showSearch(context: context, delegate: DataSearchLeave(_listLeave,_urlSetting,_token));
             },
           )
         ],
       ),
-      // key: _globalKey,
+      key: _globalKey,
       body: Container(
         child: FutureBuilder(
         future: fetchLeaveData(),
