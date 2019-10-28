@@ -15,7 +15,7 @@ class DataSearchLeave extends SearchDelegate<String> {
       IconButton(
         icon: Icon(Icons.search),
         onPressed: () {
-          // query = "";
+          // query = to database;
         },
       )
     ];
@@ -43,7 +43,7 @@ class DataSearchLeave extends SearchDelegate<String> {
   Widget buildSuggestions(BuildContext context) {
     final suggestionList = query.isEmpty
         ? _leaveList
-        : _leaveList.where((p) => p.employeeName.startsWith(query)).toList();
+        : _leaveList.where((p) => p.employeeName.contains(query) || p.workPlace.contains(query) || p.reasion.contains(query)).toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (BuildContext context, int index) {
@@ -56,21 +56,8 @@ class DataSearchLeave extends SearchDelegate<String> {
           child: Container(
             child: ListTile(
               leading: Icon(Icons.person),
-              title: RichText(
-                text: TextSpan(
-                    text: suggestionList[index]
-                        .employeeName
-                        .substring(0, query.length),
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    children: [
-                      TextSpan(
-                          text: suggestionList[index]
-                              .employeeName
-                              .substring(query.length),
-                          style: TextStyle(color: Colors.grey))
-                    ]),
-              ),
+              title: Text(suggestionList[index]
+                        .employeeName),
               subtitle: Text(suggestionList[index].workPlace +
                   '-(' +
                   DateFormat("yyy/MM/dd")
