@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
             });
     if (response.statusCode == 200) {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => Dashboard()));
+          context, MaterialPageRoute(builder: (context) => MyDashboard()));
       Map<String, dynamic> tokenget = jsonDecode(response.body);
       _setAppSetting(tokenget['token']);
       return response.body;

@@ -11,7 +11,16 @@ import 'package:http/http.dart' as http;
 
 import 'models/userprofile.dart';
 
-class Dashboard extends StatelessWidget {
+class MyDashboard extends StatefulWidget {
+  @override
+  _MyDashboardState createState() => _MyDashboardState();
+}
+
+class _MyDashboardState extends State<MyDashboard> {
+
+  String _token = '';
+  String _urlSetting = '';
+
   Material myItems(IconData icon, String heading, int color,
       BuildContext context, String page) {
     return Material(
@@ -79,6 +88,43 @@ class Dashboard extends StatelessWidget {
     );
   }
 
+  _loadSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (prefs.getString('token') ?? '');
+      _urlSetting = (prefs.getString('url') ?? '');
+    });
+  }
+
+  _setAppSetting(String fullname) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('fullname', fullname);
+    });
+  }
+
+  Future<Userprofile> fetchProfileData() async {
+    final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer " + _token
+    });
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      Userprofile profile = Userprofile.fromJson(jsonData);
+      _setAppSetting(profile.fullName);
+      return profile;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +177,13 @@ class _MyDrawerState extends State<MyDrawer> {
     });
   }
 
+  _setAppSetting(String fullname) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('fullname', fullname);
+    });
+  }
+
   Future<Userprofile> fetchProfileData() async {
     final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -138,8 +191,8 @@ class _MyDrawerState extends State<MyDrawer> {
     });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print(jsonData);
       Userprofile profile = Userprofile.fromJson(jsonData);
+      _setAppSetting(profile.fullName);
       return profile;
     } else {
       print(response.statusCode);

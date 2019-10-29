@@ -190,6 +190,7 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
+  String _fullname = '';
   var _employeeName = TextEditingController();
   var _workPlace = TextEditingController();
   var _reasion = TextEditingController();
@@ -203,6 +204,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
+      _fullname = (prefs.getString('fullname') ?? '');
+      _employeeName.text = _fullname;
+      print(_fullname);
       // print(_urlSetting);
       // print(_token);
     });
