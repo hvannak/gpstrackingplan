@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gpstrackingplan/helpers/datasearchleave.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +14,6 @@ class Takeleave extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Take Leave')),
       body: MyTakeLeave(title: 'Take Leave'),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -44,6 +44,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
+  List<Leave> _listLeave =[];
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -63,13 +64,13 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      List<Leave> listLeave = [];
+      _listLeave = [];
       for (var item in jsonData) {
         Leave leave = Leave.fromJson(item);
-        listLeave.add(leave);
+        _listLeave.add(leave);
       }
-      listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
-      return listLeave;
+      _listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
+      return _listLeave;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
       _globalKey.currentState.showSnackBar(snackBar);
@@ -79,7 +80,6 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   }
 
   Future<Leave> deletLeaveData(int leaveId) async {
-    print('IN');
     final response = await http.delete(
         _urlSetting + '/api/TakeLeaves/' + leaveId.toString(),
         headers: {
@@ -111,9 +111,20 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Take Leave'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(context: context, delegate: DataSearchLeave(_listLeave,_urlSetting,_token));
+            },
+          )
+        ],
+      ),
       key: _globalKey,
       body: Container(
-          child: FutureBuilder(
+        child: FutureBuilder(
         future: fetchLeaveData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
@@ -179,6 +190,7 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
+  String _fullname = '';
   var _employeeName = TextEditingController();
   var _workPlace = TextEditingController();
   var _reasion = TextEditingController();
@@ -192,6 +204,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
+      _fullname = (prefs.getString('fullname') ?? '');
+      _employeeName.text = _fullname;
+      print(_fullname);
       // print(_urlSetting);
       // print(_token);
     });
@@ -473,3 +488,5 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
         ));
   }
 }
+
+
