@@ -72,6 +72,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         Customermodel customermodel = Customermodel.fromJson(item);
         _listCustomer.add(customermodel);
       }
+      _customer = _listCustomer[0].customerName;
       _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
       print(_listCustomer.length);
       return _listCustomer;
@@ -304,7 +305,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   width: 200.0,
                                   height: 300.0,
                                   child: Center(
-                                    child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
+                                    // child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
+                                    child: Text('No Image'),
                                   ),
                                 ),
                               ),
