@@ -37,13 +37,18 @@ class _RoutevisitState extends State<Routevisit> {
       appBar: AppBar(
         title: Text('Route Visit'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FlatButton(
-              child: Text("Take Photo"),
-              onPressed: () {
+      body: 
+      Center(
+        child: FlatButton.icon(
+          shape: new RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(10.0),
+          ),
+          padding: const EdgeInsets.all(20.0),
+          color: Colors.deepOrange,
+          icon: Icon(Icons.add_a_photo), //`Icon` to display
+          textColor: Colors.white,
+          label: Text('Take Photo', style: TextStyle(fontSize: 20.0),),
+                 onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -51,10 +56,28 @@ class _RoutevisitState extends State<Routevisit> {
                   ),
                 );         
               }
-            ),
-          ],
-        ),
+        // child: Column(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: <Widget>[
+    
+        //     FlatButton(
+        //       child: Text("Take Photo", style: TextStyle(fontSize: 20.0),),
+        //       color: Colors.red,
+        //       textColor: Colors.white,
+        //       padding: const EdgeInsets.all(8.0),
+        //       onPressed: () {
+        //         Navigator.push(
+        //           context,
+        //           MaterialPageRoute(
+        //           builder: (context) => TakePictureScreen(camera: _firstCamera),
+        //           ),
+        //         );         
+        //       }
+        //     ),
+        //   ],
+        // ),
       ),
+      )
     );
   }
 
@@ -116,7 +139,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             File imagefile = new File(path); 
             // Convert to amazon requirements
             List<int> imageBytes = imagefile.readAsBytesSync();
-            String base64Image = base64Encode(imageBytes);
+            String base64Image = base64Encode(imageBytes); 
 
             Navigator.of(context).push(MaterialPageRoute(builder:(context)=>DisplayPictureScreen(imagePath: path, imagebase64: base64Image,)));
           print('Base64 image $base64Image ');
@@ -185,7 +208,7 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
     print('test data to upload = $body');
     print(_urlSetting);
     final 
-        response = await http.post(_urlSetting + '/Gpstrackings',
+        response = await http.post(_urlSetting + '/api/Gpstrackings',
           body: json.encode(body),
           headers: {
             HttpHeaders.contentTypeHeader: 'application/json',
