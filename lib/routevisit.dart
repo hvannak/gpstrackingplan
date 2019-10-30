@@ -3,9 +3,14 @@ import 'package:geolocator/geolocator.dart';
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 import 'package:camera/camera.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Routevisit extends StatefulWidget {
    @override
@@ -107,9 +112,14 @@ class TakePictureScreenState extends State<TakePictureScreen> {
               '${DateTime.now()}.png',
             );
             await _controller.takePicture(path);
-       
-            Navigator.of(context).push(MaterialPageRoute(builder:(context)=>DisplayPictureScreen(imagePath: path)));
 
+            File imagefile = new File(path); 
+            // Convert to amazon requirements
+            List<int> imageBytes = imagefile.readAsBytesSync();
+            String base64Image = base64Encode(imageBytes);
+
+            Navigator.of(context).push(MaterialPageRoute(builder:(context)=>DisplayPictureScreen(imagePath: path, imagebase64: base64Image,)));
+          print('Base64 image $base64Image ');
           print('You have got $path as result');
           } catch (e) {
             print(e);
@@ -122,56 +132,191 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
 class DisplayPictureScreen extends StatefulWidget {
   final String imagePath;
-  const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
+  final String imagebase64;
+  const DisplayPictureScreen({Key key, this.imagePath, this.imagebase64}) : super(key: key);
 
   @override
   _DisplayPictureScreenState createState() => _DisplayPictureScreenState(
-    this.imagePath
+    this.imagePath, this.imagebase64
   );
 }
 class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   Position _currentPosition; 
   final String imagePath;
- _DisplayPictureScreenState(this.imagePath) ;
-  
+  final String imagebase64;
+ _DisplayPictureScreenState(this.imagePath, this.imagebase64) ;
+  final _formKey = GlobalKey<FormState>();
+  String _token = '';
+  String _urlSetting = '';
+
+  double _lat ;
+  double _lng ;
+  DateTime _fromDate = DateTime.now();
+  var _typeValue = 'checkin';
+  var _customerValue = 'new';
+
+  _loadSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (prefs.getString('token') ?? '');
+      _urlSetting = (prefs.getString('url') ?? '');
+      print(_urlSetting);
+      print(_token);
+    });
+  }
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+    _loadSetting();
+    _fromDate = new DateTime.now();
+  }
+
+  Future<String> fetchPost() async {
+    var body = {
+      'GpsID': '0',
+      'Lat': _lat, 
+      'Lng': _lng, 
+      'Gpsdatetime': DateFormat('yyyy/MM/dd HH:mm').format(_fromDate), 
+      'CheckType': _typeValue, 
+      'Customer' : _customerValue , 
+      'Image' : imagebase64 ,
+      };
+    print('test data to upload = $body');
+    print(_urlSetting);
+    final 
+        response = await http.post(_urlSetting + '/Gpstrackings',
+          body: json.encode(body),
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: "Bearer " + _token
+          }); 
+        if (response.statusCode == 200) {
+            return response.body;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }   
+  }
+
   @override
   Widget build(BuildContext context) {
     print('Test Image result = $imagePath');
+    print ('test location = $_currentPosition');
+    
     return Scaffold(
       appBar: AppBar(title: Text('Check In')),
-      body:  Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body:Stack(
         children: <Widget>[
-        
-          Image.file(File(imagePath), height: 250,
-                        ),
-      
-          if (_currentPosition != null)
-                Text(
-                    "LAT: ${_currentPosition.latitude}, LNG: ${_currentPosition.longitude}​, DateTime: ${DateTime.now()}", ),
-          if(_currentPosition == null)          
-              FlatButton(
-                child: Text("Get location"),
-                onPressed: () {
-                  _getCurrentLocation();
-                },
-                  color: Colors.lightBlue,
-                  textColor: Colors.white,
-              ),
-          RaisedButton(
-                  
-                  child: Text('Check In'),
-                  onPressed: () {
+          SingleChildScrollView(
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(5.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10.0),
+                            child: Image.file(File(imagePath), height: 200,
+                          ),
+                          ),
+                          Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0), 
+                            child: DropdownButton<String>(
+                            hint: new Text('Type'),
+                            value: _typeValue,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 14,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.deepPurple),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _typeValue = newValue;
+                              });
+                            },
+                            items: <String>['checkin', 'checkout', 'farm/depo', 'supdepo']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            )
+                          ),
 
-                  },
-                  color: Colors.lightBlue,
-                  textColor: Colors.white,
-                )
-      ]
+                          Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0), 
+                            child: DropdownButton<String>(
+                            hint: new Text('Customer'),
+                            value: _customerValue,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 14,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.deepPurple),
+                            // underline: Container(
+                            //   height: 2,
+                            //   color: Colors.deepPurpleAccent,
+                            // ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _customerValue = newValue;
+                              });
+                            },
+                            items: <String>['new', 'old']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            )
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 5.0), 
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Center(child: RaisedButton (
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 15.0
+                                    ),
+                                    shape: new RoundedRectangleBorder(
+                                      borderRadius: new BorderRadius.circular(8.0),
+                                    ),
+                                    onPressed: () {
+                                      if (_formKey.currentState.validate()){
+                                        fetchPost();
+                                      }
+                                    },
+                                    child: Text(
+                                      'Check In',
+                                      style: TextStyle(fontSize:  14.0),
+                                      
+                                    ),
+                                  ),
+                                  )
+                                ]
+                            )
+                          ),
+                        ]
+                        )
+                      )
+                    )
+               ] 
+              ) 
+            )
+          )
+        ]
       )
     );
+      
   }
+
+
+
   _getCurrentLocation() {
     final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
     geolocator
@@ -179,6 +324,8 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
         .then((Position position) {
         setState(() {
         _currentPosition = position;
+        _lat = position.latitude;
+        _lng = position.longitude;
       });
     }).catchError((e) {
       print(e);
