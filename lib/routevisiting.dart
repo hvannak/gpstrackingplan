@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -19,20 +22,27 @@ class Routevisiting extends StatelessWidget {
 }
 
 class MyRouteVisiting extends StatefulWidget {
+  final String imagePath;
+  const MyRouteVisiting({Key key, this.imagePath}) : super(key: key);
+
   @override
-  _MyRouteVisitingState createState() => _MyRouteVisitingState();
+  _MyRouteVisitingState createState() => _MyRouteVisitingState(imagePath);
 }
 
 class _MyRouteVisitingState extends State<MyRouteVisiting> {
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
+  var _firstCamera;
+
   String _token = '';
   String _urlSetting = '';
   String _checkType = 'IN';
   String _customer = 'NEW';
-  String _image = '';
+  String _imagePath = '';
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
+
+  _MyRouteVisitingState(this._imagePath);
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -42,8 +52,15 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     });
   }
 
+  Future<void> _initCamera() async {
+    final cameras = await availableCameras();
+    _firstCamera = cameras.first;
+    
+  }
+
   Future<List<Customermodel>> fetchCustomerData(String name) async {
-    final response = await http.get(_urlSetting + '/api/Customer/CustomerName/' + name, headers: {
+    final response = await http
+        .get(_urlSetting + '/api/Customer/CustomerName/' + name, headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token
     });
@@ -66,18 +83,43 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     }
   }
 
+  Future<void> _showValidationMessage() async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Validation Input'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Please complete your info.'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
   @override
   void initState() {
     super.initState();
+    _initCamera();
     _loadSetting();
-    _listCustomer.add(new Customermodel(
-      customerID: 'NEW',
-      customerName: 'NEW'
-    ));
-    _listCustomer.add(new Customermodel(
-      customerID: 'OLD',
-      customerName: 'OLD'
-    ));
+    _listCustomer
+        .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
+    _listCustomer
+        .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+    
   }
 
   @override
@@ -85,6 +127,18 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         key: _globalKey,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => TakePictureScreen(
+                          camera: _firstCamera,
+                        )));
+          },
+          child: Icon(Icons.camera_alt),
+          backgroundColor: Colors.green,
+        ),
         body: Stack(
           children: <Widget>[
             SingleChildScrollView(
@@ -146,8 +200,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                 children: <Widget>[
                                   Expanded(
                                     child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 1.0),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 1.0),
                                         child: TextFormField(
                                           controller: _customerSearch,
                                           autocorrect: false,
@@ -187,7 +241,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                                           8.0),
                                                 ),
                                                 onPressed: () {
-                                                  fetchCustomerData(_customerSearch.text);
+                                                  fetchCustomerData(
+                                                      _customerSearch.text);
                                                 },
                                                 child: Text(
                                                   'Search',
@@ -213,11 +268,13 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   //     child: Text('-OLD-'),
                                   //     value: 'OLD',
                                   //   ),
-                                  // ],                              
-                                  items: _listCustomer.map((f) =>DropdownMenuItem(
-                                    child: Text(f.customerName),
-                                    value: f.customerName,
-                                  )).toList(),
+                                  // ],
+                                  items: _listCustomer
+                                      .map((f) => DropdownMenuItem(
+                                            child: Text(f.customerName),
+                                            value: f.customerName,
+                                          ))
+                                      .toList(),
                                   onChanged: (String value) {
                                     setState(() {
                                       _customer = value;
@@ -242,6 +299,16 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                 ),
                               ),
                               Padding(
+                                padding: EdgeInsets.only(top: 5.0),
+                                child: SizedBox(
+                                  width: 200.0,
+                                  height: 300.0,
+                                  child: Center(
+                                    child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
+                                  ),
+                                ),
+                              ),
+                              Padding(
                                   padding: EdgeInsets.only(top: 5.0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -256,9 +323,12 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                           ),
                                           onPressed: () {
                                             if (_formKey.currentState
-                                                .validate()) {
+                                                .validate() && _imagePath != '') {
                                               // showSnackbar(context);
-
+                                              print('IN');
+                                            }
+                                            else{
+                                              _showValidationMessage();
                                             }
                                           },
                                           child: Text(
