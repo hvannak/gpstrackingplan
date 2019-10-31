@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -82,8 +82,13 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             );
 
             // Attempt to take a picture and log where it's been saved.
-            final dir = Directory(path);
-            dir.deleteSync(recursive: true);
+            io.File(path).exists().then((val){
+              if(val == true){
+                final dir = io.Directory(path);
+                dir.deleteSync(recursive: true);
+              }
+            });
+
             await _controller.takePicture(path);
 
             // If the picture was taken, display it on a new screen.
@@ -115,7 +120,7 @@ class DisplayPictureScreen extends StatelessWidget {
       appBar: AppBar(title: Text('Display the Picture')),
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
-      body: Image.file(File(imagePath)),
+      body: Image.file(io.File(imagePath)),
     );
   }
 }
