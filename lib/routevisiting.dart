@@ -6,6 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,7 +28,7 @@ class MyRouteVisiting extends StatefulWidget {
   const MyRouteVisiting({Key key, this.imagePath}) : super(key: key);
 
   @override
-  _MyRouteVisitingState createState() => _MyRouteVisitingState(imagePath);
+  _MyRouteVisitingState createState() => _MyRouteVisitingState();
 }
 
 class _MyRouteVisitingState extends State<MyRouteVisiting> {
@@ -42,8 +44,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
 
-  _MyRouteVisitingState(this._imagePath);
-
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -55,7 +55,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   Future<void> _initCamera() async {
     final cameras = await availableCameras();
     _firstCamera = cameras.first;
-    
   }
 
   Future<List<Customermodel>> fetchCustomerData(String name) async {
@@ -84,32 +83,21 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     }
   }
 
-  Future<void> _showValidationMessage() async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Validation Input'),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('Please complete your info.'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+  _navigateTakePictureScreen(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TakePictureScreen(
+                  camera: _firstCamera
+                )));
+    setState(() {
+      _imagePath = result;
+    });
+    
+    Scaffold.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text("$result")));
+  }
 
   @override
   void initState() {
@@ -120,7 +108,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
     _listCustomer
         .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
-    
   }
 
   @override
@@ -130,12 +117,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         key: _globalKey,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => TakePictureScreen(
-                          camera: _firstCamera,
-                        )));
+            _navigateTakePictureScreen(context);
           },
           child: Icon(Icons.camera_alt),
           backgroundColor: Colors.green,
@@ -301,14 +283,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                               ),
                               Padding(
                                 padding: EdgeInsets.only(top: 5.0),
-                                child: SizedBox(
-                                  width: 200.0,
-                                  height: 300.0,
-                                  child: Center(
-                                    // child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
-                                    child: Text('No Image'),
-                                  ),
-                                ),
+                                child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath))
                               ),
                               Padding(
                                   padding: EdgeInsets.only(top: 5.0),
@@ -325,12 +300,9 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                           ),
                                           onPressed: () {
                                             if (_formKey.currentState
-                                                .validate() && _imagePath != '') {
+                                                .validate()) {
                                               // showSnackbar(context);
                                               print('IN');
-                                            }
-                                            else{
-                                              _showValidationMessage();
                                             }
                                           },
                                           child: Text(

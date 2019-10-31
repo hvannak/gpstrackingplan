@@ -11,7 +11,7 @@ class TakePictureScreen extends StatefulWidget {
 
   const TakePictureScreen({
     Key key,
-    @required this.camera,
+    @required this.camera
   }) : super(key: key);
 
   @override
@@ -78,19 +78,22 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
               // Store the picture in the temp directory.
               // Find the temp directory using the `path_provider` plugin.
               (await getTemporaryDirectory()).path,
-              '${DateTime.now()}.png',
+              'image.png',
             );
 
             // Attempt to take a picture and log where it's been saved.
-            // await _controller.takePicture(path);
+            final dir = Directory(path);
+            dir.deleteSync(recursive: true);
+            await _controller.takePicture(path);
 
             // If the picture was taken, display it on a new screen.
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MyRouteVisiting(imagePath: path),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => MyRouteVisiting(imagePath: path),
+            //   ),
+            // );
+            Navigator.pop(context,path);
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
