@@ -98,7 +98,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     
     Scaffold.of(context)
       ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text("$result")));
+      ..showSnackBar(SnackBar(content: Text("Image is captured")));
   }
 
   @override
@@ -285,7 +285,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                               ),
                               Padding(
                                 padding: EdgeInsets.only(top: 5.0),
-                                child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath))
+                                child: Container(
+                                  child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
+                                  width: 200.0,
+                                  height: 200.0,
+                                )
                               ),
                               Padding(
                                   padding: EdgeInsets.only(top: 5.0),

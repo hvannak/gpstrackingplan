@@ -9,10 +9,7 @@ import 'package:path_provider/path_provider.dart';
 class TakePictureScreen extends StatefulWidget {
   final CameraDescription camera;
 
-  const TakePictureScreen({
-    Key key,
-    @required this.camera
-  }) : super(key: key);
+  const TakePictureScreen({Key key, @required this.camera}) : super(key: key);
 
   @override
   _TakePictureScreenState createState() => _TakePictureScreenState();
@@ -21,6 +18,24 @@ class TakePictureScreen extends StatefulWidget {
 class _TakePictureScreenState extends State<TakePictureScreen> {
   CameraController _controller;
   Future<void> _initializeControllerFuture;
+  String _path = '';
+
+  _isExistedFile() async {
+    _path = join(
+      // Store the picture in the temp directory.
+      // Find the temp directory using the `path_provider` plugin.
+      (await getTemporaryDirectory()).path,
+      'image.png',
+    );
+
+    // Attempt to take a picture and log where it's been saved.
+    io.File(_path).exists().then((val) {
+      if (val == true) {
+        final dir = io.Directory(_path);
+        dir.deleteSync(recursive: true);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -35,6 +50,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
     );
     // Next, initialize the controller. This returns a Future.
     _initializeControllerFuture = _controller.initialize();
+    _isExistedFile();
   }
 
   @override
@@ -72,24 +88,17 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             // Ensure that the camera is initialized.
             await _initializeControllerFuture;
 
-            // Construct the path where the image should be saved using the 
+            // Construct the path where the image should be saved using the
             // pattern package.
-            final path = join(
-              // Store the picture in the temp directory.
-              // Find the temp directory using the `path_provider` plugin.
-              (await getTemporaryDirectory()).path,
-              'image.png',
-            );
+            // final path = join(
+            //   // Store the picture in the temp directory.
+            //   // Find the temp directory using the `path_provider` plugin.
+            //   (await getTemporaryDirectory()).path,
+            //   'image.png',
+            // );
 
             // Attempt to take a picture and log where it's been saved.
-            io.File(path).exists().then((val){
-              if(val == true){
-                final dir = io.Directory(path);
-                dir.deleteSync(recursive: true);
-              }
-            });
-
-            await _controller.takePicture(path);
+            await _controller.takePicture(_path);
 
             // If the picture was taken, display it on a new screen.
             // Navigator.push(
@@ -98,7 +107,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             //     builder: (context) => MyRouteVisiting(imagePath: path),
             //   ),
             // );
-            Navigator.pop(context,path);
+            Navigator.pop(context, _path);
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
