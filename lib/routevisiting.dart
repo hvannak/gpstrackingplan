@@ -293,16 +293,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10.0),
                                 child: DropdownButtonFormField(
-                                  // items: [
-                                  //   DropdownMenuItem<String>(
-                                  //     child: Text('-NEW-'),
-                                  //     value: 'NEW',
-                                  //   ),
-                                  //   DropdownMenuItem<String>(
-                                  //     child: Text('-OLD-'),
-                                  //     value: 'OLD',
-                                  //   ),
-                                  // ],
                                   items: _listCustomer
                                       .map((f) => DropdownMenuItem(
                                             child: Text(f.customerName),
@@ -335,7 +325,12 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   padding: EdgeInsets.only(top: 5.0),
                                   child: Container(
                                     child: _imagePath == ''
-                                        ? Text('No Image')
+                                        ? Image.asset(
+                                          'assets/images/user.png',
+                                          color: Colors.blue,
+                                          height: 180.0,
+                                          width: 180.0,
+                                        )
                                         : Image.file(File(_imagePath)),
                                     width: 200.0,
                                     height: 200.0,
@@ -347,6 +342,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                     children: <Widget>[
                                       Center(
                                         child: RaisedButton(
+                                          color: Colors.lightBlue,
                                           padding: EdgeInsets.symmetric(
                                               vertical: 15.0),
                                           shape: new RoundedRectangleBorder(
@@ -362,14 +358,15 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                             } else {
                                               final snackBar = SnackBar(
                                                   content:
-                                                      Text('Fail to save'));
+                                                      Text('Fail to save. Please take photo!'));
                                               _globalKey.currentState
                                                   .showSnackBar(snackBar);
                                             }
                                           },
                                           child: Text(
                                             'Save',
-                                            style: TextStyle(fontSize: 14.0),
+                                            style: TextStyle(fontSize: 18.0, color: Colors.white,),
+                                            
                                           ),
                                         ),
                                       )
