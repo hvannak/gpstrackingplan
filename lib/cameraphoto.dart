@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
@@ -87,27 +88,13 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
           try {
             // Ensure that the camera is initialized.
             await _initializeControllerFuture;
-
-            // Construct the path where the image should be saved using the
-            // pattern package.
-            // final path = join(
-            //   // Store the picture in the temp directory.
-            //   // Find the temp directory using the `path_provider` plugin.
-            //   (await getTemporaryDirectory()).path,
-            //   'image.png',
-            // );
-
-            // Attempt to take a picture and log where it's been saved.
             await _controller.takePicture(_path);
+            io.File imagefile = io.File(_path);
+            List imageBytes = imagefile.readAsBytesSync();
+            String base64Image = base64Encode(imageBytes);
 
-            // If the picture was taken, display it on a new screen.
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => MyRouteVisiting(imagePath: path),
-            //   ),
-            // );
-            Navigator.pop(context, _path);
+            // Navigator.pop(context, _path);
+             Navigator.pop(context, base64Image);
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);

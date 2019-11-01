@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,12 +47,31 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   String _imagePath = '';
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
+  Position _currentPosition; 
+  double _lat ;
+  double _lng ;
+  DateTime _fromDate = DateTime.now();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
+    });
+  }
+
+  _getCurrentLocation() {
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+        setState(() {
+        _currentPosition = position;
+        _lat = position.latitude;
+        _lng = position.longitude;
+      });
+    }).catchError((e) {
+      print(e);
     });
   }
 
@@ -104,16 +125,46 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   @override
   void initState() {
     super.initState();
+    _getCurrentLocation();
     _initCamera();
     _loadSetting();
     _listCustomer
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
     _listCustomer
         .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+
+  }
+
+  Future<String> fetchPost() async {
+    var body = {
+      'GpsID': '0',
+      'Lat': _lat, 
+      'Lng': _lng, 
+      'Gpsdatetime': DateFormat('yyyy/mm/dd HH:mm').format(_fromDate), 
+      'CheckType': _checkType, 
+      'Customer' : _customer , 
+      'Image' : _imagePath ,
+      };
+    print('test data to upload = $body');
+    print(_urlSetting);
+    final 
+        response = await http.post(_urlSetting + '/api/Gpstrackings',
+          body: json.encode(body),
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: "Bearer " + _token
+          }); 
+        if (response.statusCode == 200) {
+            return response.body;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }   
   }
 
   @override
   Widget build(BuildContext context) {
+    print ('test location = $_currentPosition');
     return Scaffold(
         backgroundColor: Colors.grey[300],
         key: _globalKey,
@@ -286,9 +337,10 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                               Padding(
                                 padding: EdgeInsets.only(top: 5.0),
                                 child: Container(
-                                  child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
-                                  width: 200.0,
-                                  height: 200.0,
+                                  // child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
+                                  child: _imagePath == '' ? Text('No Image') : Image.memory(base64Decode(_imagePath)),
+                                  width: 300.0,
+                                  height: 300.0,
                                 )
                               ),
                               Padding(
@@ -307,8 +359,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              // showSnackbar(context);
-                                              print('IN');
+                                              fetchPost();
+                                              print('check in');
                                             }
                                           },
                                           child: Text(
