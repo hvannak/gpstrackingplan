@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:intl/intl.dart';
@@ -45,12 +46,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   String _checkType = 'IN';
   String _customer = 'NEW';
   String _imagePath = '';
+  double _lat;
+  double _lng;
+  String _imagebase64;
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
-  Position _currentPosition; 
-  double _lat ;
-  double _lng ;
-  DateTime _fromDate = DateTime.now();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,14 +65,40 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     geolocator
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
         .then((Position position) {
-        setState(() {
-        _currentPosition = position;
+      setState(() {
         _lat = position.latitude;
         _lng = position.longitude;
       });
     }).catchError((e) {
       print(e);
     });
+  }
+
+  Future<String> fetchPost() async {
+    var body = {
+      'GpsID': '0',
+      'Lat': _lat,
+      'Lng': _lng,
+      'Gpsdatetime':
+          DateFormat('yyyy-MM-dd,HH:mm:ss').format(new DateTime.now()),
+      'CheckType': _checkType,
+      'Customer': _customer,
+      'Image': _imagebase64,
+    };
+    print(body);
+    final response = await http.post(_urlSetting + '/api/Gpstrackings',
+        body: json.encode(body),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer " + _token
+        });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }
   }
 
   Future<void> _initCamera() async {
@@ -110,13 +136,15 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => TakePictureScreen(
-                  camera: _firstCamera
-                )));
+            builder: (context) => TakePictureScreen(camera: _firstCamera)));
     setState(() {
       _imagePath = result;
+      File imagefile = new File(_imagePath); 
+      List<int> imageBytes = imagefile.readAsBytesSync();
+      _imagebase64 = "data:image/png;base64," + base64Encode(imageBytes);
+
     });
-    
+
     Scaffold.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text("Image is captured")));
@@ -125,46 +153,17 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
     _initCamera();
     _loadSetting();
+    _getCurrentLocation();
     _listCustomer
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
     _listCustomer
         .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
-
-  }
-
-  Future<String> fetchPost() async {
-    var body = {
-      'GpsID': '0',
-      'Lat': _lat, 
-      'Lng': _lng, 
-      'Gpsdatetime': DateFormat('yyyy/mm/dd HH:mm').format(_fromDate), 
-      'CheckType': _checkType, 
-      'Customer' : _customer , 
-      'Image' : _imagePath ,
-      };
-    print('test data to upload = $body');
-    print(_urlSetting);
-    final 
-        response = await http.post(_urlSetting + '/api/Gpstrackings',
-          body: json.encode(body),
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader: "Bearer " + _token
-          }); 
-        if (response.statusCode == 200) {
-            return response.body;
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load post');
-    }   
   }
 
   @override
   Widget build(BuildContext context) {
-    print ('test location = $_currentPosition');
     return Scaffold(
         backgroundColor: Colors.grey[300],
         key: _globalKey,
@@ -211,7 +210,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   onChanged: (String value) {
                                     setState(() {
                                       _checkType = value;
-                                      print(_checkType);
                                     });
                                   },
                                   validator: (val) => val == null
@@ -314,7 +312,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   onChanged: (String value) {
                                     setState(() {
                                       _customer = value;
-                                      print(_customer);
                                     });
                                   },
                                   validator: (val) => val == null
@@ -335,14 +332,14 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.only(top: 5.0),
-                                child: Container(
-                                  // child: _imagePath == '' ? Text('No Image') : Image.file(File(_imagePath)),
-                                  child: _imagePath == '' ? Text('No Image') : Image.memory(base64Decode(_imagePath)),
-                                  width: 300.0,
-                                  height: 300.0,
-                                )
-                              ),
+                                  padding: EdgeInsets.only(top: 5.0),
+                                  child: Container(
+                                    child: _imagePath == ''
+                                        ? Text('No Image')
+                                        : Image.file(File(_imagePath)),
+                                    width: 200.0,
+                                    height: 200.0,
+                                  )),
                               Padding(
                                   padding: EdgeInsets.only(top: 5.0),
                                   child: Row(
@@ -358,9 +355,16 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                           ),
                                           onPressed: () {
                                             if (_formKey.currentState
-                                                .validate()) {
+                                                    .validate() &&
+                                                _imagePath != '') {
                                               fetchPost();
-                                              print('check in');
+                                              Navigator.pop(context);
+                                            } else {
+                                              final snackBar = SnackBar(
+                                                  content:
+                                                      Text('Fail to save'));
+                                              _globalKey.currentState
+                                                  .showSnackBar(snackBar);
                                             }
                                           },
                                           child: Text(

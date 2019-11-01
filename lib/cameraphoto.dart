@@ -89,12 +89,12 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
             // Ensure that the camera is initialized.
             await _initializeControllerFuture;
             await _controller.takePicture(_path);
-            io.File imagefile = io.File(_path);
-            List imageBytes = imagefile.readAsBytesSync();
-            String base64Image = base64Encode(imageBytes);
+            // io.File imagefile = io.File(_path);
+            // List imageBytes = imagefile.readAsBytesSync();
+            // String base64Image = base64Encode(imageBytes);
 
-            // Navigator.pop(context, _path);
-             Navigator.pop(context, base64Image);
+            Navigator.pop(context, _path);
+            //  Navigator.pop(context, base64Image);
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
