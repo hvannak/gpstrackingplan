@@ -13,6 +13,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:auto_size_text/auto_size_text.dart';
 
 class Routevisiting extends StatelessWidget {
   @override
@@ -295,7 +296,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                 child: DropdownButtonFormField(
                                   items: _listCustomer
                                       .map((f) => DropdownMenuItem(
-                                            child: Text(f.customerName),
+                                            child: AutoSizeText(
+                                              f.customerName,
+                                              style: TextStyle(fontSize: 10.0),
+                                              maxLines: 5,
+                                            ),
                                             value: f.customerName,
                                           ))
                                       .toList(),

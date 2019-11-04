@@ -320,6 +320,7 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
                                   padding: EdgeInsets.symmetric(vertical: 10.0),
                                   child: TextFormField(
                                     controller: _employeeName,
+                                    enabled: false,
                                     validator: (val) => val.isEmpty
                                         ? "Employee is required"
                                         : null,
