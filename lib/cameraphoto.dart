@@ -62,7 +62,9 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () => Future.value(false),
+      child: Scaffold(
       appBar: AppBar(
         title: Text('Take a picture'),
         automaticallyImplyLeading: false,
@@ -104,7 +106,9 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
           }
         },
       ),
+    )
     );
+    
   }
 }
 
