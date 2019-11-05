@@ -48,6 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _urlSetting = (prefs.getString('url') ?? '');
+      if(_urlSetting == ''){
+        prefs.setString('url', 'http://192.168.100.140:8184');
+        _urlSetting = 'http://192.168.100.140:8184';
+      }
     });
   }
 
