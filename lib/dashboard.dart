@@ -102,10 +102,11 @@ class _MyDashboardState extends State<MyDashboard> {
     });
   }
 
-  _setAppSetting(String fullname) async {
+  _setAppSetting(String fullname,String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
+      prefs.setString('Id', iD);
     });
   }
 
@@ -117,7 +118,7 @@ class _MyDashboardState extends State<MyDashboard> {
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName);
+      _setAppSetting(profile.fullName,profile.iD);
       return profile;
     } else {
       print(response.statusCode);
@@ -183,10 +184,11 @@ class _MyDrawerState extends State<MyDrawer> {
     });
   }
 
-  _setAppSetting(String fullname) async {
+  _setAppSetting(String fullname,String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
+      prefs.setString('Id', iD);
     });
   }
 
@@ -198,7 +200,7 @@ class _MyDrawerState extends State<MyDrawer> {
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName);
+      _setAppSetting(profile.fullName,profile.iD);
       return profile;
     } else {
       print(response.statusCode);

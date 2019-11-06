@@ -1,7 +1,7 @@
 class Gpsroutemodel {
-  final String gpsID;
-  final String lat;
-  final String lng;
+  final int gpsID;
+  final double lat;
+  final double lng;
   final DateTime gpsdatetime;
   final String checkType;
   final String customer;
@@ -13,9 +13,9 @@ class Gpsroutemodel {
   factory Gpsroutemodel.fromJson(Map<String, dynamic> json) {
     return Gpsroutemodel(
       gpsID: json['GpsID'],
-      lat: json['Lat'],
-      lng: json['Lng'],
-      gpsdatetime: json['Gpsdatetime'],
+      lat: double.parse(json['Lat']),
+      lng: double.parse(json['Lng']),
+      gpsdatetime:DateTime.parse(json['Gpsdatetime']),
       checkType:json['CheckType'],
       customer:json['Customer'],
       image:json['Image'],

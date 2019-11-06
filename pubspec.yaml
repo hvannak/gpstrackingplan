@@ -30,6 +30,7 @@ dependencies:
   intl: ^0.16.0
   flutter_slidable: ^0.5.4
   auto_size_text: ^2.1.0
+  google_maps_flutter: ^0.5.21+8
 
   # camera
   camera:

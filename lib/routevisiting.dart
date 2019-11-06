@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
+import 'package:gpstrackingplan/routemapping.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -21,6 +22,17 @@ class Routevisiting extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Route Visiting'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.view_list),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RouteMapping()));
+            },
+          )
+        ],
       ),
       body: MyRouteVisiting(),
     );
@@ -140,10 +152,9 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
             builder: (context) => TakePictureScreen(camera: _firstCamera)));
     setState(() {
       _imagePath = result;
-      File imagefile = new File(_imagePath); 
+      File imagefile = new File(_imagePath);
       List<int> imageBytes = imagefile.readAsBytesSync();
       _imagebase64 = "data:image/png;base64," + base64Encode(imageBytes);
-
     });
 
     Scaffold.of(context)
@@ -331,11 +342,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   child: Container(
                                     child: _imagePath == ''
                                         ? Image.asset(
-                                          'assets/images/user.png',
-                                          color: Colors.blue,
-                                          height: 180.0,
-                                          width: 180.0,
-                                        )
+                                            'assets/images/user.png',
+                                            color: Colors.blue,
+                                            height: 180.0,
+                                            width: 180.0,
+                                          )
                                         : Image.file(File(_imagePath)),
                                     width: 200.0,
                                     height: 200.0,
@@ -362,16 +373,18 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                               Navigator.pop(context);
                                             } else {
                                               final snackBar = SnackBar(
-                                                  content:
-                                                      Text('Fail to save. Please take photo!'));
+                                                  content: Text(
+                                                      'Fail to save. Please take photo!'));
                                               _globalKey.currentState
                                                   .showSnackBar(snackBar);
                                             }
                                           },
                                           child: Text(
                                             'Save',
-                                            style: TextStyle(fontSize: 18.0, color: Colors.white,),
-                                            
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       )
