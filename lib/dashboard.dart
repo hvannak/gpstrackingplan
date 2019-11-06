@@ -57,6 +57,7 @@ class _MyDashboardState extends State<MyDashboard> {
                         ),
                         onTap: () {
                           print('Click menu');
+                          fetchProfileData();
                           switch (page) {
                             case 'visit':
                               Navigator.push(
@@ -129,7 +130,7 @@ class _MyDashboardState extends State<MyDashboard> {
   @override
   void initState() {
     super.initState();
-    fetchProfileData();
+    _loadSetting();
   }
 
   @override
