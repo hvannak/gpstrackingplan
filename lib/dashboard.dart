@@ -58,6 +58,7 @@ class _MyDashboardState extends State<MyDashboard> {
                         ),
                         onTap: () {
                           print('Click menu');
+                          fetchProfileData();
                           switch (page) {
                             case 'visit':
                               Navigator.push(
@@ -109,12 +110,12 @@ class _MyDashboardState extends State<MyDashboard> {
     });
   }
 
-  _setAppSetting(String fullname, String linkedCustomerID) async {
+  _setAppSetting(String fullname, String linkedCustomerID, String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
       prefs.setString('linkedCustomerID', linkedCustomerID);
-     
+      prefs.setString('Id', iD);
     });
   }
   
@@ -127,7 +128,7 @@ class _MyDashboardState extends State<MyDashboard> {
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName, profile.linkedCustomerID);
+      _setAppSetting(profile.fullName, profile.linkedCustomerID , profile.iD);
       return profile;
     } else {
       print(response.statusCode);
@@ -138,7 +139,7 @@ class _MyDashboardState extends State<MyDashboard> {
   @override
   void initState() {
     super.initState();
-    fetchProfileData();
+    _loadSetting();
   }
 
   @override
@@ -196,11 +197,12 @@ class _MyDrawerState extends State<MyDrawer> {
     });
   }
 
-  _setAppSetting(String fullname, String linkedCustomerID) async {
+  _setAppSetting(String fullname, String linkedCustomerID , String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
       prefs.setString('linkedCustomerID', linkedCustomerID);
+      prefs.setString('Id', iD);
      
     });
   }
@@ -213,7 +215,7 @@ class _MyDrawerState extends State<MyDrawer> {
       var jsonData = jsonDecode(response.body);
       print('test userdata= $jsonData');
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName, profile.linkedCustomerID);
+      _setAppSetting(profile.fullName, profile.linkedCustomerID , profile.iD);
       return profile;
       
     } else {
