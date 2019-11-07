@@ -102,12 +102,10 @@ class _DisplayPaymentState extends State<DisplayPayment> {
                       // leading: Icon(Icons.person),
                       title: Text(snapshot.data[index].customer),
                       subtitle: Text( 
-                               DateFormat("yyyy/MM/dd")
-                              .format(snapshot.data[index].date) +'-'+
-                              snapshot.data[index].docType +'-'+
-                              snapshot.data[index].phone1 + '-'+ 
-                              snapshot.data[index].referenceNbr +'-'+  
-                              snapshot.data[index].paymentAmount.toString()), 
+                              snapshot.data[index].docType +' '+
+                              snapshot.data[index].paymentAmount.toString()+'USD on '+
+                              DateFormat("yyyy/MM/dd").format(snapshot.data[index].date)+' by '+
+                              snapshot.data[index].referenceNbr), 
                       // onTap: () {
 
                       // },
