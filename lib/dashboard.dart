@@ -6,6 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisiting.dart';
 import 'package:gpstrackingplan/takeleave.dart';
+import 'package:gpstrackingplan/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -70,6 +71,12 @@ class _MyDashboardState extends State<MyDashboard> {
                                   MaterialPageRoute(
                                       builder: (context) => Takeleave()));
                               break;
+                            case 'payment':
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Payment()));
+                              break;  
                             case 'feedback':
                               // Navigator.push(
                               //     context,
@@ -102,12 +109,15 @@ class _MyDashboardState extends State<MyDashboard> {
     });
   }
 
-  _setAppSetting(String fullname) async {
+  _setAppSetting(String fullname, String linkedCustomerID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
+      prefs.setString('linkedCustomerID', linkedCustomerID);
+     
     });
   }
+  
 
   Future<Userprofile> fetchProfileData() async {
     final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
@@ -117,7 +127,7 @@ class _MyDashboardState extends State<MyDashboard> {
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName);
+      _setAppSetting(profile.fullName, profile.linkedCustomerID);
       return profile;
     } else {
       print(response.statusCode);
@@ -154,12 +164,15 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.graphic_eq, "Feedback", 0xffed622b, context, 'feedback'),
           myItems(
-              Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave')
+              Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
+          myItems(
+              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment')      
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
-          StaggeredTile.extent(2, 130.0)
+          StaggeredTile.extent(1, 130.0),
+          StaggeredTile.extent(1, 130.0),
         ],
       ),
     );
@@ -183,13 +196,14 @@ class _MyDrawerState extends State<MyDrawer> {
     });
   }
 
-  _setAppSetting(String fullname) async {
+  _setAppSetting(String fullname, String linkedCustomerID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('fullname', fullname);
+      prefs.setString('linkedCustomerID', linkedCustomerID);
+     
     });
   }
-
   Future<Userprofile> fetchProfileData() async {
     final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -197,9 +211,11 @@ class _MyDrawerState extends State<MyDrawer> {
     });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      print('test userdata= $jsonData');
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName);
+      _setAppSetting(profile.fullName, profile.linkedCustomerID);
       return profile;
+      
     } else {
       print(response.statusCode);
       throw Exception('Failed to load post');

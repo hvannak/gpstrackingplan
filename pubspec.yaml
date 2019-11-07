@@ -30,13 +30,16 @@ dependencies:
   intl: ^0.16.0
   flutter_slidable: ^0.5.4
   auto_size_text: ^2.1.0
-
+  
+  datetime_picker_formfield:
   # camera
   camera:
   path_provider:
   path:
   # geolocation
   geolocator: ^5.1.3
+  # json table
+  json_table:
 dev_dependencies:
   flutter_test:
     sdk: flutter
