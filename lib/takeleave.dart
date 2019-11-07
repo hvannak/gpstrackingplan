@@ -205,7 +205,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       _fullname = (prefs.getString('fullname') ?? '');
-      _employeeName.text = _fullname;
+      if(leave == null){
+        _employeeName.text = _fullname;
+      }
       print(_fullname);
       // print(_urlSetting);
       // print(_token);
@@ -289,6 +291,8 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   void initState() {
     super.initState();
     if (leave != null) {
+      print('Employee');
+      print(leave.employeeName);
       _employeeName.text = leave.employeeName.toString();
       _workPlace.text = leave.workPlace.toString();
       _fromDate.text = DateFormat('yyyy/MM/dd').format(leave.fromDate);
