@@ -33,7 +33,9 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      total = jsonData['BalancebyDocuments']['value'];
+      setState(() {
+        total = jsonData['BalancebyDocuments']['value'];
+      });
       // print('jsonData= $jsonData');
       print('total= $total');
       _list = [];
