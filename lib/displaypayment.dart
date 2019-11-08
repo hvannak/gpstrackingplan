@@ -27,8 +27,6 @@ class _DisplayPaymentState extends State<DisplayPayment> {
   _DisplayPaymentState(this.fromDate, this.toDate);
 
   Future<List<Paymentmodel>> fetchProfileData() async {
-    print('test from date= $fromDate');
-    print('test to date = $toDate');
     final response = await http.get(
         _urlSetting +
             '/api/CustomerPayment/CustomerID/' +
@@ -43,7 +41,6 @@ class _DisplayPaymentState extends State<DisplayPayment> {
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print('test jsonData Payment= $jsonData');
       _list = [];
       for (var item in jsonData['Results']) {
         Paymentmodel payment = Paymentmodel.fromJson(item);
@@ -52,7 +49,6 @@ class _DisplayPaymentState extends State<DisplayPayment> {
       print('test list data= ${_list.length}');
       return _list;
     } else {
-      print(response.statusCode);
       throw Exception('Failed to load post');
     }
   }
@@ -63,8 +59,6 @@ class _DisplayPaymentState extends State<DisplayPayment> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
-
-      print('test customerID = $customerId');
       // print(_token);
     });
   }
@@ -78,7 +72,8 @@ class _DisplayPaymentState extends State<DisplayPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Take Leave'),
+        title: Text('List of Payment'),
+
       ),
       body: Container(
         child: FutureBuilder(
@@ -91,24 +86,21 @@ class _DisplayPaymentState extends State<DisplayPayment> {
           } else {
             return ListView.builder(
               itemCount: snapshot.data.length,
+              
               itemBuilder: (BuildContext context, int index) {
-                return new Dismissible(
-                  key: new Key(snapshot.data[index].docType.toString()),
-                  onDismissed: (direction) {
-                    snapshot.data.removeAt(index);
-                  },
+                return  Card(
                   child: Container(
+                    padding: EdgeInsets.only(right: 12.0),
+                    decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      // leading: Icon(Icons.person),
-                      title: Text(snapshot.data[index].customer),
+                      title: Text(snapshot.data[index].paymentAmount.toString()+'USD',
+                        style: TextStyle( fontWeight: FontWeight.bold),
+                      ),
                       subtitle: Text( 
-                              snapshot.data[index].docType +' '+
-                              snapshot.data[index].paymentAmount.toString()+'USD on '+
+                              snapshot.data[index].docType +' on '+
                               DateFormat("yyyy/MM/dd").format(snapshot.data[index].date)+' by '+
-                              snapshot.data[index].referenceNbr), 
-                      // onTap: () {
-
-                      // },
+                              snapshot.data[index].referenceNbr,
+                              ), 
                     ),
                   ),
                 );

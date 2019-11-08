@@ -152,8 +152,6 @@ class _PaymentState extends State<Payment> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                                  print('test from date= ${fromdate.text}');
-                                                  print('test to date = ${todate.text}');
                                                  Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
