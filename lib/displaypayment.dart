@@ -91,7 +91,7 @@ class _DisplayPaymentState extends State<DisplayPayment> {
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      title: Text(snapshot.data[index].paymentAmount.toString()+'USD',
+                      title: Text(snapshot.data[index].paymentAmount.toString()+' USD',
                         style: TextStyle( fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text( 

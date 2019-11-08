@@ -90,13 +90,12 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      title: Text(snapshot.data[index].customer,
-                        style: TextStyle( fontWeight: FontWeight.bold),
+                      title: Text(snapshot.data[index].balance.toString() + ' '+
+                      snapshot.data[index].currency,
+                      style: TextStyle( fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text( 
-                              snapshot.data[index].typeDocType + ' ' +
-                              snapshot.data[index].balance.toString()+ ' '+
-                              snapshot.data[index].currency+' on '+
+                              snapshot.data[index].typeDocType +' on '+
                               DateFormat("yyyy/MM/dd").format(snapshot.data[index].date)+' by '+
                               snapshot.data[index].referenceNbr,
                               ), 
