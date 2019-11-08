@@ -4,50 +4,46 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'models/payment.dart';
 import 'package:http/http.dart' as http;
+import 'models/customeroutstandingmodel.dart';
 
-
-class DisplayPayment extends StatefulWidget {
-  final String fromDate;
-  final String toDate;
-  DisplayPayment({this.fromDate, this.toDate});
-  _DisplayPaymentState createState() =>
-      _DisplayPaymentState(this.fromDate, this.toDate);
+class CustomerOutstanding extends StatefulWidget {
+ 
+  _CustomerOutstandingState createState() =>
+      _CustomerOutstandingState();
 }
 
 
-class _DisplayPaymentState extends State<DisplayPayment> {
-  final String fromDate;
-  final String toDate;
+class _CustomerOutstandingState extends State<CustomerOutstanding> {
+ 
   String _token = '';
   String _urlSetting = '';
   String customerId = '';
-  List<Paymentmodel> _list = [];
-  _DisplayPaymentState(this.fromDate, this.toDate);
+  List<OutstandingModel> _list = [];
+  double total ;
 
-  Future<List<Paymentmodel>> fetchProfileData() async {
+  Future<List<OutstandingModel>> fetchOustandingData() async {
     final response = await http.get(
         _urlSetting +
-            '/api/CustomerPayment/CustomerID/' +
-            customerId +
-            '/' +
-            fromDate +
-            '/' +
-            toDate,
+            '/api/CustomerOutstanding/CustomerID/' +
+            customerId,
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: "Bearer " + _token
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      total = jsonData['BalancebyDocuments']['value'];
+      // print('jsonData= $jsonData');
+      print('total= $total');
       _list = [];
       for (var item in jsonData['Results']) {
-        Paymentmodel payment = Paymentmodel.fromJson(item);
+        OutstandingModel payment = OutstandingModel.fromJson(item);
         _list.add(payment);
       }
       print('test list data= ${_list.length}');
       return _list;
+      
     } else {
       throw Exception('Failed to load post');
     }
@@ -67,17 +63,18 @@ class _DisplayPaymentState extends State<DisplayPayment> {
   void initState() {
     super.initState();
     _loadSetting();
+
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('List of Payment'),
+        title: Text('Customer Outstanding'),
 
       ),
       body: Container(
         child: FutureBuilder(
-        future: fetchProfileData(),
+        future: fetchOustandingData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return Container(
@@ -91,11 +88,13 @@ class _DisplayPaymentState extends State<DisplayPayment> {
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      title: Text(snapshot.data[index].paymentAmount.toString()+'USD',
+                      title: Text(snapshot.data[index].customer,
                         style: TextStyle( fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text( 
-                              snapshot.data[index].docType +' on '+
+                              snapshot.data[index].typeDocType + ' ' +
+                              snapshot.data[index].balance.toString()+ ' '+
+                              snapshot.data[index].currency+' on '+
                               DateFormat("yyyy/MM/dd").format(snapshot.data[index].date)+' by '+
                               snapshot.data[index].referenceNbr,
                               ), 
@@ -106,7 +105,22 @@ class _DisplayPaymentState extends State<DisplayPayment> {
             );
           }
         },
-      )),
+      )
+      ),
+      bottomNavigationBar: BottomAppBar(
+        // child: Text("Total = "),
+        color: Colors.lightBlue,
+        child: Container(
+          height: 60.0,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+             Text('Total: $total' , style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+              
+            ],),
+        ),
+      ),
     );
   }
 }

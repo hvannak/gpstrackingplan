@@ -10,6 +10,7 @@ import 'package:gpstrackingplan/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import 'customeroutstanding.dart';
 import 'models/userprofile.dart';
 
 class MyDashboard extends StatefulWidget {
@@ -77,6 +78,12 @@ class _MyDashboardState extends State<MyDashboard> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Payment()));
+                              break;  
+                            case 'outstanding':
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CustomerOutstanding()));
                               break;  
                             case 'feedback':
                               // Navigator.push(
@@ -167,13 +174,16 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
           myItems(
-              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment')      
+              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'), 
+          myItems(
+              Icons.time_to_leave, "Customer Outstanding", 0xffed622b, context, 'outstanding')
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
+          StaggeredTile.extent(2, 130.0),
         ],
       ),
     );
