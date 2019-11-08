@@ -118,7 +118,7 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-             Text('Total: $total' , style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+             Text('Total: $total' + ' USD' , style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
               
             ],),
         ),
