@@ -288,7 +288,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                                 ),
                                                 onPressed: () {
                                                   fetchCustomerData(
-                                                      _customerSearch.text);
+                                                    _customerSearch.text);
                                                 },
                                                 child: Text(
                                                   'Search',

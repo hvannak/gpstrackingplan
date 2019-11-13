@@ -194,7 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              fetchPost();
+                                              fetchPost().catchError((e){
+                                                final snackBar = SnackBar(content: Text('Cannot communicate host'));
+                                                _globalKey.currentState.showSnackBar(snackBar);
+                                              });
                                               // showSnackbar(context);
                                             }
                                           },
