@@ -26,10 +26,8 @@ class Routevisiting extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.view_list),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => RouteMapping()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => RouteMapping()));
             },
           )
         ],
@@ -133,9 +131,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         Customermodel customermodel = Customermodel.fromJson(item);
         _listCustomer.add(customermodel);
       }
-      _customer = _listCustomer[0].customerName;
-      _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
-      print(_listCustomer.length);
+      setState(() {
+        _customer = _listCustomer[0].customerName;
+        _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
+        print(_listCustomer.length);
+      });
       return _listCustomer;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
@@ -250,6 +250,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                             EdgeInsets.symmetric(vertical: 1.0),
                                         child: TextFormField(
                                           controller: _customerSearch,
+                                          textInputAction:
+                                              TextInputAction.search,
+                                          onFieldSubmitted: (valueget) {
+                                            fetchCustomerData(valueget);
+                                          },
                                           autocorrect: false,
                                           autofocus: false,
                                           style: TextStyle(fontSize: 14.0),
@@ -288,7 +293,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                                 ),
                                                 onPressed: () {
                                                   fetchCustomerData(
-                                                    _customerSearch.text);
+                                                      _customerSearch.text);
                                                 },
                                                 child: Text(
                                                   'Search',
