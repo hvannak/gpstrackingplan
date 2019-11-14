@@ -125,7 +125,10 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
       key: _globalKey,
       body: Container(
         child: FutureBuilder(
-        future: fetchLeaveData(),
+        future: fetchLeaveData().catchError((e){
+          final snackBar = SnackBar(content: Text('Cannot communicate host'));
+          _globalKey.currentState.showSnackBar(snackBar);
+        }),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return Container(
