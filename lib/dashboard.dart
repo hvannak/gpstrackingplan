@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisiting.dart';
+import 'package:gpstrackingplan/saleorder.dart';
 import 'package:gpstrackingplan/takeleave.dart';
 import 'package:gpstrackingplan/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,7 +85,13 @@ class _MyDashboardState extends State<MyDashboard> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => CustomerOutstanding()));
-                              break;  
+                              break;
+                            case 'saleorder':
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SaleOrder()));
+                              break;    
                             case 'feedback':
                               // Navigator.push(
                               //     context,
@@ -176,14 +183,17 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'), 
           myItems(
-              Icons.time_to_leave, "Customer Outstanding", 0xffed622b, context, 'outstanding')
+              Icons.time_to_leave, "Outstanding", 0xffed622b, context, 'outstanding'),
+          myItems(
+              Icons.time_to_leave, "Sale Order", 0xffed622b, context, 'saleorder')    
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
           StaggeredTile.extent(1, 130.0),
-          StaggeredTile.extent(2, 130.0),
+          StaggeredTile.extent(1, 130.0),
+          StaggeredTile.extent(1, 130.0),
         ],
       ),
     );
