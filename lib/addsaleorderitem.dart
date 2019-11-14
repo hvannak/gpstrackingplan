@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/models/inventorymodel.dart';
+import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -19,12 +20,9 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
-  // final _orderNbr = TextEditingController();
-  // final _customerId = TextEditingController();
-  // final _description = TextEditingController();
-  // final _oderQty = TextEditingController();
-  // final _orderTotal = TextEditingController();
-  // final _date = TextEditingController();
+  final _orderQty = TextEditingController();
+  final _unitPrice = TextEditingController();
+  final _extendedPrice = TextEditingController();
   var _inventorySearch = TextEditingController();
   List<InventoryModel> _listInventory = [];
   String _inventory = '';
@@ -35,10 +33,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
-      // _customerId.text = (prefs.getString('linkedCustomerID') ?? '');
-
-      // print('test customerID = ${_customerId.text}');
-      // print(_token);
     });
   }
 
@@ -51,7 +45,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print('list inventory = $jsonData');
+    
       _listInventory = [];
       for (var item in jsonData) {
         InventoryModel inventorymodel = InventoryModel.fromJson(item);
@@ -62,15 +56,17 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
             .sort((a, b) => b.inventoryDesc.compareTo(a.inventoryDesc));
         _inventory = _listInventory[0].inventoryDesc;
       });
-      print(_listInventory.length);
+
       return _listInventory;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
       _globalKey.currentState.showSnackBar(snackBar);
-      print(response.statusCode);
+
       throw Exception('Failed to load post');
     }
   }
+
+ 
 
   @override
   void initState() {
@@ -84,22 +80,12 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
         backgroundColor: Colors.grey[300],
         appBar: AppBar(
           title: Text('Add Sale Order'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.add_circle),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddSaleOrderItem()));
-              },
-            )
-          ],
         ),
         body: Stack(
           children: <Widget>[
             SingleChildScrollView(
               child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                 child: Column(
                   children: <Widget>[
                     Padding(
@@ -117,6 +103,11 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                             EdgeInsets.symmetric(vertical: 1.0),
                                         child: TextFormField(
                                           controller: _inventorySearch,
+                                          textInputAction:
+                                              TextInputAction.search,
+                                          onFieldSubmitted: (valueget) {
+                                            fetchInventoryData(valueget);
+                                          },
                                           autocorrect: false,
                                           autofocus: false,
                                           style: TextStyle(fontSize: 14.0),
@@ -239,8 +230,117 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   ),
                                 ),
                               ),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                                  child: TextFormField(
+                                    controller: _orderQty,
+                                    validator: (val) => val.isEmpty
+                                        ? "Username is required"
+                                        : null,
+                                    autocorrect: false,
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 14.0),
+                                    decoration: InputDecoration(
+                                      hintText: "OrderQtyr",
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            width: 0,
+                                            style: BorderStyle.none,
+                                          )),
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      contentPadding: EdgeInsets.all(15.0),
+                                    ),
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                                  child: TextFormField(
+                                    controller: _unitPrice,
+                                    validator: (val) => val.isEmpty
+                                        ? "Username is required"
+                                        : null,
+                                    autocorrect: false,
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 14.0),
+                                    decoration: InputDecoration(
+                                      hintText: "UnitPrice",
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            width: 0,
+                                            style: BorderStyle.none,
+                                          )),
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      contentPadding: EdgeInsets.all(15.0),
+                                    ),
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                                  child: TextFormField(
+                                    controller: _extendedPrice,
+                                    validator: (val) => val.isEmpty
+                                        ? "Username is required"
+                                        : null,
+                                    autocorrect: false,
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 14.0),
+                                    decoration: InputDecoration(
+                                      hintText: "ExtendedPrice",
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            width: 0,
+                                            style: BorderStyle.none,
+                                          )),
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      contentPadding: EdgeInsets.all(15.0),
+                                    ),
+                                  )),
                             ],
                           ),
+                        )),
+                    Padding(
+                        padding: EdgeInsets.only(top: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Center(
+                              child: RaisedButton(
+                                padding: EdgeInsets.symmetric(vertical: 15.0),
+                                color: Colors.lightBlue,
+                                shape: new RoundedRectangleBorder(
+                                  borderRadius: new BorderRadius.circular(8.0),
+                                ),
+                                onPressed: () {
+                                  if (_formKey.currentState.validate()) {
+                                    // fetchPost();
+                                    // showSnackbar(context);
+                                    SaleOrderItemModel itemModel = SaleOrderItemModel();
+                                    itemModel.inventoryId = _inventory;
+                                    itemModel.orderQty = double.parse(_orderQty.text);
+                                    itemModel.unitPrice = double.parse(_unitPrice.text);
+                                    itemModel.extendedPrice = double.parse(_extendedPrice.text);
+                                    itemModel.warehouseId = _warehouse;
+                                       print('testqty= ${itemModel.orderQty}');
+                                    Navigator.pop(context, itemModel);
+                                  }
+                                },
+                                child: Text(
+                                  'Submit',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
                         ))
                   ],
                 ),
