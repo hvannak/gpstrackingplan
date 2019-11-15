@@ -70,6 +70,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
         _listLeave.add(leave);
       }
       _listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
+      print(_listLeave.length);
       return _listLeave;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
@@ -125,10 +126,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
       key: _globalKey,
       body: Container(
         child: FutureBuilder(
-        future: fetchLeaveData().catchError((e){
-          final snackBar = SnackBar(content: Text('Cannot communicate host'));
-          _globalKey.currentState.showSnackBar(snackBar);
-        }),
+        future: fetchLeaveData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return Container(
