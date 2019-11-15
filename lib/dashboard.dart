@@ -83,14 +83,15 @@ class _MyDashboardState extends State<MyDashboard> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => CustomerOutstanding()));
+                                      builder: (context) =>
+                                          CustomerOutstanding()));
                               break;
                             case 'saleorder':
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => SaleOrder()));
-                              break;    
+                              break;
                             case 'feedback':
                               // Navigator.push(
                               //     context,
@@ -139,6 +140,7 @@ class _MyDashboardState extends State<MyDashboard> {
     });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      print(jsonData);
       Userprofile profile = Userprofile.fromJson(jsonData);
       _setAppSetting(profile.fullName, profile.linkedCustomerID, profile.iD);
       return profile;
@@ -163,10 +165,7 @@ class _MyDashboardState extends State<MyDashboard> {
         style: TextStyle(color: Colors.white),
       )),
       drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: MyDrawer()),
+        child: MyDrawer()),
       body: StaggeredGridView.count(
         crossAxisCount: 2,
         crossAxisSpacing: 12.0,
@@ -179,11 +178,11 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
           myItems(
-              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'), 
-          myItems(
-              Icons.time_to_leave, "Outstanding", 0xffed622b, context, 'outstanding'),
-          myItems(
-              Icons.time_to_leave, "Sale Order", 0xffed622b, context, 'saleorder')    
+              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'),
+          myItems(Icons.time_to_leave, "Outstanding", 0xffed622b, context,
+              'outstanding'),
+          myItems(Icons.time_to_leave, "Sale Order", 0xffed622b, context,
+              'saleorder')
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
