@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpstrackingplan/appsetting.dart';
+import 'package:gpstrackingplan/register.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _urlSetting = (prefs.getString('url') ?? '');
-      if(_urlSetting == ''){
+      if (_urlSetting == '') {
         prefs.setString('url', 'http://192.168.100.140:8184');
         _urlSetting = 'http://192.168.100.140:8184';
       }
@@ -64,11 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> fetchPost() async {
     var body = {'UserName': _username.text, 'Password': _password.text};
-    final response =
-        await http.post(_urlSetting + '/api/ApplicationUser/Login',
-            body: json.encode(body), headers: {
-              HttpHeaders.contentTypeHeader: 'application/json'
-            });
+    final response = await http.post(_urlSetting + '/api/ApplicationUser/Login',
+        body: json.encode(body),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
     if (response.statusCode == 200) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MyDashboard()));
@@ -93,6 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _globalKey,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Register()));
+          },
+          label: Text('Register'),
+          icon: Icon(Icons.supervised_user_circle),
+          backgroundColor: Colors.pink,
+        ),
         body: OrientationBuilder(
             builder: (BuildContext context, Orientation orientation) {
           return Center(
@@ -194,9 +201,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              fetchPost().catchError((e){
-                                                final snackBar = SnackBar(content: Text('Cannot communicate host'));
-                                                _globalKey.currentState.showSnackBar(snackBar);
+                                              fetchPost().catchError((e) {
+                                                final snackBar = SnackBar(
+                                                    content: Text(
+                                                        'Cannot communicate host'));
+                                                _globalKey.currentState
+                                                    .showSnackBar(snackBar);
                                               });
                                               // showSnackbar(context);
                                             }
@@ -206,9 +216,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                             style: TextStyle(fontSize: 14.0),
                                           ),
                                         ),
-                                      )
+                                      ),
                                     ],
-                                  ))
+                                  )),
                             ],
                           ),
                         )
