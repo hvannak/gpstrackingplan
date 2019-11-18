@@ -8,6 +8,7 @@ import 'package:gpstrackingplan/register.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
+import 'models/userprofile.dart';
 
 void main() => runApp(MyApp());
 
@@ -55,10 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _setAppSetting(String token) async {
+  _setAppSetting(String token,String fullname, String linkedCustomerID, String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('token', token);
+      prefs.setString('fullname', fullname);
+      prefs.setString('linkedCustomerID', linkedCustomerID);
+      prefs.setString('Id', iD);
     });
   }
 
@@ -68,14 +72,30 @@ class _MyHomePageState extends State<MyHomePage> {
         body: json.encode(body),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
     if (response.statusCode == 200) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MyDashboard()));
       Map<String, dynamic> tokenget = jsonDecode(response.body);
-      _setAppSetting(tokenget['token']);
+      fetchProfileData(tokenget['token']);
       return response.body;
     } else {
       final snackBar = SnackBar(content: Text('Failed to login'));
       _globalKey.currentState.showSnackBar(snackBar);
+      throw Exception('Failed to load post');
+    }
+  }
+
+  Future<Userprofile> fetchProfileData(String token) async {
+    final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer " + token
+    });
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      Userprofile profile = Userprofile.fromJson(jsonData);
+      _setAppSetting(token,profile.fullName, profile.linkedCustomerID, profile.iD);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyDashboard()));
+      return profile;
+    } else {
+      print(response.statusCode);
       throw Exception('Failed to load post');
     }
   }
@@ -93,8 +113,8 @@ class _MyHomePageState extends State<MyHomePage> {
         key: _globalKey,
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Register()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Register()));
           },
           label: Text('Register'),
           icon: Icon(Icons.supervised_user_circle),
