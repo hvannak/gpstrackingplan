@@ -237,6 +237,33 @@ class _MyDrawerState extends State<MyDrawer> {
           },
         ),
         ListTile(
+          title: Text('Payment'),
+          leading: Icon(Icons.payment),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Payment()));
+          },
+        ),
+        ListTile(
+          title: Text('Outstanding'),
+          leading: Icon(Icons.money_off),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CustomerOutstanding()));
+          },
+        ),
+        ListTile(
+          title: Text('Sale Order'),
+          leading: Icon(Icons.account_box),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => SaleOrder()));
+          },
+        ),
+        ListTile(
           title: Text('Logout'),
           leading: Icon(Icons.backspace),
           onTap: () {
