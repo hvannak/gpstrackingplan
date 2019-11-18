@@ -135,10 +135,10 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
           myItems(
-              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'),
-          myItems(Icons.time_to_leave, "Outstanding", 0xffed622b, context,
+              Icons.payment, "Payment", 0xffed622b, context, 'payment'),
+          myItems(Icons.money_off, "Outstanding", 0xffed622b, context,
               'outstanding'),
-          myItems(Icons.time_to_leave, "Sale Order", 0xffed622b, context,
+          myItems(Icons.account_box, "Sale Order", 0xffed622b, context,
               'saleorder')
         ],
         staggeredTiles: [
