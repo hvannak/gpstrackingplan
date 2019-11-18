@@ -8,46 +8,46 @@ import 'package:http/http.dart' as http;
 import 'models/customeroutstandingmodel.dart';
 
 class CustomerOutstanding extends StatefulWidget {
- 
-  _CustomerOutstandingState createState() =>
-      _CustomerOutstandingState();
+  _CustomerOutstandingState createState() => _CustomerOutstandingState();
 }
 
-
 class _CustomerOutstandingState extends State<CustomerOutstanding> {
- 
   String _token = '';
   String _urlSetting = '';
   String customerId = '';
   List<OutstandingModel> _list = [];
-  double total ;
+  double total;
+  bool isState = false;
 
   Future<List<OutstandingModel>> fetchOustandingData() async {
-    final response = await http.get(
-        _urlSetting +
-            '/api/CustomerOutstanding/CustomerID/' +
-            customerId,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
+    if (isState == false) {
+      final response = await http.get(
+          _urlSetting + '/api/CustomerOutstanding/CustomerID/' + customerId,
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: "Bearer " + _token
+          });
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body);
+        print(total);
+        setState(() {
+          total = jsonData['BalancebyDocuments']['value'];
+          isState = true;
         });
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      setState(() {
-        total = jsonData['BalancebyDocuments']['value'];
-      });
-      // print('jsonData= $jsonData');
-      print('total= $total');
-      _list = [];
-      for (var item in jsonData['Results']) {
-        OutstandingModel payment = OutstandingModel.fromJson(item);
-        _list.add(payment);
+        print('total= $total');
+        _list = [];
+        for (var item in jsonData['Results']) {
+          OutstandingModel payment = OutstandingModel.fromJson(item);
+          _list.add(payment);
+        }
+        print('test list data= ${_list.length}');
+        return _list;
+      } else {
+        throw Exception('Failed to load post');
       }
-      print('test list data= ${_list.length}');
+    }
+    else{
       return _list;
-      
-    } else {
-      throw Exception('Failed to load post');
     }
   }
 
@@ -65,17 +65,16 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
   void initState() {
     super.initState();
     _loadSetting();
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Customer Outstanding'),
-
       ),
       body: Container(
-        child: FutureBuilder(
+          child: FutureBuilder(
         future: fetchOustandingData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
@@ -86,19 +85,24 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return  Card(
+                return Card(
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      title: Text(snapshot.data[index].balance.toString() + ' '+
-                      snapshot.data[index].currency,
-                      style: TextStyle( fontWeight: FontWeight.bold),
+                      title: Text(
+                        snapshot.data[index].balance.toString() +
+                            ' ' +
+                            snapshot.data[index].currency,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text( 
-                              snapshot.data[index].typeDocType +' on '+
-                              DateFormat("yyyy/MM/dd").format(snapshot.data[index].date)+' by '+
-                              snapshot.data[index].referenceNbr,
-                              ), 
+                      subtitle: Text(
+                        snapshot.data[index].typeDocType +
+                            ' on ' +
+                            DateFormat("yyyy/MM/dd")
+                                .format(snapshot.data[index].date) +
+                            ' by ' +
+                            snapshot.data[index].referenceNbr,
+                      ),
                     ),
                   ),
                 );
@@ -106,10 +110,8 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
             );
           }
         },
-      )
-      ),
+      )),
       bottomNavigationBar: BottomAppBar(
-        // child: Text("Total = "),
         color: Colors.lightBlue,
         child: Container(
           height: 60.0,
@@ -117,9 +119,13 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-             Text('Total: $total' + ' USD' , style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-              
-            ],),
+              Text('Total: $total' + ' USD',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
       ),
     );
