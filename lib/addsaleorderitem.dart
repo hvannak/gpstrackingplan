@@ -323,6 +323,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                     // fetchPost();
                                     // showSnackbar(context);
                                     SaleOrderItemModel itemModel = SaleOrderItemModel();
+                                    itemModel.saleOrderId = 0;
+                                    itemModel.orderDetailId = 0;
                                     itemModel.inventoryId = _inventory;
                                     itemModel.orderQty = double.parse(_orderQty.text);
                                     itemModel.unitPrice = double.parse(_unitPrice.text);

@@ -80,9 +80,10 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
 
     // print('testqty= ${itemModel.orderQty}');
     var body = {
-      'saleOrderId': '0',
+      'SaleOrderID': '0',
       'OrderNbr': _orderNbr.text,
       'CustomerID': _customerId.text,
+      'CustomerDescr':'test',
       'OrderDesc': _description.text, 
       'OrderQty': _oderQty.text,
       'OrderTotal': _orderTotal.text,

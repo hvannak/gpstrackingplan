@@ -32,7 +32,7 @@ class _SaleOrderState extends State<SaleOrder> {
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      // print('jsonData= $jsonData');
+      print('jsonData= $jsonData');
       _list = [];
       for (var item in jsonData) {
         // print('IN loop');

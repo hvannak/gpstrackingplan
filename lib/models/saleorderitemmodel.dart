@@ -1,6 +1,6 @@
 class SaleOrderItemModel {
   int orderDetailId;
-  String saleOrderId;
+  int saleOrderId;
   String inventoryId;
   String inventoryDesc;
   String warehouseId;
