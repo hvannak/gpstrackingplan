@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:gpstrackingplan/displaysaleorderitem.dart';
+import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'models/saleorderitemmodel.dart';
 
 class AddSaleOrder extends StatefulWidget {
   @override
@@ -14,12 +20,14 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
-  final _orderNbr = TextEditingController();
-  final _customerId = TextEditingController();
-  final _description = TextEditingController();
-  final _oderQty = TextEditingController();
-  final _orderTotal = TextEditingController();
-  final _date = TextEditingController();
+  var _orderNbr = TextEditingController();
+  // var _customerId ='';
+  var _customerId = TextEditingController();
+  // var _customerDesc = TextEditingController();
+  var _description = TextEditingController();
+  var _oderQty = TextEditingController();
+  var _orderTotal = TextEditingController();
+  var _date = TextEditingController();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -27,9 +35,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       _customerId.text = (prefs.getString('linkedCustomerID') ?? '');
-
-      print('test customerID = ${_customerId.text}');
-      // print(_token);
     });
   }
 
@@ -51,9 +56,60 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     });
   }
 
+  List<SaleOrderItemModel> _listSaleItem = [];
+  _navigateTakePictureScreen(BuildContext context) async {
+    List<SaleOrderItemModel> result = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => DisplaySaleOrderItem()));
+    print('back result');
+    print('result = ${result.length}');
+    setState(() {
+      _listSaleItem = result;
+      print('item result add page saleorder = ${_listSaleItem.length}');
+    });
+    return _listSaleItem;
+  }
+
+  Future<String> fetchPost() async {
+    // SaleOrderModel itemModel = SaleOrderModel();
+    // itemModel.orderNumber = _orderNbr.text;
+    // itemModel.customerId = _customerId.text;
+    // itemModel.orderDesc = _description.text;
+    // itemModel.orderDate = DateTime.parse(_date.text);
+    // itemModel.orderQty = double.parse(_oderQty.text);
+    // itemModel.orderTotal = double.parse(_orderTotal.text);
+
+    // print('testqty= ${itemModel.orderQty}');
+    var body = {
+      'saleOrderId': '0',
+      'OrderNbr': _orderNbr.text,
+      'CustomerID': _customerId.text,
+      'OrderDesc': _description.text, 
+      'OrderQty': _oderQty.text,
+      'OrderTotal': _orderTotal.text,
+      'OrderDate': _date.text,
+      'Details':SaleOrderItemModel.encondeToJson(_listSaleItem)};
+    print(body);
+    print(_urlSetting);
+    final response = await http.post(_urlSetting + '/api/SaleOrder/Create',
+        body: json.encode(body),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer " + _token
+        });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadSetting();
+    _orderNbr.text = 'New';
   }
 
   @override
@@ -66,11 +122,19 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
           IconButton(
             icon: Icon(Icons.add_circle),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => DisplaySaleOrderItem()));
+              _navigateTakePictureScreen(context);
             },
           )
         ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: Icon(Icons.add_circle),
+        //     onPressed: () {
+        //       Navigator.push(context,
+        //           MaterialPageRoute(builder: (context) => DisplaySaleOrderItem()));
+        //     },
+        //   )
+        // ],
       ),
       body: Stack(
         children: <Widget>[
@@ -95,7 +159,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             child: TextFormField(
                               controller: _orderNbr,
                               validator: (val) =>
-                                  val.isEmpty ? "Username is required" : null,
+                                  val.isEmpty ? "OrderNbr is required" : null,
                               autocorrect: false,
                               autofocus: false,
                               style: TextStyle(fontSize: 14.0),
@@ -109,13 +173,16 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             )),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 10.0),
+                          // child: TextField(
+                          //   controller: _customerId,
+                          // ),
                           child: TextFormField(
                             controller: _customerId,
                             validator: (val) =>
-                                val.isEmpty ? "Password is required" : null,
+                                val.isEmpty ? "CustomerID is required" : null,
                             autocorrect: false,
                             autofocus: false,
-                            obscureText: true,
+                            
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "CustomerID",
@@ -129,11 +196,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                           padding: EdgeInsets.symmetric(vertical: 10.0),
                           child: TextFormField(
                             controller: _description,
-                            validator: (val) =>
-                                val.isEmpty ? "Password is required" : null,
                             autocorrect: false,
                             autofocus: false,
-                            obscureText: true,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "Description",
@@ -148,10 +212,9 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                           child: TextFormField(
                             controller: _oderQty,
                             validator: (val) =>
-                                val.isEmpty ? "Password is required" : null,
+                                val.isEmpty ? "OrderQty is required" : null,
                             autocorrect: false,
                             autofocus: false,
-                            obscureText: true,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "OrderQty",
@@ -166,10 +229,9 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                           child: TextFormField(
                             controller: _orderTotal,
                             validator: (val) =>
-                                val.isEmpty ? "Password is required" : null,
+                                val.isEmpty ? "OrderTotal is required" : null,
                             autocorrect: false,
                             autofocus: false,
-                            obscureText: true,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "OrderTotal",
@@ -184,7 +246,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                           child: TextFormField(
                             controller: _date,
                             validator: (val) =>
-                                val.isEmpty ? "From date is required" : null,
+                                val.isEmpty ? "Date is required" : null,
                             autocorrect: false,
                             autofocus: false,
                             style: TextStyle(fontSize: 14.0),
@@ -221,7 +283,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                     ),
                                     onPressed: () {
                                       if (_formKey.currentState.validate()) {
-                                        // fetchPost();
+                                        fetchPost();
                                         // showSnackbar(context);
                                       }
                                     },

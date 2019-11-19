@@ -29,4 +29,25 @@ class SaleOrderItemModel {
         unitPrice: json['UnitPrice'],
         extendedPrice: json['ExtendedPrice']);
   }
+
+   Map<String,dynamic> toJson(){
+    return {
+      "OrderDetailID": this.orderDetailId,
+      "SaleOrderID": this.saleOrderId,
+      "InventoryID": this.inventoryId,
+      "InventoryDescr": this.inventoryDesc,
+      "WarehouseID": this.warehouseId,
+      "OrderQty": this.orderQty,
+      "UnitPrice": this.unitPrice,
+      "ExtendedPrice": this.extendedPrice,
+    };
+  }
+
+  static List encondeToJson(List<SaleOrderItemModel>list){
+    List jsonList = List();
+    list.map((item)=>
+      jsonList.add(item.toJson())
+    ).toList();
+    return jsonList;
+}
 }

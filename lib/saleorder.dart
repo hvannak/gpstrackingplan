@@ -32,17 +32,17 @@ class _SaleOrderState extends State<SaleOrder> {
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print('jsonData= $jsonData');
+      // print('jsonData= $jsonData');
       _list = [];
       for (var item in jsonData) {
-        print('IN loop');
-        print(item);
+        // print('IN loop');
+        // print(item);
         SaleOrderModel saleOrder = SaleOrderModel.fromJson(item);
-        print(saleOrder.orderNumber);
+        // print(saleOrder.orderNumber);
         _list.add(saleOrder);
-        print(_list.length);
+        // print(_list.length);
       }
-      print('test list data= ${_list.length}');
+      // print('test list data= ${_list.length}');
       return _list;
       
     } else {
@@ -56,8 +56,8 @@ class _SaleOrderState extends State<SaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
-      print(_urlSetting);
-      print(customerId);
+      // print(_urlSetting);
+      // print(customerId);
     });
   }
 

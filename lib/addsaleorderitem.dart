@@ -45,11 +45,12 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-    
+    print('list jsonData = $jsonData');
       _listInventory = [];
       for (var item in jsonData) {
         InventoryModel inventorymodel = InventoryModel.fromJson(item);
         _listInventory.add(inventorymodel);
+        print('list inventory = $_listInventory');
       }
       setState(() {
         _listInventory
