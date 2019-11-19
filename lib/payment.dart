@@ -152,6 +152,7 @@ class _PaymentState extends State<Payment> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
+                                                Navigator.of(context).pop();
                                                  Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

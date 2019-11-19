@@ -9,10 +9,8 @@ import 'package:gpstrackingplan/saleorder.dart';
 import 'package:gpstrackingplan/takeleave.dart';
 import 'package:gpstrackingplan/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 import 'customeroutstanding.dart';
-import 'models/userprofile.dart';
 
 class MyDashboard extends StatefulWidget {
   @override
@@ -20,10 +18,6 @@ class MyDashboard extends StatefulWidget {
 }
 
 class _MyDashboardState extends State<MyDashboard> {
-
-  String _token = '';
-  String _urlSetting = '';
-
   Material myItems(IconData icon, String heading, int color,
       BuildContext context, String page) {
     return Material(
@@ -59,8 +53,6 @@ class _MyDashboardState extends State<MyDashboard> {
                           size: 30.0,
                         ),
                         onTap: () {
-                          print('Click menu');
-                          fetchProfileData();
                           switch (page) {
                             case 'visit':
                               Navigator.push(
@@ -79,19 +71,20 @@ class _MyDashboardState extends State<MyDashboard> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Payment()));
-                              break;  
+                              break;
                             case 'outstanding':
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => CustomerOutstanding()));
+                                      builder: (context) =>
+                                          CustomerOutstanding()));
                               break;
                             case 'saleorder':
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => SaleOrder()));
-                              break;    
+                              break;
                             case 'feedback':
                               // Navigator.push(
                               //     context,
@@ -116,44 +109,9 @@ class _MyDashboardState extends State<MyDashboard> {
     );
   }
 
-  _loadSetting() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-    });
-  }
-
-  _setAppSetting(String fullname, String linkedCustomerID, String iD) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      prefs.setString('fullname', fullname);
-      prefs.setString('linkedCustomerID', linkedCustomerID);
-      prefs.setString('Id', iD);
-    });
-  }
-  
-
-  Future<Userprofile> fetchProfileData() async {
-    final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName, profile.linkedCustomerID , profile.iD);
-      return profile;
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load post');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadSetting();
   }
 
   @override
@@ -164,11 +122,7 @@ class _MyDashboardState extends State<MyDashboard> {
         'Dashboard',
         style: TextStyle(color: Colors.white),
       )),
-      drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: MyDrawer()),
+      drawer: Drawer(child: MyDrawer()),
       body: StaggeredGridView.count(
         crossAxisCount: 2,
         crossAxisSpacing: 12.0,
@@ -181,11 +135,11 @@ class _MyDashboardState extends State<MyDashboard> {
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
           myItems(
-              Icons.time_to_leave, "Payment", 0xffed622b, context, 'payment'), 
-          myItems(
-              Icons.time_to_leave, "Outstanding", 0xffed622b, context, 'outstanding'),
-          myItems(
-              Icons.time_to_leave, "Sale Order", 0xffed622b, context, 'saleorder')    
+              Icons.payment, "Payment", 0xffed622b, context, 'payment'),
+          myItems(Icons.money_off, "Outstanding", 0xffed622b, context,
+              'outstanding'),
+          myItems(Icons.account_box, "Sale Order", 0xffed622b, context,
+              'saleorder')
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 130.0),
@@ -206,42 +160,22 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
-  String _token = '';
-  String _urlSetting = '';
+  String _fullName = '';
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
+      _fullName = (prefs.getString('fullname') ?? '');
     });
   }
 
-  _setAppSetting(String fullname, String linkedCustomerID , String iD) async {
+  _removeAppSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      prefs.setString('fullname', fullname);
-      prefs.setString('linkedCustomerID', linkedCustomerID);
-      prefs.setString('Id', iD);
-     
+      prefs.remove('fullname');
+      prefs.remove('linkedCustomerID');
+      prefs.remove('Id');
     });
-  }
-  Future<Userprofile> fetchProfileData() async {
-    final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      print('test userdata= $jsonData');
-      Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(profile.fullName, profile.linkedCustomerID , profile.iD);
-      return profile;
-      
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load post');
-    }
   }
 
   @override
@@ -252,75 +186,94 @@ class _MyDrawerState extends State<MyDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return new FutureBuilder(
-      future: fetchProfileData(),
-      initialData: 'Loading...',
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.data == null) {
-          return Container(
-            child: Center(child: Text('Loading...')),
-          );
-        } else {
-          return ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
+    return ListView(
+      // Important: Remove any padding from the ListView.
+      padding: EdgeInsets.zero,
+      children: <Widget>[
+        DrawerHeader(
+          child: Stack(
             children: <Widget>[
-              DrawerHeader(
-                child: Stack(
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Image.asset('assets/images/user.png'),
-                        radius: 50.0,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 20.0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          snapshot.data.fullName,
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                padding: EdgeInsets.only(top: 35.0, left: 20.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Image.asset('assets/images/user.png'),
+                  radius: 50.0,
                 ),
               ),
-              ListTile(
-                title: Text('Route Visit'),
-                leading: Icon(Icons.map),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Routevisiting()));
-                },
-              ),
-              ListTile(
-                title: Text('Take Leave'),
-                leading: Icon(Icons.time_to_leave),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Takeleave()));
-                },
-              ),
-              ListTile(
-                title: Text('Logout'),
-                leading: Icon(Icons.backspace),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MyHomePage()));
-                },
-              ),
+              Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    _fullName,
+                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  ),
+                ),
+              )
             ],
-          );
-        }
-      },
+          ),
+          padding: EdgeInsets.only(top: 35.0, left: 20.0),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+          ),
+        ),
+        ListTile(
+          title: Text('Route Visit'),
+          leading: Icon(Icons.map),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Routevisiting()));
+          },
+        ),
+        ListTile(
+          title: Text('Take Leave'),
+          leading: Icon(Icons.time_to_leave),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Takeleave()));
+          },
+        ),
+        ListTile(
+          title: Text('Payment'),
+          leading: Icon(Icons.payment),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Payment()));
+          },
+        ),
+        ListTile(
+          title: Text('Outstanding'),
+          leading: Icon(Icons.money_off),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CustomerOutstanding()));
+          },
+        ),
+        ListTile(
+          title: Text('Sale Order'),
+          leading: Icon(Icons.account_box),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => SaleOrder()));
+          },
+        ),
+        ListTile(
+          title: Text('Logout'),
+          leading: Icon(Icons.backspace),
+          onTap: () {
+            _removeAppSetting();
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => MyHomePage()));
+          },
+        ),
+      ],
     );
   }
 }
