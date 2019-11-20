@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/models/inventorymodel.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,20 +19,52 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
+  String _customerId = '';
   final _orderQty = TextEditingController();
-  final _unitPrice = TextEditingController();
+  var _unitPrice = TextEditingController();
   final _extendedPrice = TextEditingController();
   var _inventorySearch = TextEditingController();
   List<InventoryModel> _listInventory = [];
   String _inventory = '';
   String _warehouse = 'M000';
+  String _priceclass = '';
+  String _inventoryId = '';
+  List<Customermodel> _listCustomer = [];
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
+      _customerId = (prefs.getString('linkedCustomerID') ?? '');
     });
+  }
+
+  Future<List<Customermodel>> fetchGetCustomerById(String id) async {
+    final response = await http
+        .get(_urlSetting + '/api/Customer/CustomerID/' + id, headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer " + _token
+    });
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      _listCustomer = [];
+      for (var item in jsonData) {
+        Customermodel customermodel = Customermodel.fromJson(item);
+        _listCustomer.add(customermodel);
+        _priceclass = _listCustomer[0].priceclass;
+        setState(() {
+          _priceclass = _listCustomer[0].priceclass;
+          print('set priceclass = $_priceclass');
+        });
+      }
+      return _listCustomer;
+    } else {
+      final snackBar = SnackBar(content: Text('Failed to load'));
+      _globalKey.currentState.showSnackBar(snackBar);
+      throw Exception('Failed to load post');
+    }
   }
 
   Future<List<InventoryModel>> fetchInventoryData(String name) async {
@@ -42,32 +73,57 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token
     });
-
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-    print('list jsonData = $jsonData');
       _listInventory = [];
       for (var item in jsonData) {
         InventoryModel inventorymodel = InventoryModel.fromJson(item);
         _listInventory.add(inventorymodel);
-        print('list inventory = $_listInventory');
       }
       setState(() {
         _listInventory
             .sort((a, b) => b.inventoryDesc.compareTo(a.inventoryDesc));
-        _inventory = _listInventory[0].inventoryDesc;
+        _inventory = _listInventory[0].inventoryId;
       });
-
       return _listInventory;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
       _globalKey.currentState.showSnackBar(snackBar);
-
       throw Exception('Failed to load post');
     }
   }
 
- 
+  Future<String> getInventoryPrice(String id, String price) async {
+    print('IN funct getInventoryPrice');
+    print(id);
+    print(price);
+    final response = await http.get(
+        _urlSetting + '/api/Inventory/InventoryPrice/' + id + '/' + price,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer " + _token
+        });
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      // print('jsonData price= ${jsonData['SalesPriceDetails']['Price']['value']}');
+      print(jsonData);
+      print(jsonData['SalesPriceDetails']);
+      if (jsonData['SalesPriceDetails'].toString() != '[]'){
+        _unitPrice.text= jsonData['SalesPriceDetails'][0]['Price']['value'].toString();
+      }
+      else{
+        print('else');
+        _unitPrice.text = '0.0';
+      }
+        
+  
+     print('_unitPrice.text = ${_unitPrice.text}');
+      return _unitPrice.text;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }
+  }
 
   @override
   void initState() {
@@ -80,7 +136,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         appBar: AppBar(
-          title: Text('Add Sale Order'),
+          title: Text('Add Sale Order Item'),
         ),
         body: Stack(
           children: <Widget>[
@@ -108,6 +164,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                               TextInputAction.search,
                                           onFieldSubmitted: (valueget) {
                                             fetchInventoryData(valueget);
+                                            fetchGetCustomerById(_customerId);
                                           },
                                           autocorrect: false,
                                           autofocus: false,
@@ -146,8 +203,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                                           8.0),
                                                 ),
                                                 onPressed: () {
-                                                  fetchInventoryData(
-                                                      _inventorySearch.text);
+                                                  fetchInventoryData(_inventorySearch.text);
+                                                  fetchGetCustomerById(_customerId);
                                                 },
                                                 child: Text(
                                                   'Search',
@@ -171,12 +228,17 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                               style: TextStyle(fontSize: 10.0),
                                               maxLines: 5,
                                             ),
-                                            value: f.inventoryDesc,
+                                            value: f.inventoryId,
                                           ))
                                       .toList(),
                                   onChanged: (String value) {
                                     setState(() {
+                                      print(value);
                                       _inventory = value;
+                                      print('_inventory = $_inventory');
+                                      print('_priceclass = $_priceclass');
+                                      getInventoryPrice(
+                                          _inventory, _priceclass);
                                     });
                                   },
                                   validator: (val) => val == null
@@ -320,17 +382,19 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                 ),
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
-                                    // fetchPost();
-                                    // showSnackbar(context);
-                                    SaleOrderItemModel itemModel = SaleOrderItemModel();
+                                    SaleOrderItemModel itemModel =
+                                        SaleOrderItemModel();
                                     itemModel.saleOrderId = 0;
                                     itemModel.orderDetailId = 0;
                                     itemModel.inventoryId = _inventory;
-                                    itemModel.orderQty = double.parse(_orderQty.text);
-                                    itemModel.unitPrice = double.parse(_unitPrice.text);
-                                    itemModel.extendedPrice = double.parse(_extendedPrice.text);
+                                    itemModel.orderQty =
+                                        double.parse(_orderQty.text);
+                                    itemModel.unitPrice =
+                                        double.parse(_unitPrice.text);
+                                    itemModel.extendedPrice =
+                                        double.parse(_extendedPrice.text);
                                     itemModel.warehouseId = _warehouse;
-                                       print('testqty= ${itemModel.orderQty}');
+                                    print('testqty= ${itemModel.orderQty}');
                                     Navigator.pop(context, itemModel);
                                   }
                                 },

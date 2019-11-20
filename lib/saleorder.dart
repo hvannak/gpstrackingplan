@@ -8,43 +8,28 @@ import 'package:http/http.dart' as http;
 import 'models/saleordermodel.dart';
 
 class SaleOrder extends StatefulWidget {
- 
-  _SaleOrderState createState() =>
-      _SaleOrderState();
+  _SaleOrderState createState() => _SaleOrderState();
 }
 
-
 class _SaleOrderState extends State<SaleOrder> {
- 
   String _token = '';
   String _urlSetting = '';
   String customerId = '';
   List<SaleOrderModel> _list = [];
-
   Future<List<SaleOrderModel>> fetchSaleOrderData() async {
-    final response = await http.get(
-        _urlSetting +
-            '/api/SaleOrder/Customer/' +
-            customerId,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
+    final response = await http
+        .get(_urlSetting + '/api/SaleOrder/Customer/' + customerId, headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer " + _token
+    });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print('jsonData= $jsonData');
       _list = [];
       for (var item in jsonData) {
-        // print('IN loop');
-        // print(item);
         SaleOrderModel saleOrder = SaleOrderModel.fromJson(item);
-        // print(saleOrder.orderNumber);
         _list.add(saleOrder);
-        // print(_list.length);
       }
-      // print('test list data= ${_list.length}');
       return _list;
-      
     } else {
       throw Exception('Failed to load post');
     }
@@ -56,8 +41,6 @@ class _SaleOrderState extends State<SaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
-      // print(_urlSetting);
-      // print(customerId);
     });
   }
 
@@ -65,8 +48,8 @@ class _SaleOrderState extends State<SaleOrder> {
   void initState() {
     super.initState();
     _loadSetting();
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,16 +59,14 @@ class _SaleOrderState extends State<SaleOrder> {
           IconButton(
             icon: Icon(Icons.add_circle),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddSaleOrder()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddSaleOrder()));
             },
           )
         ],
       ),
       body: Container(
-        child: FutureBuilder(
+          child: FutureBuilder(
         future: fetchSaleOrderData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
@@ -96,18 +77,24 @@ class _SaleOrderState extends State<SaleOrder> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return  Card(
+                return Card(
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
-                      title: Text(snapshot.data[index].orderNumber ,
-                      style: TextStyle( fontWeight: FontWeight.bold),
+                      title: Text(
+                        snapshot.data[index].orderNumber,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text( 
-                              snapshot.data[index].customerDesc +' on '+
-                              DateFormat("yyyy/MM/dd").format(snapshot.data[index].orderDate)+' quality '+
-                              snapshot.data[index].orderQty.toString() + ' total ' + snapshot.data[index].orderTotal.toString(),
-                              ), 
+                      subtitle: Text(
+                        snapshot.data[index].customerDesc +
+                            ' on ' +
+                            DateFormat("yyyy/MM/dd")
+                                .format(snapshot.data[index].orderDate) +
+                            ' quality ' +
+                            snapshot.data[index].orderQty.toString() +
+                            ' total ' +
+                            snapshot.data[index].orderTotal.toString(),
+                      ),
                     ),
                   ),
                 );
@@ -115,8 +102,7 @@ class _SaleOrderState extends State<SaleOrder> {
             );
           }
         },
-      )
-      ),
+      )),
     );
   }
 }
