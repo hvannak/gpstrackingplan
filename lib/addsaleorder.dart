@@ -21,9 +21,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   String _token = '';
   String _urlSetting = '';
   var _orderNbr = TextEditingController();
-  // var _customerId ='';
   var _customerId = TextEditingController();
-  // var _customerDesc = TextEditingController();
   var _description = TextEditingController();
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
@@ -70,27 +68,18 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   }
 
   Future<String> fetchPost() async {
-    // SaleOrderModel itemModel = SaleOrderModel();
-    // itemModel.orderNumber = _orderNbr.text;
-    // itemModel.customerId = _customerId.text;
-    // itemModel.orderDesc = _description.text;
-    // itemModel.orderDate = DateTime.parse(_date.text);
-    // itemModel.orderQty = double.parse(_oderQty.text);
-    // itemModel.orderTotal = double.parse(_orderTotal.text);
-
-    // print('testqty= ${itemModel.orderQty}');
     var body = {
       'SaleOrderID': '0',
       'OrderNbr': _orderNbr.text,
       'CustomerID': _customerId.text,
-      'CustomerDescr':'test',
-      'OrderDesc': _description.text, 
+      'CustomerDescr': 'test',
+      'OrderDesc': _description.text,
       'OrderQty': _oderQty.text,
       'OrderTotal': _orderTotal.text,
       'OrderDate': _date.text,
-      'Details':SaleOrderItemModel.encondeToJson(_listSaleItem)};
+      'Details': SaleOrderItemModel.encondeToJson(_listSaleItem)
+    };
     print(body);
-    print(_urlSetting);
     final response = await http.post(_urlSetting + '/api/SaleOrder/Create',
         body: json.encode(body),
         headers: {
@@ -127,22 +116,11 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
             },
           )
         ],
-        // actions: <Widget>[
-        //   IconButton(
-        //     icon: Icon(Icons.add_circle),
-        //     onPressed: () {
-        //       Navigator.push(context,
-        //           MaterialPageRoute(builder: (context) => DisplaySaleOrderItem()));
-        //     },
-        //   )
-        // ],
       ),
       body: Stack(
         children: <Widget>[
           SingleChildScrollView(
             child: Container(
-              // height: 300.0,
-              // width: 450.0,
               padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -174,16 +152,12 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             )),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 10.0),
-                          // child: TextField(
-                          //   controller: _customerId,
-                          // ),
                           child: TextFormField(
                             controller: _customerId,
                             validator: (val) =>
                                 val.isEmpty ? "CustomerID is required" : null,
                             autocorrect: false,
                             autofocus: false,
-                            
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "CustomerID",
@@ -285,7 +259,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                     onPressed: () {
                                       if (_formKey.currentState.validate()) {
                                         fetchPost();
-                                        // showSnackbar(context);
                                       }
                                     },
                                     child: Text(
