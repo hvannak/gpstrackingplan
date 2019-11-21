@@ -9,6 +9,7 @@ import 'package:gpstrackingplan/register.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
+import 'helpers/preferenceHelper.dart';
 import 'models/userprofile.dart';
 
 void main() => runApp(MyApp());
@@ -40,8 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final _globalKey = GlobalKey<ScaffoldState>();
   final _username = TextEditingController();
   final _password = TextEditingController();
-  String _urlSetting = '';
   ApiHelper _apiHelper = ApiHelper();
+  PreferenceHelper _preferenceHelper;
 
   _setAppSetting(
       String token, String fullname, String linkedCustomerID, String iD) async {
@@ -57,22 +58,18 @@ class _MyHomePageState extends State<MyHomePage> {
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _urlSetting = (prefs.getString('url') ?? '');
+      _preferenceHelper = PreferenceHelper(prefs);
     });
-    if (_urlSetting == '') {
-      prefs.setString('url', 'http://192.168.100.140:8184');
-      _urlSetting = 'http://192.168.100.140:8184';
-    }
   }
 
   fetchPost() async {
     var body = {'UserName': _username.text, 'Password': _password.text};
     var respone = await _apiHelper.fetchPost(
-        _urlSetting + '/api/ApplicationUser/Login', body);
+        _preferenceHelper.urlSetting + '/api/ApplicationUser/Login', body);
     if (respone.statusCode == 200) {
       Map<String, dynamic> tokenget = jsonDecode(respone.body);
       var response1 = await _apiHelper.fetchData(
-          _urlSetting + '/api/UserProfile', tokenget['token']);
+          _preferenceHelper.urlSetting + '/api/UserProfile', tokenget['token']);
       var jsonData = jsonDecode(response1.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
       _setAppSetting(tokenget['token'], profile.fullName,
