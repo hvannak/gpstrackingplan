@@ -22,7 +22,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   String _customerId = '';
   final _orderQty = TextEditingController();
   var _unitPrice = TextEditingController();
-  final _extendedPrice = TextEditingController();
+  var _extendedPrice = TextEditingController();
   var _inventorySearch = TextEditingController();
   List<InventoryModel> _listInventory = [];
   String _inventory = '';
@@ -108,16 +108,15 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
       // print('jsonData price= ${jsonData['SalesPriceDetails']['Price']['value']}');
       print(jsonData);
       print(jsonData['SalesPriceDetails']);
-      if (jsonData['SalesPriceDetails'].toString() != '[]'){
-        _unitPrice.text= jsonData['SalesPriceDetails'][0]['Price']['value'].toString();
-      }
-      else{
+      if (jsonData['SalesPriceDetails'].toString() != '[]') {
+        _unitPrice.text =
+            jsonData['SalesPriceDetails'][0]['Price']['value'].toString();
+      } else {
         print('else');
         _unitPrice.text = '0.0';
       }
-        
-  
-     print('_unitPrice.text = ${_unitPrice.text}');
+
+      print('_unitPrice.text = ${_unitPrice.text}');
       return _unitPrice.text;
     } else {
       print(response.statusCode);
@@ -129,6 +128,19 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   void initState() {
     super.initState();
     _loadSetting();
+  }
+
+  void calutlate() {
+    print('in calculate');
+    print(_unitPrice);
+    print(_orderQty);
+    double.parse(_unitPrice.text);
+    double.parse(_orderQty.text);
+    double total = double.parse(_unitPrice.text) * double.parse(_orderQty.text);
+    setState(() {
+      _extendedPrice.text = total.toString();
+      print('_extendedPrice = $_extendedPrice');
+    });
   }
 
   @override
@@ -203,8 +215,10 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                                           8.0),
                                                 ),
                                                 onPressed: () {
-                                                  fetchInventoryData(_inventorySearch.text);
-                                                  fetchGetCustomerById(_customerId);
+                                                  fetchInventoryData(
+                                                      _inventorySearch.text);
+                                                  fetchGetCustomerById(
+                                                      _customerId);
                                                 },
                                                 child: Text(
                                                   'Search',
@@ -297,8 +311,11 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   padding: EdgeInsets.symmetric(vertical: 10.0),
                                   child: TextFormField(
                                     controller: _orderQty,
+                                    onFieldSubmitted: (valueget) {
+                                      calutlate();
+                                    },
                                     validator: (val) => val.isEmpty
-                                        ? "Username is required"
+                                        ? "orderQty is required"
                                         : null,
                                     autocorrect: false,
                                     autofocus: false,
@@ -322,7 +339,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   child: TextFormField(
                                     controller: _unitPrice,
                                     validator: (val) => val.isEmpty
-                                        ? "Username is required"
+                                        ? "unitPrice is required"
                                         : null,
                                     autocorrect: false,
                                     autofocus: false,
@@ -346,10 +363,11 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   child: TextFormField(
                                     controller: _extendedPrice,
                                     validator: (val) => val.isEmpty
-                                        ? "Username is required"
+                                        ? "extendedPrice is required"
                                         : null,
                                     autocorrect: false,
                                     autofocus: false,
+                                    enabled: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
                                       hintText: "ExtendedPrice",
