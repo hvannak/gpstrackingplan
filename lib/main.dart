@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpstrackingplan/appsetting.dart';
+import 'package:gpstrackingplan/helpers/apiHelper%20.dart';
 import 'package:gpstrackingplan/register.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,23 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   String _urlSetting = '';
+  ApiHelper _apiHelper = ApiHelper();
 
-  void showSnackbar(BuildContext context) {
-    fetchPost();
-  }
-
-  _loadSetting() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _urlSetting = (prefs.getString('url') ?? '');
-      if (_urlSetting == '') {
-        prefs.setString('url', 'http://192.168.100.140:8184');
-        _urlSetting = 'http://192.168.100.140:8184';
-      }
-    });
-  }
-
-  _setAppSetting(String token,String fullname, String linkedCustomerID, String iD) async {
+  _setAppSetting(
+      String token, String fullname, String linkedCustomerID, String iD) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString('token', token);
@@ -66,37 +54,31 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<String> fetchPost() async {
-    var body = {'UserName': _username.text, 'Password': _password.text};
-    final response = await http.post(_urlSetting + '/api/ApplicationUser/Login',
-        body: json.encode(body),
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    if (response.statusCode == 200) {
-      Map<String, dynamic> tokenget = jsonDecode(response.body);
-      fetchProfileData(tokenget['token']);
-      return response.body;
-    } else {
-      final snackBar = SnackBar(content: Text('Failed to login'));
-      _globalKey.currentState.showSnackBar(snackBar);
-      throw Exception('Failed to load post');
+  _loadSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _urlSetting = (prefs.getString('url') ?? '');
+    });
+    if (_urlSetting == '') {
+      prefs.setString('url', 'http://192.168.100.140:8184');
+      _urlSetting = 'http://192.168.100.140:8184';
     }
   }
 
-  Future<Userprofile> fetchProfileData(String token) async {
-    final response = await http.get(_urlSetting + '/api/UserProfile', headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + token
-    });
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
+  fetchPost() async {
+    var body = {'UserName': _username.text, 'Password': _password.text};
+    var respone = await _apiHelper.fetchPost(
+        _urlSetting + '/api/ApplicationUser/Login', body);
+    if (respone.statusCode == 200) {
+      Map<String, dynamic> tokenget = jsonDecode(respone.body);
+      var response1 = await _apiHelper.fetchData(
+          _urlSetting + '/api/UserProfile', tokenget['token']);
+      var jsonData = jsonDecode(response1.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(token,profile.fullName, profile.linkedCustomerID, profile.iD);
+      _setAppSetting(tokenget['token'], profile.fullName,
+          profile.linkedCustomerID, profile.iD);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MyDashboard()));
-      return profile;
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load post');
     }
   }
 
@@ -221,14 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              fetchPost().catchError((e) {
-                                                final snackBar = SnackBar(
-                                                    content: Text(
-                                                        'Cannot communicate host'));
-                                                _globalKey.currentState
-                                                    .showSnackBar(snackBar);
-                                              });
-                                              // showSnackbar(context);
+                                              fetchPost();
                                             }
                                           },
                                           child: Text(

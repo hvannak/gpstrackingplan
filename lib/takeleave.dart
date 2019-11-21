@@ -3,12 +3,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/helpers/datasearchleave.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+
+import 'helpers/apiHelper .dart';
 
 class Takeleave extends StatelessWidget {
   @override
@@ -44,33 +47,28 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
   String _urlSetting = '';
-  List<Leave> _listLeave =[];
+  List<Leave> _listLeave = [];
+  ApiHelper _apiHelper = ApiHelper();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
-      // print(_urlSetting);
-      // print(_token);
     });
   }
 
   Future<List<Leave>> fetchLeaveData() async {
-    final response = await http.get(_urlSetting + '/api/TakeLeaves', headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
-
+    var response = await _apiHelper.fetchData(_urlSetting + '/api/TakeLeaves',_token);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      print(jsonData);
       _listLeave = [];
       for (var item in jsonData) {
         Leave leave = Leave.fromJson(item);
         _listLeave.add(leave);
       }
       _listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
-      print(_listLeave.length);
       return _listLeave;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
@@ -81,13 +79,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   }
 
   Future<Leave> deletLeaveData(int leaveId) async {
-    final response = await http.delete(
-        _urlSetting + '/api/TakeLeaves/' + leaveId.toString(),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
-
+    var response = await _apiHelper.deleteData(_urlSetting + '/api/TakeLeaves/',leaveId,_token);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Leave leave = Leave.fromJson(jsonData);
@@ -106,7 +98,6 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   void initState() {
     super.initState();
     _loadSetting();
-    // fetchLeaveData();
   }
 
   @override
@@ -118,14 +109,16 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-              showSearch(context: context, delegate: DataSearchLeave(_listLeave,_urlSetting,_token));
+              showSearch(
+                  context: context,
+                  delegate: DataSearchLeave(_listLeave, _urlSetting, _token));
             },
           )
         ],
       ),
       key: _globalKey,
       body: Container(
-        child: FutureBuilder(
+          child: FutureBuilder(
         future: fetchLeaveData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
@@ -197,6 +190,8 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   var _reasion = TextEditingController();
   var _fromDate = TextEditingController();
   var _toDate = TextEditingController();
+  ControlHelper _controlHelper = ControlHelper();
+  ApiHelper _apiHelper = ApiHelper();
 
   _MyTakeLeaveAddEditState(this.leave, this.title);
 
@@ -206,33 +201,8 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       _fullname = (prefs.getString('fullname') ?? '');
-      if(leave == null){
+      if (leave == null) {
         _employeeName.text = _fullname;
-      }
-      print(_fullname);
-      // print(_urlSetting);
-      // print(_token);
-    });
-  }
-
-  Future<Null> _selectDate(BuildContext context, String datename) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2018),
-      lastDate: DateTime(2050),
-      builder: (BuildContext context, Widget child) {
-        return Theme(
-          data: ThemeData.dark(),
-          child: child,
-        );
-      },
-    );
-    setState(() {
-      if (datename == 'from') {
-        _fromDate.text = DateFormat('yyyy/MM/dd').format(picked);
-      } else {
-        _toDate.text = DateFormat('yyyy/MM/dd').format(picked);
       }
     });
   }
@@ -248,21 +218,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
       'Reasion': _reasion.text
     };
     if (leaveId > 0) {
-      print('IN');
-      response = await http.put(
-          _urlSetting + '/api/TakeLeaves/' + leaveId.toString(),
-          body: jsonEncode(body),
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader: "Bearer " + _token
-          });
+      response = await _apiHelper.fetchPut(_urlSetting + '/api/TakeLeaves/', body, leaveId, _token);
     } else {
-      response = await http.post(_urlSetting + '/api/TakeLeaves',
-          body: jsonEncode(body),
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader: "Bearer " + _token
-          });
+      response = await _apiHelper.fetchPost1(_urlSetting + '/api/TakeLeaves', body,_token);
     }
     if (response.statusCode == 200 ||
         response.statusCode == 201 ||
@@ -274,11 +232,7 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
         var jsonData = jsonDecode(response.body);
         leave = Leave.fromJson(jsonData);
       }
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      } else {
-        SystemNavigator.pop();
-      }
+      Navigator.of(context).pop();
       return leave;
     } else {
       final snackBar = SnackBar(content: Text('Failed to save'));
@@ -393,8 +347,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
                                       fillColor: Colors.grey[200],
                                       contentPadding: EdgeInsets.all(15.0),
                                     ),
-                                    onTap: () {
-                                      _selectDate(context, 'from');
+                                    onTap: () async{
+                                      var date = await _controlHelper.selectDate(context);
+                                      _fromDate.text = date;
                                     },
                                   )),
                               Padding(
@@ -420,8 +375,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
                                       fillColor: Colors.grey[200],
                                       contentPadding: EdgeInsets.all(15.0),
                                     ),
-                                    onTap: () {
-                                      _selectDate(context, 'to');
+                                    onTap: () async{
+                                      var date = await _controlHelper.selectDate(context);
+                                      _toDate.text = date;
                                     },
                                   )),
                               Padding(
@@ -494,5 +450,3 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
         ));
   }
 }
-
-
