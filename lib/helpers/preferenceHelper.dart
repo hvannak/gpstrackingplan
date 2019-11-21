@@ -3,9 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferenceHelper {
   String _token = '';
   String _urlSetting = '';
+  String _fullname = '';
   PreferenceHelper(SharedPreferences sharedPreferences){
     _token = (sharedPreferences.getString('token') ?? '');
     _urlSetting = (sharedPreferences.getString('url') ?? '');
+    _fullname = (sharedPreferences.getString('fullname') ?? '');
   }
 
   String get token{
@@ -14,6 +16,10 @@ class PreferenceHelper {
 
   String get urlSetting{
     return _urlSetting;
+  }
+
+  String get fullname{
+    return _fullname;
   }
 
 }

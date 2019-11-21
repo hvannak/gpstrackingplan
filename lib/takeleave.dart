@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/helpers/datasearchleave.dart';
+import 'package:gpstrackingplan/helpers/preferenceHelper.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -45,24 +46,21 @@ class MyTakeLeave extends StatefulWidget {
 class _MyTakeLeaveState extends State<MyTakeLeave> {
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _token = '';
-  String _urlSetting = '';
   List<Leave> _listLeave = [];
   ApiHelper _apiHelper = ApiHelper();
+  PreferenceHelper _preferenceHelper;
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
+      _preferenceHelper = PreferenceHelper(prefs);
     });
   }
 
   Future<List<Leave>> fetchLeaveData() async {
-    var response = await _apiHelper.fetchData(_urlSetting + '/api/TakeLeaves',_token);
+    var response = await _apiHelper.fetchData(_preferenceHelper.urlSetting + '/api/TakeLeaves',_preferenceHelper.token);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print(jsonData);
       _listLeave = [];
       for (var item in jsonData) {
         Leave leave = Leave.fromJson(item);
@@ -79,7 +77,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   }
 
   Future<Leave> deletLeaveData(int leaveId) async {
-    var response = await _apiHelper.deleteData(_urlSetting + '/api/TakeLeaves/',leaveId,_token);
+    var response = await _apiHelper.deleteData(_preferenceHelper.urlSetting + '/api/TakeLeaves/',leaveId,_preferenceHelper.token);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Leave leave = Leave.fromJson(jsonData);
@@ -111,7 +109,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
             onPressed: () {
               showSearch(
                   context: context,
-                  delegate: DataSearchLeave(_listLeave, _urlSetting, _token));
+                  delegate: DataSearchLeave(_listLeave, _preferenceHelper.urlSetting, _preferenceHelper.token));
             },
           )
         ],
@@ -182,9 +180,6 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   final String title;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _token = '';
-  String _urlSetting = '';
-  String _fullname = '';
   var _employeeName = TextEditingController();
   var _workPlace = TextEditingController();
   var _reasion = TextEditingController();
@@ -192,17 +187,16 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
   var _toDate = TextEditingController();
   ControlHelper _controlHelper = ControlHelper();
   ApiHelper _apiHelper = ApiHelper();
+  PreferenceHelper _preferenceHelper;
 
   _MyTakeLeaveAddEditState(this.leave, this.title);
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-      _fullname = (prefs.getString('fullname') ?? '');
+      _preferenceHelper = PreferenceHelper(prefs);
       if (leave == null) {
-        _employeeName.text = _fullname;
+        _employeeName.text = _preferenceHelper.fullname;
       }
     });
   }
@@ -218,9 +212,9 @@ class _MyTakeLeaveAddEditState extends State<MyTakeLeaveAddEdit> {
       'Reasion': _reasion.text
     };
     if (leaveId > 0) {
-      response = await _apiHelper.fetchPut(_urlSetting + '/api/TakeLeaves/', body, leaveId, _token);
+      response = await _apiHelper.fetchPut(_preferenceHelper.urlSetting + '/api/TakeLeaves/', body, leaveId, _preferenceHelper.token);
     } else {
-      response = await _apiHelper.fetchPost1(_urlSetting + '/api/TakeLeaves', body,_token);
+      response = await _apiHelper.fetchPost1(_preferenceHelper.urlSetting + '/api/TakeLeaves', body,_preferenceHelper.token);
     }
     if (response.statusCode == 200 ||
         response.statusCode == 201 ||
