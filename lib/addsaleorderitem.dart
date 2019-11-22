@@ -338,6 +338,9 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   padding: EdgeInsets.symmetric(vertical: 10.0),
                                   child: TextFormField(
                                     controller: _unitPrice,
+                                    onFieldSubmitted: (valueget) {
+                                      calutlate();
+                                    },
                                     validator: (val) => val.isEmpty
                                         ? "unitPrice is required"
                                         : null,
