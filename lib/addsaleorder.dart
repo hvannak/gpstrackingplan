@@ -11,11 +11,15 @@ import 'package:http/http.dart' as http;
 import 'models/saleorderitemmodel.dart';
 
 class AddSaleOrder extends StatefulWidget {
+  final SaleOrderModel id;
+  AddSaleOrder({Key key, this.id,}) : super(key: key);
   @override
-  _AddSaleOrderState createState() => _AddSaleOrderState();
+  _AddSaleOrderState createState() =>
+      _AddSaleOrderState(this.id);
 }
 
 class _AddSaleOrderState extends State<AddSaleOrder> {
+  final SaleOrderModel id;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
@@ -26,6 +30,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
   var _date = TextEditingController();
+  _AddSaleOrderState(this.id);
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

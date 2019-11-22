@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'helpers/apiHelper .dart';
 import 'models/saleordermodel.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:gpstrackingplan/helpers/preferenceHelper.dart';
 
 class SaleOrder extends StatefulWidget {
   _SaleOrderState createState() => _SaleOrderState();
@@ -14,8 +18,12 @@ class SaleOrder extends StatefulWidget {
 class _SaleOrderState extends State<SaleOrder> {
   String _token = '';
   String _urlSetting = '';
+  final _globalKey = GlobalKey<ScaffoldState>();
   String customerId = '';
   List<SaleOrderModel> _list = [];
+  ApiHelper _apiHelper = ApiHelper();
+  PreferenceHelper _preferenceHelper;
+   
   Future<List<SaleOrderModel>> fetchSaleOrderData() async {
     final response = await http
         .get(_urlSetting + '/api/SaleOrder/Customer/' + customerId, headers: {
@@ -41,8 +49,28 @@ class _SaleOrderState extends State<SaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
+      _preferenceHelper = PreferenceHelper(prefs);
     });
   }
+
+  Future<SaleOrderModel> deleteSaleOrder(int saleId) async {
+    print('Delete');
+    print(_urlSetting);
+    var response = await _apiHelper.deleteData(_urlSetting + '/api/SaleOrder/',saleId,_preferenceHelper.token);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      SaleOrderModel saleOrder = SaleOrderModel.fromJson(jsonData);
+      final snackBar = SnackBar(content: Text('Delete successfully'));
+      _globalKey.currentState.showSnackBar(snackBar);
+      return saleOrder;
+    } else {
+      final snackBar = SnackBar(content: Text('Failed to load'));
+      _globalKey.currentState.showSnackBar(snackBar);
+      print(response.statusCode);
+      throw Exception('Failed to load post');
+    }
+  }
+
 
   @override
   void initState() {
@@ -53,6 +81,7 @@ class _SaleOrderState extends State<SaleOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
       appBar: AppBar(
         title: Text('Sale Order'),
         actions: <Widget>[
@@ -77,7 +106,10 @@ class _SaleOrderState extends State<SaleOrder> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return Card(
+                return Slidable(
+                  actionPane: SlidableDrawerActionPane(),
+                  actionExtentRatio: 0.25,
+                  // return Card(
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
@@ -97,6 +129,30 @@ class _SaleOrderState extends State<SaleOrder> {
                       ),
                     ),
                   ),
+                  secondaryActions: <Widget>[
+                    IconSlideAction(
+                      caption: 'Edit',
+                      color: Colors.blue[300],
+                      icon: Icons.edit,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddSaleOrder(
+                                      id: snapshot.data[index],
+                                    )));
+                      }
+                    ),
+                    IconSlideAction(
+                      caption: 'Delete',
+                      color: Colors.red,
+                      icon: Icons.delete,
+                      onTap: () {
+                        deleteSaleOrder(snapshot.data[index].saleOrderId);
+                        snapshot.data.removeAt(index);
+                      },
+                    ),
+                  ],
                 );
               },
             );
