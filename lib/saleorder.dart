@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/services.dart';
+
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'helpers/apiHelper .dart';
 import 'models/saleordermodel.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:gpstrackingplan/helpers/preferenceHelper.dart';
+
 
 class SaleOrder extends StatefulWidget {
   _SaleOrderState createState() => _SaleOrderState();
@@ -21,8 +21,7 @@ class _SaleOrderState extends State<SaleOrder> {
   final _globalKey = GlobalKey<ScaffoldState>();
   String customerId = '';
   List<SaleOrderModel> _list = [];
-  ApiHelper _apiHelper = ApiHelper();
-  PreferenceHelper _preferenceHelper;
+  ApiHelper _apiHelper;
    
   Future<List<SaleOrderModel>> fetchSaleOrderData() async {
     final response = await http
@@ -49,14 +48,14 @@ class _SaleOrderState extends State<SaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
-      _preferenceHelper = PreferenceHelper(prefs);
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
   Future<SaleOrderModel> deleteSaleOrder(int saleId) async {
     print('Delete');
     print(_urlSetting);
-    var response = await _apiHelper.deleteData(_urlSetting + '/api/SaleOrder/',saleId,_preferenceHelper.token);
+    var response = await _apiHelper.deleteData('/api/SaleOrder/',saleId);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       SaleOrderModel saleOrder = SaleOrderModel.fromJson(jsonData);
