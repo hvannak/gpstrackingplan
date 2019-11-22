@@ -4,24 +4,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 
 import '../takeleave.dart';
+import 'apiHelper .dart';
 
 class DataSearchLeave extends SearchDelegate<String> {
   final List<Leave> _leaveList;
-  final String _urlSetting;
-  final String _token;
-  DataSearchLeave(this._leaveList, this._urlSetting, this._token);
+  ApiHelper _apiHelper;
+
+  DataSearchLeave(this._leaveList,this._apiHelper);
 
   Future<Leave> deletLeaveData(int leaveId) async {
-    final response = await http.delete(
-        _urlSetting + '/api/TakeLeaves/' + leaveId.toString(),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
-
+    final response = await _apiHelper.deleteData('/api/TakeLeaves/',leaveId);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       Leave leave = Leave.fromJson(jsonData);

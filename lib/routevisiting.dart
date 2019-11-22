@@ -16,6 +16,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
 
+import 'helpers/apiHelper .dart';
+import 'helpers/preferenceHelper.dart';
+
 class Routevisiting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -52,8 +55,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   final _globalKey = GlobalKey<ScaffoldState>();
   var _firstCamera;
 
-  String _token = '';
-  String _urlSetting = '';
   String _checkType = 'IN';
   String _customer = 'NEW';
   String _imagePath = '';
@@ -62,12 +63,12 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   String _imagebase64;
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
+  ApiHelper _apiHelper;
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
@@ -96,13 +97,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
       'Customer': _customer,
       'Image': _imagebase64,
     };
-    print(body);
-    final response = await http.post(_urlSetting + '/api/Gpstrackings',
-        body: json.encode(body),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
+    final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
     print(response.statusCode);
     if (response.statusCode == 200) {
       return response.body;
@@ -118,12 +113,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   }
 
   Future<List<Customermodel>> fetchCustomerData(String name) async {
-    final response = await http
-        .get(_urlSetting + '/api/Customer/CustomerName/' + name, headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
-
+    final response = await _apiHelper.fetchData('/api/Customer/CustomerName/' + name);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       _listCustomer = [];
@@ -165,8 +155,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   @override
   void initState() {
     super.initState();
-    _initCamera();
     _loadSetting();
+    _initCamera();
     _getCurrentLocation();
     _listCustomer
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
