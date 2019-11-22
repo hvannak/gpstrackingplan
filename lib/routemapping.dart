@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gpstrackingplan/models/gpsroutemodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+
+import 'helpers/apiHelper .dart';
 
 class RouteMapping extends StatefulWidget {
   @override
@@ -15,35 +15,21 @@ class RouteMapping extends StatefulWidget {
 }
 
 class _RouteMappingState extends State<RouteMapping> {
-  String _token = '';
-  String _urlSetting = '';
-  String _userId = '';
   List<Gpsroutemodel> _listRoute = [];
   Map<String, Marker> _markers = {};
   Completer<GoogleMapController> _controller = Completer();
-
+  ApiHelper _apiHelper;
+  
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-      _userId = (prefs.getString('Id') ?? '');
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
   Future<List<Gpsroutemodel>> fetchRouteData(DateTime from, DateTime to) async {
-    final response = await http.get(
-        _urlSetting +
-            '/api/Gpstrackings/GpstrackingsByDate/' +
-            DateFormat('yyyy-MM-dd').format(from) +
-            '/' +
-            DateFormat('yyyy-MM-dd').format(to) +
-            '/' +
-            _userId,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
+    final response = await _apiHelper.fetchData('/api/Gpstrackings/GpstrackingsByDate/' +
+     DateFormat('yyyy-MM-dd').format(from) + '/' + DateFormat('yyyy-MM-dd').format(to) + '/' + _apiHelper.userId);
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);

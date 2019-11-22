@@ -41,8 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _globalKey = GlobalKey<ScaffoldState>();
   final _username = TextEditingController();
   final _password = TextEditingController();
-  ApiHelper _apiHelper = ApiHelper();
-  PreferenceHelper _preferenceHelper;
+  ApiHelper _apiHelper;
 
   _setAppSetting(
       String token, String fullname, String linkedCustomerID, String iD) async {
@@ -58,18 +57,16 @@ class _MyHomePageState extends State<MyHomePage> {
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _preferenceHelper = PreferenceHelper(prefs);
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
   fetchPost() async {
     var body = {'UserName': _username.text, 'Password': _password.text};
-    var respone = await _apiHelper.fetchPost(
-        _preferenceHelper.urlSetting + '/api/ApplicationUser/Login', body);
+    var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body);
     if (respone.statusCode == 200) {
       Map<String, dynamic> tokenget = jsonDecode(respone.body);
-      var response1 = await _apiHelper.fetchData(
-          _preferenceHelper.urlSetting + '/api/UserProfile', tokenget['token']);
+      var response1 = await _apiHelper.fetchData1('/api/UserProfile',tokenget['token']);
       var jsonData = jsonDecode(response1.body);
       Userprofile profile = Userprofile.fromJson(jsonData);
       _setAppSetting(tokenget['token'], profile.fullName,
