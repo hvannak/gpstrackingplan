@@ -109,6 +109,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     //     });
     print(response.statusCode);
     if (response.statusCode == 200) {
+      Navigator.of(context).pop();
       return response.body;
     } else {
       print(response.statusCode);
