@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
+import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -31,6 +32,7 @@ class _SaleOrderState extends State<SaleOrder> {
     });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      print('jasondata = $jsonData');
       _list = [];
       for (var item in jsonData) {
         SaleOrderModel saleOrder = SaleOrderModel.fromJson(item);
@@ -138,7 +140,7 @@ class _SaleOrderState extends State<SaleOrder> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => AddSaleOrder(
-                                      id: snapshot.data[index],
+                                      saleorder: snapshot.data[index],
                                     )));
                       }
                     ),

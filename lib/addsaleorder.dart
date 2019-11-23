@@ -8,18 +8,21 @@ import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'helpers/apiHelper .dart';
 import 'models/saleorderitemmodel.dart';
 
 class AddSaleOrder extends StatefulWidget {
-  final SaleOrderModel id;
-  AddSaleOrder({Key key, this.id,}) : super(key: key);
+  final SaleOrderModel saleorder;
+  AddSaleOrder({
+    Key key,
+    this.saleorder,
+  }) : super(key: key);
   @override
-  _AddSaleOrderState createState() =>
-      _AddSaleOrderState(this.id);
+  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder);
 }
 
 class _AddSaleOrderState extends State<AddSaleOrder> {
-  final SaleOrderModel id;
+  final SaleOrderModel saleorder;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
@@ -30,7 +33,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
   var _date = TextEditingController();
-  _AddSaleOrderState(this.id);
+  _AddSaleOrderState(this.saleorder);
+  ApiHelper _apiHelper;
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -38,6 +42,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       _token = (prefs.getString('token') ?? '');
       _urlSetting = (prefs.getString('url') ?? '');
       _customerId.text = (prefs.getString('linkedCustomerID') ?? '');
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
@@ -72,9 +77,10 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     return _listSaleItem;
   }
 
-  Future<String> fetchPost() async {
+  Future<String> fetchPost(saleOrderId) async {
+    var response;
     var body = {
-      'SaleOrderID': '0',
+      'SaleOrderID': saleOrderId,
       'OrderNbr': _orderNbr.text,
       'CustomerID': _customerId.text,
       'CustomerDescr': 'test',
@@ -85,12 +91,22 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       'Details': SaleOrderItemModel.encondeToJson(_listSaleItem)
     };
     print(body);
-    final response = await http.post(_urlSetting + '/api/SaleOrder/Create',
+    if (saleOrderId != 0) {
+      response = await _apiHelper.fetchPut('/SaleOrder/Update', body, saleOrderId);
+    } else {
+      response = await http.post(_urlSetting + '/api/SaleOrder/Create',
         body: json.encode(body),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: "Bearer " + _token
         });
+    }
+    // final response = await http.post(_urlSetting + '/api/SaleOrder/Create',
+    //     body: json.encode(body),
+    //     headers: {
+    //       HttpHeaders.contentTypeHeader: 'application/json',
+    //       HttpHeaders.authorizationHeader: "Bearer " + _token
+    //     });
     print(response.statusCode);
     if (response.statusCode == 200) {
       return response.body;
@@ -105,6 +121,17 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     super.initState();
     _loadSetting();
     _orderNbr.text = 'New';
+    if (saleorder != null) {
+      print('Employee');
+      print(saleorder.orderNumber);
+      _orderNbr.text = saleorder.orderNumber.toString();
+      _customerId.text = saleorder.customerId.toString();
+      _description.text = saleorder.orderDesc.toString();
+      _oderQty.text = saleorder.orderQty.toString();
+      _orderTotal.text = saleorder.orderTotal.toString();
+      _date.text = DateFormat('yyyy/MM/dd').format(saleorder.orderDate);
+      
+    }
   }
 
   @override
@@ -263,7 +290,12 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                     ),
                                     onPressed: () {
                                       if (_formKey.currentState.validate()) {
-                                        fetchPost();
+                                        if (saleorder == null) {
+                                          print('Post');
+                                          fetchPost(0);
+                                        } else {
+                                          fetchPost(saleorder.saleOrderId);
+                                        }
                                       }
                                     },
                                     child: Text(
