@@ -38,6 +38,7 @@ class _SaleOrderState extends State<SaleOrder> {
         SaleOrderModel saleOrder = SaleOrderModel.fromJson(item);
         _list.add(saleOrder);
       }
+      print(_list.length);
       return _list;
     } else {
       throw Exception('Failed to load post');
@@ -136,6 +137,8 @@ class _SaleOrderState extends State<SaleOrder> {
                       color: Colors.blue[300],
                       icon: Icons.edit,
                       onTap: () {
+                        print('Edit');
+                        print(snapshot.data[index]);
                         Navigator.push(
                             context,
                             MaterialPageRoute(

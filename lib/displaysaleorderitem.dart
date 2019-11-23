@@ -4,21 +4,24 @@ import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 
 
 class DisplaySaleOrderItem extends StatefulWidget {
-  _DisplaySaleOrderItemState createState() => _DisplaySaleOrderItemState();
+  final List<SaleOrderItemModel> listSaleItem;
+  DisplaySaleOrderItem(this.listSaleItem);
+  _DisplaySaleOrderItemState createState() => _DisplaySaleOrderItemState(this.listSaleItem);
 }
 
 class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
-  List<SaleOrderItemModel> _listSaleItem = [];
+  List<SaleOrderItemModel> listSaleItem = [];
+  _DisplaySaleOrderItemState(this.listSaleItem);
   _navigateTakePictureScreen(BuildContext context) async {
     print('IN funct');
     SaleOrderItemModel result = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => AddSaleOrderItem()));
     setState(() {
       print('result = ${result.orderQty}');
-      _listSaleItem.add(result);
-      print('test item result page display = ${_listSaleItem.length}');
+      listSaleItem.add(result);
+      print('test item result page display = ${listSaleItem.length}');
     });
-    return _listSaleItem;
+    return listSaleItem;
   }
 
   @override
@@ -33,8 +36,8 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
           leading: new IconButton(
             icon: new Icon(Icons.arrow_back),
             onPressed: (){ 
-              print('test listSaleItem,${ _listSaleItem[0].warehouseId}');
-              Navigator.pop(context,  _listSaleItem);
+              print('test listSaleItem,${ listSaleItem[0].warehouseId}');
+              Navigator.pop(context,  listSaleItem);
               },
           ),
           title: Text('List Sale Order'),
@@ -48,24 +51,24 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
           ],
         ),
         body: ListView.builder(
-          itemCount: _listSaleItem.length,
+          itemCount: listSaleItem.length,
           itemBuilder: (BuildContext context, int index) {
             return Card(
               child: Container(
                 decoration: BoxDecoration(color: Colors.lightBlue[50]),
                 child: ListTile(
                     title: Text(
-                      _listSaleItem[index].inventoryId,
+                      listSaleItem[index].inventoryId,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(' Warehouse ' +
-                        _listSaleItem[index].warehouseId +
+                        listSaleItem[index].warehouseId +
                         ' OrderQty ' +
-                        _listSaleItem[index].orderQty.toString() +
+                        listSaleItem[index].orderQty.toString() +
                         ' UnitPrice ' +
-                        _listSaleItem[index].unitPrice.toString() +
+                        listSaleItem[index].unitPrice.toString() +
                         ' Total ' +
-                        _listSaleItem[index].extendedPrice.toString())),
+                        listSaleItem[index].extendedPrice.toString())),
               ),
             );
           },

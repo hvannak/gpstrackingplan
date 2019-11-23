@@ -1,3 +1,5 @@
+import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
+
 class SaleOrderModel {
   int saleOrderId;
   String orderNumber;
@@ -9,6 +11,7 @@ class SaleOrderModel {
   double orderTotal;
   String delete;
   bool issync;
+  List<SaleOrderItemModel> details;
 
   SaleOrderModel(
       {this.saleOrderId,
@@ -20,9 +23,12 @@ class SaleOrderModel {
       this.orderQty,
       this.orderTotal,
       this.delete,
-      this.issync});
+      this.issync,
+      this.details});
 
   factory SaleOrderModel.fromJson(Map<String, dynamic> json) {
+    var list = json['Details'] as List;
+    List<SaleOrderItemModel> itemList = list.map((i) => SaleOrderItemModel.fromJson(i)).toList();
     return SaleOrderModel(
         saleOrderId: json['SaleOrderID'],
         orderNumber: json['OrderNbr'],
@@ -33,6 +39,7 @@ class SaleOrderModel {
         orderQty: json['OrderQty'],
         orderTotal: json['OrderTotal'],
         delete: json['DeletedSaleOrderDetails'],
-        issync: json['IsSyn']);
+        issync: json['IsSyn'],
+        details: itemList);
   }
 }

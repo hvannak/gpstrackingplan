@@ -67,7 +67,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   List<SaleOrderItemModel> _listSaleItem = [];
   _navigateTakePictureScreen(BuildContext context) async {
     List<SaleOrderItemModel> result = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => DisplaySaleOrderItem()));
+        MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(saleorder.details)));
     print('back result');
     print('result = ${result.length}');
     setState(() {
