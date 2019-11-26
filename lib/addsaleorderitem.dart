@@ -56,7 +56,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
         _priceclass = _listCustomer[0].priceclass;
         setState(() {
           _priceclass = _listCustomer[0].priceclass;
-          print('set priceclass = $_priceclass');
         });
       }
       return _listCustomer;
@@ -94,9 +93,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   }
 
   Future<String> getInventoryPrice(String id, String price) async {
-    print('IN funct getInventoryPrice');
-    print(id);
-    print(price);
     final response = await http.get(
         _urlSetting + '/api/Inventory/InventoryPrice/' + id + '/' + price,
         headers: {
@@ -105,18 +101,13 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
         });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      // print('jsonData price= ${jsonData['SalesPriceDetails']['Price']['value']}');
-      print(jsonData);
-      print(jsonData['SalesPriceDetails']);
       if (jsonData['SalesPriceDetails'].toString() != '[]') {
         _unitPrice.text =
             jsonData['SalesPriceDetails'][0]['Price']['value'].toString();
       } else {
-        print('else');
         _unitPrice.text = '0.0';
       }
 
-      print('_unitPrice.text = ${_unitPrice.text}');
       return _unitPrice.text;
     } else {
       print(response.statusCode);
@@ -131,15 +122,12 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   }
 
   void calutlate() {
-    print('in calculate');
-    print(_unitPrice);
-    print(_orderQty);
+ 
     double.parse(_unitPrice.text);
     double.parse(_orderQty.text);
     double total = double.parse(_unitPrice.text) * double.parse(_orderQty.text);
     setState(() {
       _extendedPrice.text = total.toString();
-      print('_extendedPrice = $_extendedPrice');
     });
   }
 

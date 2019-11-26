@@ -66,14 +66,33 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
 
   List<SaleOrderItemModel> _listSaleItem = [];
   _navigateTakePictureScreen(BuildContext context) async {
-    List<SaleOrderItemModel> result = await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(saleorder.details)));
-    print('back result');
-    print('result = ${result.length}');
-    setState(() {
-      _listSaleItem = result;
-      print('item result add page saleorder = ${_listSaleItem.length}');
-    });
+    if (saleorder != null) {
+      List<SaleOrderItemModel> result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DisplaySaleOrderItem(saleorder.details)));
+      setState(() {
+        _listSaleItem = result;
+        _oderQty.text = getSumQty().toString();
+        _orderTotal.text = getTotalPrice().toString();
+      print('getSumQty()= $_oderQty');
+      print(' getTotalPrice()= $_orderTotal');
+      });
+    } else {
+      List<SaleOrderItemModel> item = new List<SaleOrderItemModel>();
+      List<SaleOrderItemModel> result = await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(item)));
+      print('result = ${result.length}');
+      setState(() {
+        _listSaleItem = result;
+        print('item result add page saleorder = ${_listSaleItem.length}');
+        _oderQty.text = getSumQty();
+        _orderTotal.text = getTotalPrice();
+        print('getSumQty()= ${ _oderQty.text}');
+        print(' getTotalPrice()= ${_orderTotal.text}');
+        
+      });
+    }
     return _listSaleItem;
   }
 
@@ -92,21 +111,17 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     };
     print(body);
     if (saleOrderId != 0) {
-      response = await _apiHelper.fetchPut('/SaleOrder/Update', body, saleOrderId);
+      response =
+          await _apiHelper.fetchPut('/SaleOrder/Update', body, saleOrderId);
     } else {
       response = await http.post(_urlSetting + '/api/SaleOrder/Create',
-        body: json.encode(body),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
+          body: json.encode(body),
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: "Bearer " + _token
+          });
     }
-    // final response = await http.post(_urlSetting + '/api/SaleOrder/Create',
-    //     body: json.encode(body),
-    //     headers: {
-    //       HttpHeaders.contentTypeHeader: 'application/json',
-    //       HttpHeaders.authorizationHeader: "Bearer " + _token
-    //     });
+
     print(response.statusCode);
     if (response.statusCode == 200) {
       Navigator.of(context).pop();
@@ -117,21 +132,36 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     }
   }
 
+  
+
+String getSumQty() {
+ print('log getSumQty');
+  double sum = 0;
+    for(int i = 0; i < _listSaleItem.length; i++)
+      sum += _listSaleItem[i].orderQty;
+    return sum.toString();
+}
+
+String getTotalPrice(){
+  print('log getTotalPrice');
+  double total = 0;
+    for(int i = 0; i < _listSaleItem.length; i++)
+        total += _listSaleItem[i].extendedPrice;
+    return total.toString();
+  }
+
   @override
   void initState() {
     super.initState();
     _loadSetting();
     _orderNbr.text = 'New';
     if (saleorder != null) {
-      print('Employee');
-      print(saleorder.orderNumber);
       _orderNbr.text = saleorder.orderNumber.toString();
       _customerId.text = saleorder.customerId.toString();
       _description.text = saleorder.orderDesc.toString();
       _oderQty.text = saleorder.orderQty.toString();
       _orderTotal.text = saleorder.orderTotal.toString();
       _date.text = DateFormat('yyyy/MM/dd').format(saleorder.orderDate);
-      
     }
   }
 
