@@ -31,13 +31,11 @@ class _SaleOrderState extends State<SaleOrder> {
     });
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      print('jasondata = $jsonData');
       _list = [];
       for (var item in jsonData) {
         SaleOrderModel saleOrder = SaleOrderModel.fromJson(item);
         _list.add(saleOrder);
       }
-      print(_list.length);
       return _list;
     } else {
       throw Exception('Failed to load post');
@@ -56,7 +54,6 @@ class _SaleOrderState extends State<SaleOrder> {
 
   Future<SaleOrderModel> deleteSaleOrder(int saleId) async {
     print('Delete');
-    print(_urlSetting);
     var response = await _apiHelper.deleteData('/api/SaleOrder/', saleId);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
