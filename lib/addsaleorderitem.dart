@@ -1,89 +1,50 @@
 import 'dart:convert';
-import 'dart:ffi';
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/models/inventorymodel.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+
+import 'helpers/apiHelper .dart';
 
 class AddSaleOrderItem extends StatefulWidget {
   final SaleOrderItemModel saleorderitem;
   final List<InventoryModel> listIn;
-  AddSaleOrderItem({
-    Key key,
-    this.saleorderitem,
-    this.listIn,
-  }) : super(key: key);
+  final String title;
+  AddSaleOrderItem({Key key, this.saleorderitem, this.listIn, this.title})
+      : super(key: key);
   @override
   _AddSaleOrderItemState createState() =>
-      _AddSaleOrderItemState(this.saleorderitem, this.listIn);
+      _AddSaleOrderItemState(this.saleorderitem, this.listIn, this.title);
 }
 
 class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   final SaleOrderItemModel saleorderitem;
-  List<InventoryModel> listIn = [];
-  _AddSaleOrderItemState(this.saleorderitem, this.listIn);
+  final String title;
+  List<InventoryModel> _listInventory;
+  _AddSaleOrderItemState(this.saleorderitem, this._listInventory, this.title);
 
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _token = '';
-  String _urlSetting = '';
-  String _customerId = '';
   final _orderQty = TextEditingController();
   var _unitPrice = TextEditingController();
   var _extendedPrice = TextEditingController();
   var _inventorySearch = TextEditingController();
-  List<InventoryModel> _listInventory = [];
   String _inventory = '';
   String _warehouse = 'M000';
   String _priceclass = '';
-  String _inventoryId = '';
-  List<Customermodel> _listCustomer = [];
+  ApiHelper _apiHelper;
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-      _customerId = (prefs.getString('linkedCustomerID') ?? '');
+      _apiHelper = ApiHelper(prefs);
+      _priceclass = _apiHelper.priceClass;
     });
-  }
-
-  Future<List<Customermodel>> fetchGetCustomerById(String id) async {
-    final response = await http
-        .get(_urlSetting + '/api/Customer/CustomerID/' + id, headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
-
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      _listCustomer = [];
-      for (var item in jsonData) {
-        Customermodel customermodel = Customermodel.fromJson(item);
-        _listCustomer.add(customermodel);
-        _priceclass = _listCustomer[0].priceclass;
-        setState(() {
-          _priceclass = _listCustomer[0].priceclass;
-        });
-      }
-      return _listCustomer;
-    } else {
-      final snackBar = SnackBar(content: Text('Failed to load'));
-      _globalKey.currentState.showSnackBar(snackBar);
-      throw Exception('Failed to load post');
-    }
   }
 
   Future<List<InventoryModel>> fetchInventoryData(String name) async {
-    final response = await http
-        .get(_urlSetting + '/api/Inventory/InventoryName/' + name, headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
+    final response = await _apiHelper.fetchData('/api/Inventory/InventoryName/' + name);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       _listInventory = [];
@@ -105,12 +66,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   }
 
   Future<String> getInventoryPrice(String id, String price) async {
-    final response = await http.get(
-        _urlSetting + '/api/Inventory/InventoryPrice/' + id + '/' + price,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer " + _token
-        });
+    final response = await _apiHelper.fetchData('/api/Inventory/InventoryPrice/' + id + '/' + price);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       if (jsonData['SalesPriceDetails'].toString() != '[]') {
@@ -132,13 +88,14 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
     super.initState();
     _loadSetting();
     if (saleorderitem != null) {
-      _inventoryId = saleorderitem.inventoryId;
-      _inventory = saleorderitem.inventoryDesc;
+      _inventory = _listInventory[0].inventoryId;
       _warehouse = saleorderitem.warehouseId;
       _orderQty.text = saleorderitem.orderQty.toString();
       _unitPrice.text = saleorderitem.unitPrice.toString();
       _extendedPrice.text = saleorderitem.extendedPrice.toString();
-      _listInventory = listIn;
+    }
+    else{
+      _listInventory =[];
     }
   }
 
@@ -184,7 +141,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                               TextInputAction.search,
                                           onFieldSubmitted: (valueget) {
                                             fetchInventoryData(valueget);
-                                            fetchGetCustomerById(_customerId);
                                           },
                                           autocorrect: false,
                                           autofocus: false,
@@ -225,8 +181,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                                 onPressed: () {
                                                   fetchInventoryData(
                                                       _inventorySearch.text);
-                                                  fetchGetCustomerById(
-                                                      _customerId);
                                                 },
                                                 child: Text(
                                                   'Search',

@@ -14,16 +14,18 @@ import 'models/saleorderitemmodel.dart';
 
 class AddSaleOrder extends StatefulWidget {
   final SaleOrderModel saleorder;
+  final String title;
   AddSaleOrder({
     Key key,
-    this.saleorder,
+    this.saleorder,this.title
   }) : super(key: key);
   @override
-  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder);
+  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder,this.title);
 }
 
 class _AddSaleOrderState extends State<AddSaleOrder> {
   final SaleOrderModel saleorder;
+  final String title;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
@@ -34,17 +36,15 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
   var _date = TextEditingController();
-  _AddSaleOrderState(this.saleorder);
+  _AddSaleOrderState(this.saleorder,this.title);
   ApiHelper _apiHelper;
   ControlHelper _controlHelper = ControlHelper();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-      _customerId.text = (prefs.getString('linkedCustomerID') ?? '');
       _apiHelper = ApiHelper(prefs);
+      _customerId.text = _apiHelper.linkedCustomerID;
     });
   }
 
@@ -54,19 +54,17 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       List<SaleOrderItemModel> result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => DisplaySaleOrderItem(saleorder.details)));
+              builder: (context) => DisplaySaleOrderItem(listSaleItem: saleorder.details,title: "Edit List Items",)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty().toString();
         _orderTotal.text = getTotalPrice().toString();
       });
     } else {
-      List<SaleOrderItemModel> item = new List<SaleOrderItemModel>();
       List<SaleOrderItemModel> result = await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(item)));
+          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: null,title: "Add List Items",)));
       setState(() {
         _listSaleItem = result;
-        print('item result add page saleorder = ${_listSaleItem.length}');
         _oderQty.text = getSumQty();
         _orderTotal.text = getTotalPrice();
       });
@@ -144,7 +142,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       backgroundColor: Colors.grey[300],
       key: _globalKey,
       appBar: AppBar(
-        title: Text('Add Sale Order'),
+        title: Text(title),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.list),
@@ -159,9 +157,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
           SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.rectangle),           
+              decoration:
+                  BoxDecoration(color: Colors.white, shape: BoxShape.rectangle),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -236,7 +233,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                 fillColor: Colors.grey[200],
                                 contentPadding: EdgeInsets.all(15.0)),
                             onTap: () async {
-                              var date = await _controlHelper.selectDate(context);
+                              var date =
+                                  await _controlHelper.selectDate(context);
                               _date.text = date;
                             },
                           ),

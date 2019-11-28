@@ -10,6 +10,7 @@ class ApiHelper {
   String _fullname = '';
   String _userId = '';
   String _linkedCustomerID;
+  String _priceClass;
 
   ApiHelper(SharedPreferences sharedPreferences) {
     _token = (sharedPreferences.getString('token') ?? '');
@@ -17,6 +18,7 @@ class ApiHelper {
     _fullname = (sharedPreferences.getString('fullname') ?? '');
     _userId = (sharedPreferences.getString('Id') ?? '');
     _linkedCustomerID = (sharedPreferences.getString('linkedCustomerID') ?? '');
+    _priceClass = (sharedPreferences.getString('priceclass') ?? '');
     if (_urlSetting == '') {
       sharedPreferences.setString('url', 'http://192.168.100.140:8184');
       _urlSetting = 'http://192.168.100.140:8184';
@@ -89,5 +91,9 @@ class ApiHelper {
 
   String get linkedCustomerID {
     return _linkedCustomerID;
+  }
+
+  String get priceClass {
+    return _priceClass;
   }
 }

@@ -6,6 +6,7 @@ import 'package:gpstrackingplan/addsaleorder.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
+import 'models/customermodel.dart';
 import 'models/saleordermodel.dart';
 
 class SaleOrder extends StatefulWidget {
@@ -30,6 +31,20 @@ class _SaleOrderState extends State<SaleOrder> {
       }
       return _list;
     } else {
+      throw Exception('Failed to load post');
+    }
+  }
+
+  Future<Customermodel> fetchGetCustomerById(String id) async {
+    final response =
+        await _apiHelper.fetchData('/api/Customer/CustomerID/' + id);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body) as List;
+      List<Customermodel> customerList = jsonData.map((i) => Customermodel.fromJson(i)).toList();
+      return customerList[0];
+    } else {
+      final snackBar = SnackBar(content: Text('Failed to load'));
+      _globalKey.currentState.showSnackBar(snackBar);
       throw Exception('Failed to load post');
     }
   }
@@ -71,9 +86,20 @@ class _SaleOrderState extends State<SaleOrder> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add_circle),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddSaleOrder()));
+            onPressed: () async {
+              var customer =
+                  await fetchGetCustomerById(_apiHelper.linkedCustomerID);
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              setState(() {
+                prefs.setString('priceclass', customer.priceclass);
+              });
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddSaleOrder(
+                            saleorder: null,
+                            title: "Add Order",
+                          )));
             },
           )
         ],
@@ -97,36 +123,36 @@ class _SaleOrderState extends State<SaleOrder> {
                     snapshot.data.removeAt(index);
                   },
                   confirmDismiss: (direction) async {
-                    if(snapshot.data[index].issync == true){
+                    if (snapshot.data[index].issync == true) {
                       final snackBar = SnackBar(
                           content: Text(
                               'Your order have processed. You cannot delete it.'));
                       _globalKey.currentState.showSnackBar(snackBar);
                       return false;
-                    }
-                    else{
+                    } else {
                       final bool result = await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Confirm"),
-                          content: const Text(
-                              "Are you sure you want to delete this item?"),
-                          actions: <Widget>[
-                            FlatButton(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Confirm"),
+                            content: const Text(
+                                "Are you sure you want to delete this item?"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  child: const Text("DELETE")),
+                              FlatButton(
                                 onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: const Text("DELETE")),
-                            FlatButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text("CANCEL"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                    return result;
-                    }                  
+                                    Navigator.of(context).pop(false),
+                                child: const Text("CANCEL"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return result;
+                    }
                   },
                   child: Card(
                     child: ListTile(
@@ -144,12 +170,18 @@ class _SaleOrderState extends State<SaleOrder> {
                             ' total ' +
                             snapshot.data[index].orderTotal.toString(),
                       ),
-                      onTap: () {
+                      onTap: () async {
+                        var customer = await fetchGetCustomerById(_apiHelper.linkedCustomerID);
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        setState(() {
+                          prefs.setString('priceclass', customer.priceclass);
+                        });
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => AddSaleOrder(
                                       saleorder: snapshot.data[index],
+                                      title: "Edit Order",
                                     )));
                       },
                     ),
