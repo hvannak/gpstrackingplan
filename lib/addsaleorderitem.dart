@@ -10,11 +10,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AddSaleOrderItem extends StatefulWidget {
+  final SaleOrderItemModel saleorderitem;
+  final List<InventoryModel> listIn;
+  AddSaleOrderItem({
+    Key key,
+    this.saleorderitem,
+    this.listIn,
+  }) : super(key: key);
   @override
-  _AddSaleOrderItemState createState() => _AddSaleOrderItemState();
+  _AddSaleOrderItemState createState() =>
+      _AddSaleOrderItemState(this.saleorderitem, this.listIn);
 }
 
 class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
+  final SaleOrderItemModel saleorderitem;
+  List<InventoryModel> listIn = [];
+  _AddSaleOrderItemState(this.saleorderitem, this.listIn);
+
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   String _token = '';
@@ -119,10 +131,18 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   void initState() {
     super.initState();
     _loadSetting();
+    if (saleorderitem != null) {
+      _inventoryId = saleorderitem.inventoryId;
+      _inventory = saleorderitem.inventoryDesc;
+      _warehouse = saleorderitem.warehouseId;
+      _orderQty.text = saleorderitem.orderQty.toString();
+      _unitPrice.text = saleorderitem.unitPrice.toString();
+      _extendedPrice.text = saleorderitem.extendedPrice.toString();
+      _listInventory = listIn;
+    }
   }
 
   void calutlate() {
- 
     double.parse(_unitPrice.text);
     double.parse(_orderQty.text);
     double total = double.parse(_unitPrice.text) * double.parse(_orderQty.text);
@@ -235,10 +255,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                       .toList(),
                                   onChanged: (String value) {
                                     setState(() {
-                                      print(value);
                                       _inventory = value;
-                                      print('_inventory = $_inventory');
-                                      print('_priceclass = $_priceclass');
                                       getInventoryPrice(
                                           _inventory, _priceclass);
                                     });
@@ -403,7 +420,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                     itemModel.extendedPrice =
                                         double.parse(_extendedPrice.text);
                                     itemModel.warehouseId = _warehouse;
-                                    print('testqty= ${itemModel.orderQty}');
                                     Navigator.pop(context, itemModel);
                                   }
                                 },
