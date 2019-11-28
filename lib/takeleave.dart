@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/helpers/datasearchleave.dart';
+import 'package:gpstrackingplan/helpers/jsonHelper.dart';
 import 'package:gpstrackingplan/helpers/preferenceHelper.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,14 +57,18 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
   Future<List<Leave>> fetchLeaveData() async {
     var response = await _apiHelper.fetchData('/api/TakeLeaves');
     if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      _listLeave = [];
-      for (var item in jsonData) {
-        Leave leave = Leave.fromJson(item);
-        _listLeave.add(leave);
-      }
+      var list = jsonDecode(response.body) as List;
+      _listLeave = list.map((i) => Leave.fromJson(i)).toList();
       _listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
       return _listLeave;
+      // var jsonData = jsonDecode(response.body);
+      // _listLeave = [];
+      // for (var item in jsonData) {
+      //   Leave leave = Leave.fromJson(item);
+      //   _listLeave.add(leave);
+      // }
+      // _listLeave.sort((a, b) => b.leaveID.compareTo(a.leaveID));
+      // return _listLeave;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
       _globalKey.currentState.showSnackBar(snackBar);

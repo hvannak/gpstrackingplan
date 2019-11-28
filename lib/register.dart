@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import 'helpers/apiHelper .dart';
+
 class Register extends StatefulWidget {
   @override
   _RegisterState createState() => _RegisterState();
@@ -21,12 +23,13 @@ class _RegisterState extends State<Register> {
   var _telephone = TextEditingController();
   var _password = TextEditingController();
   var _confirmPassword = TextEditingController();
+  ApiHelper _apiHelper;
 
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _urlSetting = (prefs.getString('url') ?? '');
+      _apiHelper = ApiHelper(prefs);
     });
   }
 
@@ -39,14 +42,19 @@ class _RegisterState extends State<Register> {
       'LinkedCustomerID': _linkedCustomerID.text,
       'Telephone': _telephone.text
       };
-    final response = await http.post(_urlSetting + '/api/ApplicationUser/Register',
-        body: json.encode(body),
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    final response = await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
     if (response.statusCode == 200) {
-      Navigator.of(context).pop();
+      print(response.body);
+      if(response.body != null){
+        Navigator.of(context).pop();
+      }
+      else{
+        final snackBar = SnackBar(content: Text('EntityID is not exist.'));
+        _globalKey.currentState.showSnackBar(snackBar);
+      }
       return response.body;
     } else {
-      final snackBar = SnackBar(content: Text('Failed to login'));
+      final snackBar = SnackBar(content: Text('Failed to register'));
       _globalKey.currentState.showSnackBar(snackBar);
       throw Exception('Failed to load post');
     }
