@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
-import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -53,7 +52,6 @@ class _SaleOrderState extends State<SaleOrder> {
   }
 
   Future<SaleOrderModel> deleteSaleOrder(int saleId) async {
-    print('Delete');
     var response = await _apiHelper.deleteData('/api/SaleOrder/', saleId);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
@@ -106,7 +104,6 @@ class _SaleOrderState extends State<SaleOrder> {
                 return Slidable(
                   actionPane: SlidableDrawerActionPane(),
                   actionExtentRatio: 0.25,
-                  // return Card(
                   child: Container(
                     decoration: BoxDecoration(color: Colors.lightBlue[50]),
                     child: ListTile(
@@ -128,20 +125,17 @@ class _SaleOrderState extends State<SaleOrder> {
                   ),
                   secondaryActions: <Widget>[
                     IconSlideAction(
-                      caption: 'Edit',
-                      color: Colors.blue[300],
-                      icon: Icons.edit,
-                      onTap: () {
-                        print('Edit');
-                        print(snapshot.data[index]);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddSaleOrder(
-                                      saleorder: snapshot.data[index],
-                                    )));
-                      }
-                    ),
+                        caption: 'Edit',
+                        color: Colors.blue[300],
+                        icon: Icons.edit,
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddSaleOrder(
+                                        saleorder: snapshot.data[index],
+                                      )));
+                        }),
                     IconSlideAction(
                       caption: 'Delete',
                       color: Colors.red,
@@ -149,8 +143,8 @@ class _SaleOrderState extends State<SaleOrder> {
                       onTap: () {
                         deleteSaleOrder(snapshot.data[index].saleOrderId);
                         setState(() {
-                         snapshot.data.removeAt(index);
-                         fetchSaleOrderData();
+                          snapshot.data.removeAt(index);
+                          fetchSaleOrderData();
                         });
                       },
                     ),

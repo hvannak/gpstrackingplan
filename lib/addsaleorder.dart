@@ -75,22 +75,16 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
         _listSaleItem = result;
         _oderQty.text = getSumQty().toString();
         _orderTotal.text = getTotalPrice().toString();
-      print('getSumQty()= $_oderQty');
-      print(' getTotalPrice()= $_orderTotal');
       });
     } else {
       List<SaleOrderItemModel> item = new List<SaleOrderItemModel>();
       List<SaleOrderItemModel> result = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(item)));
-      print('result = ${result.length}');
       setState(() {
         _listSaleItem = result;
         print('item result add page saleorder = ${_listSaleItem.length}');
         _oderQty.text = getSumQty();
         _orderTotal.text = getTotalPrice();
-        print('getSumQty()= ${ _oderQty.text}');
-        print(' getTotalPrice()= ${_orderTotal.text}');
-        
       });
     }
     return _listSaleItem;
@@ -109,7 +103,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       'OrderDate': _date.text,
       'Details': SaleOrderItemModel.encondeToJson(_listSaleItem)
     };
-    print(body);
     if (saleOrderId != 0) {
       response =
           await _apiHelper.fetchPut('/SaleOrder/Update', body, saleOrderId);
@@ -132,21 +125,17 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     }
   }
 
-  
-
-String getSumQty() {
- print('log getSumQty');
-  double sum = 0;
-    for(int i = 0; i < _listSaleItem.length; i++)
+  String getSumQty() {
+    double sum = 0;
+    for (int i = 0; i < _listSaleItem.length; i++)
       sum += _listSaleItem[i].orderQty;
     return sum.toString();
-}
+  }
 
-String getTotalPrice(){
-  print('log getTotalPrice');
-  double total = 0;
-    for(int i = 0; i < _listSaleItem.length; i++)
-        total += _listSaleItem[i].extendedPrice;
+  String getTotalPrice() {
+    double total = 0;
+    for (int i = 0; i < _listSaleItem.length; i++)
+      total += _listSaleItem[i].extendedPrice;
     return total.toString();
   }
 
