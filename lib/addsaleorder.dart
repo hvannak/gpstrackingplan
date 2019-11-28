@@ -49,7 +49,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   }
 
   List<SaleOrderItemModel> _listSaleItem = [];
-  _navigateTakePictureScreen(BuildContext context) async {
+  _navigateDisplaySaleOrderItem(BuildContext context) async {
     if (saleorder != null) {
       List<SaleOrderItemModel> result = await Navigator.push(
           context,
@@ -147,9 +147,9 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
         title: Text('Add Sale Order'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add_circle),
+            icon: Icon(Icons.list),
             onPressed: () {
-              _navigateTakePictureScreen(context);
+              _navigateDisplaySaleOrderItem(context);
             },
           )
         ],
@@ -249,6 +249,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                 val.isEmpty ? "OrderQty is required" : null,
                             autocorrect: false,
                             autofocus: false,
+                            enabled: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "OrderQty",
@@ -266,6 +267,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                 val.isEmpty ? "OrderTotal is required" : null,
                             autocorrect: false,
                             autofocus: false,
+                            enabled: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "OrderTotal",

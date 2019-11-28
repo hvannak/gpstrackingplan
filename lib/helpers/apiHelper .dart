@@ -62,8 +62,6 @@ class ApiHelper {
   }
 
   Future<http.Response> fetchData(String url) async {
-    print('url');
-    print(_urlSetting);
     final response = await http.get(_urlSetting + url, headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token

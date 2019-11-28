@@ -5,29 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'helpers/apiHelper .dart';
 import 'models/saleordermodel.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class SaleOrder extends StatefulWidget {
   _SaleOrderState createState() => _SaleOrderState();
 }
 
 class _SaleOrderState extends State<SaleOrder> {
-  String _token = '';
-  String _urlSetting = '';
   final _globalKey = GlobalKey<ScaffoldState>();
   String customerId = '';
   List<SaleOrderModel> _list = [];
   ApiHelper _apiHelper;
 
   Future<List<SaleOrderModel>> fetchSaleOrderData() async {
-    final response = await http
-        .get(_urlSetting + '/api/SaleOrder/Customer/' + customerId, headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
+    final response =
+        await _apiHelper.fetchData('/api/SaleOrder/Customer/' + customerId);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       _list = [];
@@ -50,7 +43,6 @@ class _SaleOrderState extends State<SaleOrder> {
   }
 
   Future<String> deleteSaleOrder(int saleId) async {
-    print('Delete');
     var response = await _apiHelper.deleteData('/api/SaleOrder/', saleId);
     if (response.statusCode == 200) {
       final snackBar = SnackBar(content: Text('Delete successfully'));
@@ -100,9 +92,41 @@ class _SaleOrderState extends State<SaleOrder> {
               itemBuilder: (BuildContext context, int index) {
                 return new Dismissible(
                   key: new Key(snapshot.data[index].saleOrderId.toString()),
-                  onDismissed: (direction){
+                  onDismissed: (direction) {
                     deleteSaleOrder(snapshot.data[index].saleOrderId);
                     snapshot.data.removeAt(index);
+                  },
+                  confirmDismiss: (direction) async {
+                    if(snapshot.data[index].issync == true){
+                      final snackBar = SnackBar(
+                          content: Text(
+                              'Your order have processed. You cannot delete it.'));
+                      _globalKey.currentState.showSnackBar(snackBar);
+                      return false;
+                    }
+                    else{
+                      final bool result = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Confirm"),
+                          content: const Text(
+                              "Are you sure you want to delete this item?"),
+                          actions: <Widget>[
+                            FlatButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text("DELETE")),
+                            FlatButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text("CANCEL"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return result;
+                    }                  
                   },
                   child: Card(
                     child: ListTile(
@@ -122,11 +146,11 @@ class _SaleOrderState extends State<SaleOrder> {
                       ),
                       onTap: () {
                         Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddSaleOrder(
-                                        saleorder: snapshot.data[index],
-                                      )));
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddSaleOrder(
+                                      saleorder: snapshot.data[index],
+                                    )));
                       },
                     ),
                   ),
