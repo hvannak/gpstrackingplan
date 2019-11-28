@@ -45,22 +45,18 @@ class _SaleOrderState extends State<SaleOrder> {
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
-      customerId = (prefs.getString('linkedCustomerID') ?? '');
       _apiHelper = ApiHelper(prefs);
+      customerId = _apiHelper.linkedCustomerID;
     });
   }
 
-  Future<SaleOrderModel> deleteSaleOrder(int saleId) async {
+  Future<String> deleteSaleOrder(int saleId) async {
     print('Delete');
     var response = await _apiHelper.deleteData('/api/SaleOrder/', saleId);
     if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      SaleOrderModel saleOrder = SaleOrderModel.fromJson(jsonData);
       final snackBar = SnackBar(content: Text('Delete successfully'));
       _globalKey.currentState.showSnackBar(snackBar);
-      return saleOrder;
+      return response.body;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
       _globalKey.currentState.showSnackBar(snackBar);
@@ -103,12 +99,13 @@ class _SaleOrderState extends State<SaleOrder> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (BuildContext context, int index) {
-                return Slidable(
-                  actionPane: SlidableDrawerActionPane(),
-                  actionExtentRatio: 0.25,
-                  // return Card(
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.lightBlue[50]),
+                return new Dismissible(
+                  key: new Key(snapshot.data[index].saleOrderId.toString()),
+                  onDismissed: (direction){
+                    deleteSaleOrder(snapshot.data[index].saleOrderId);
+                    snapshot.data.removeAt(index);
+                  },
+                  child: Card(
                     child: ListTile(
                       title: Text(
                         snapshot.data[index].orderNumber,
@@ -124,37 +121,16 @@ class _SaleOrderState extends State<SaleOrder> {
                             ' total ' +
                             snapshot.data[index].orderTotal.toString(),
                       ),
-                    ),
-                  ),
-                  secondaryActions: <Widget>[
-                    IconSlideAction(
-                      caption: 'Edit',
-                      color: Colors.blue[300],
-                      icon: Icons.edit,
                       onTap: () {
-                        print('Edit');
-                        print(snapshot.data[index]);
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddSaleOrder(
-                                      saleorder: snapshot.data[index],
-                                    )));
-                      }
-                    ),
-                    IconSlideAction(
-                      caption: 'Delete',
-                      color: Colors.red,
-                      icon: Icons.delete,
-                      onTap: () {
-                        deleteSaleOrder(snapshot.data[index].saleOrderId);
-                        setState(() {
-                         snapshot.data.removeAt(index);
-                         fetchSaleOrderData();
-                        });
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddSaleOrder(
+                                        saleorder: snapshot.data[index],
+                                      )));
                       },
                     ),
-                  ],
+                  ),
                 );
               },
             );

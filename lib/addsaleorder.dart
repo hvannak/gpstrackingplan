@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:gpstrackingplan/displaysaleorderitem.dart';
+import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,6 +36,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _date = TextEditingController();
   _AddSaleOrderState(this.saleorder);
   ApiHelper _apiHelper;
+  ControlHelper _controlHelper = ControlHelper();
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,24 +45,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       _urlSetting = (prefs.getString('url') ?? '');
       _customerId.text = (prefs.getString('linkedCustomerID') ?? '');
       _apiHelper = ApiHelper(prefs);
-    });
-  }
-
-  Future<Null> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2018),
-      lastDate: DateTime(2050),
-      builder: (BuildContext context, Widget child) {
-        return Theme(
-          data: ThemeData.dark(),
-          child: child,
-        );
-      },
-    );
-    setState(() {
-      _date.text = DateFormat('yyyy-MM-dd').format(picked);
     });
   }
 
@@ -154,7 +138,7 @@ String getTotalPrice(){
   void initState() {
     super.initState();
     _loadSetting();
-    _orderNbr.text = 'New';
+    _orderNbr.text = 'NEW';
     if (saleorder != null) {
       _orderNbr.text = saleorder.orderNumber.toString();
       _customerId.text = saleorder.customerId.toString();
@@ -169,6 +153,7 @@ String getTotalPrice(){
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
+      key: _globalKey,
       appBar: AppBar(
         title: Text('Add Sale Order'),
         actions: <Widget>[
@@ -187,8 +172,7 @@ String getTotalPrice(){
               padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
               decoration: BoxDecoration(
                   color: Colors.white,
-                  shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(20.0)),
+                  shape: BoxShape.rectangle),           
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -204,6 +188,7 @@ String getTotalPrice(){
                                   val.isEmpty ? "OrderNbr is required" : null,
                               autocorrect: false,
                               autofocus: false,
+                              enabled: false,
                               style: TextStyle(fontSize: 14.0),
                               decoration: InputDecoration(
                                 hintText: "OrderNbr",
@@ -221,6 +206,7 @@ String getTotalPrice(){
                                 val.isEmpty ? "CustomerID is required" : null,
                             autocorrect: false,
                             autofocus: false,
+                            enabled: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
                                 hintText: "CustomerID",
@@ -243,6 +229,27 @@ String getTotalPrice(){
                                 filled: true,
                                 fillColor: Colors.grey[200],
                                 contentPadding: EdgeInsets.all(15.0)),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10.0),
+                          child: TextFormField(
+                            controller: _date,
+                            validator: (val) =>
+                                val.isEmpty ? "Date is required" : null,
+                            autocorrect: false,
+                            autofocus: false,
+                            style: TextStyle(fontSize: 14.0),
+                            decoration: InputDecoration(
+                                hintText: "Date",
+                                border: InputBorder.none,
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                                contentPadding: EdgeInsets.all(15.0)),
+                            onTap: () async {
+                              var date = await _controlHelper.selectDate(context);
+                              _date.text = date;
+                            },
                           ),
                         ),
                         Padding(
@@ -277,32 +284,6 @@ String getTotalPrice(){
                                 filled: true,
                                 fillColor: Colors.grey[200],
                                 contentPadding: EdgeInsets.all(15.0)),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextFormField(
-                            controller: _date,
-                            validator: (val) =>
-                                val.isEmpty ? "Date is required" : null,
-                            autocorrect: false,
-                            autofocus: false,
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                              hintText: "Date",
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(
-                                    width: 0,
-                                    style: BorderStyle.none,
-                                  )),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              contentPadding: EdgeInsets.all(15.0),
-                            ),
-                            onTap: () {
-                              _selectDate(context);
-                            },
                           ),
                         ),
                         Padding(

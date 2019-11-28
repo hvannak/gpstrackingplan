@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/helpers/datasearchleave.dart';
-import 'package:gpstrackingplan/helpers/jsonHelper.dart';
 import 'package:gpstrackingplan/helpers/preferenceHelper.dart';
 import 'package:gpstrackingplan/models/takeleavemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -134,7 +133,7 @@ class _MyTakeLeaveState extends State<MyTakeLeave> {
                     deletLeaveData(snapshot.data[index].leaveID);
                     snapshot.data.removeAt(index);
                   },
-                  child: Container(
+                  child: Card(
                     child: ListTile(
                       leading: Icon(Icons.person),
                       title: Text(snapshot.data[index].employeeName),
