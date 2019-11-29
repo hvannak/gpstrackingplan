@@ -175,6 +175,7 @@ class _MyDrawerState extends State<MyDrawer> {
       prefs.remove('fullname');
       prefs.remove('linkedCustomerID');
       prefs.remove('Id');
+      prefs.remove('deleteItems');
     });
   }
 

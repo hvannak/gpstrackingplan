@@ -28,8 +28,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   final String title;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _token = '';
-  String _urlSetting = '';
   var _orderNbr = TextEditingController();
   var _customerId = TextEditingController();
   var _description = TextEditingController();
@@ -54,7 +52,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       List<SaleOrderItemModel> result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => DisplaySaleOrderItem(listSaleItem: saleorder.details,title: "Edit List Items",)));
+              builder: (context) => DisplaySaleOrderItem(listSaleItem: saleorder.details,title: "Edit List Items",saleOrderId: saleorder.saleOrderId,)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty().toString();
@@ -62,7 +60,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       });
     } else {
       List<SaleOrderItemModel> result = await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: null,title: "Add List Items",)));
+          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: null,title: "Add List Items",saleOrderId: 0,)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty();
@@ -73,6 +71,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   }
 
   Future<String> fetchPost(saleOrderId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var deleteItems = (prefs.getString('deleteItems') ?? '');
     var response;
     var body = {
       'SaleOrderID': saleOrderId,
@@ -83,22 +83,18 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       'OrderQty': _oderQty.text,
       'OrderTotal': _orderTotal.text,
       'OrderDate': _date.text,
+      'DeletedSaleOrderDetails':deleteItems,
       'Details': SaleOrderItemModel.encondeToJson(_listSaleItem)
     };
     if (saleOrderId != 0) {
-      response =
-          await _apiHelper.fetchPut('/SaleOrder/Update', body, saleOrderId);
+      response = await _apiHelper.fetchPut1('/api/SaleOrder/Update', body);
+      prefs.remove('deleteItems');
     } else {
-      response = await http.post(_urlSetting + '/api/SaleOrder/Create',
-          body: json.encode(body),
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader: "Bearer " + _token
-          });
+      response = await _apiHelper.fetchPost1('/api/SaleOrder/Create', body);
     }
 
     print(response.statusCode);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 204 || response.statusCode == 201) {
       Navigator.of(context).pop();
       return response.body;
     } else {

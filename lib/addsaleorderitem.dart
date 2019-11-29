@@ -9,20 +9,22 @@ import 'helpers/apiHelper .dart';
 
 class AddSaleOrderItem extends StatefulWidget {
   final SaleOrderItemModel saleorderitem;
+  final int saleOrderId;
   final List<InventoryModel> listIn;
   final String title;
-  AddSaleOrderItem({Key key, this.saleorderitem, this.listIn, this.title})
+  AddSaleOrderItem({Key key, this.saleorderitem, this.listIn, this.title,this.saleOrderId})
       : super(key: key);
   @override
   _AddSaleOrderItemState createState() =>
-      _AddSaleOrderItemState(this.saleorderitem, this.listIn, this.title);
+      _AddSaleOrderItemState(this.saleorderitem, this.listIn, this.title,this.saleOrderId);
 }
 
 class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   final SaleOrderItemModel saleorderitem;
   final String title;
+  final int saleOrderId;
   List<InventoryModel> _listInventory;
-  _AddSaleOrderItemState(this.saleorderitem, this._listInventory, this.title);
+  _AddSaleOrderItemState(this.saleorderitem, this._listInventory, this.title,this.saleOrderId);
 
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
@@ -33,6 +35,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   String _inventory = '';
   String _warehouse = 'M000';
   String _priceclass = '';
+  int _saleOrderDetailId = 0;
   ApiHelper _apiHelper;
 
   _loadSetting() async {
@@ -87,7 +90,10 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   void initState() {
     super.initState();
     _loadSetting();
+    print('SaleId');
+    print(saleOrderId);
     if (saleorderitem != null) {
+      _saleOrderDetailId = saleorderitem.orderDetailId;
       _inventory = _listInventory[0].inventoryId;
       _warehouse = saleorderitem.warehouseId;
       _orderQty.text = saleorderitem.orderQty.toString();
@@ -364,8 +370,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   if (_formKey.currentState.validate()) {
                                     SaleOrderItemModel itemModel =
                                         SaleOrderItemModel();
-                                    itemModel.saleOrderId = 0;
-                                    itemModel.orderDetailId = 0;
+                                    itemModel.saleOrderId = saleOrderId;
+                                    itemModel.orderDetailId = _saleOrderDetailId;
                                     itemModel.inventoryId = _inventory;
                                     itemModel.orderQty =
                                         double.parse(_orderQty.text);

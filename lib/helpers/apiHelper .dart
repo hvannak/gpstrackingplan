@@ -11,6 +11,7 @@ class ApiHelper {
   String _userId = '';
   String _linkedCustomerID;
   String _priceClass;
+  String _deleteSaleorderItems;
 
   ApiHelper(SharedPreferences sharedPreferences) {
     _token = (sharedPreferences.getString('token') ?? '');
@@ -19,6 +20,7 @@ class ApiHelper {
     _userId = (sharedPreferences.getString('Id') ?? '');
     _linkedCustomerID = (sharedPreferences.getString('linkedCustomerID') ?? '');
     _priceClass = (sharedPreferences.getString('priceclass') ?? '');
+    _deleteSaleorderItems = (sharedPreferences.getString('deleteItems') ?? '');
     if (_urlSetting == '') {
       sharedPreferences.setString('url', 'http://192.168.100.140:8184');
       _urlSetting = 'http://192.168.100.140:8184';
@@ -34,8 +36,9 @@ class ApiHelper {
   }
 
   Future<http.Response> fetchPost1(
-    String url, Map<String, dynamic> body) async {
-    final response = await http.post(_urlSetting + url, body: json.encode(body), headers: {
+      String url, Map<String, dynamic> body) async {
+    final response =
+        await http.post(_urlSetting + url, body: json.encode(body), headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token
     });
@@ -45,11 +48,26 @@ class ApiHelper {
 
   Future<http.Response> fetchPut(
       String url, Map<String, dynamic> body, int id) async {
-    var response =
-        await http.put(_urlSetting + url + id.toString(), body: jsonEncode(body), headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: "Bearer " + _token
-    });
+    print(jsonEncode(body));
+    var response = await http.put(_urlSetting + url + id.toString(),
+        body: jsonEncode(body),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer " + _token
+        });
+    print('Fetch Put');
+    return response;
+  }
+
+  Future<http.Response> fetchPut1(
+      String url, Map<String, dynamic> body) async {
+    print(jsonEncode(body));
+    var response = await http.put(_urlSetting + url,
+        body: jsonEncode(body),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer " + _token
+        });
     print('Fetch Put');
     return response;
   }
@@ -73,7 +91,8 @@ class ApiHelper {
   }
 
   Future<http.Response> deleteData(String url, int id) async {
-    final response = await http.delete(_urlSetting + url + id.toString(), headers: {
+    final response =
+        await http.delete(_urlSetting + url + id.toString(), headers: {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token
     });
@@ -95,5 +114,9 @@ class ApiHelper {
 
   String get priceClass {
     return _priceClass;
+  }
+
+  String get deleteSaleorderItems {
+    return _deleteSaleorderItems;
   }
 }

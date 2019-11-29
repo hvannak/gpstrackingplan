@@ -11,24 +11,28 @@ import 'models/inventorymodel.dart';
 class DisplaySaleOrderItem extends StatefulWidget {
   final List<SaleOrderItemModel> listSaleItem;
   final String title;
-  DisplaySaleOrderItem({Key key, this.listSaleItem, this.title})
+  final int saleOrderId;
+  DisplaySaleOrderItem({Key key, this.listSaleItem, this.title,this.saleOrderId})
       : super(key: key);
   _DisplaySaleOrderItemState createState() =>
-      _DisplaySaleOrderItemState(this.listSaleItem, this.title);
+      _DisplaySaleOrderItemState(this.listSaleItem, this.title,this.saleOrderId);
 }
 
 class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
-  final List<SaleOrderItemModel> listSaleItem;
+  List<SaleOrderItemModel> listSaleItem;
   final String title;
-  _DisplaySaleOrderItemState(this.listSaleItem, this.title);
+  final int saleOrderId;
+  _DisplaySaleOrderItemState(this.listSaleItem, this.title,this.saleOrderId);
   final _globalKey = GlobalKey<ScaffoldState>();
   List<InventoryModel> _listInventory = [];
+  String _deleteSaleorderItems='';
   ApiHelper _apiHelper;
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _apiHelper = ApiHelper(prefs);
+      _deleteSaleorderItems = _apiHelper.deleteSaleorderItems;
     });
   }
 
@@ -38,29 +42,32 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
         MaterialPageRoute(
             builder: (context) => AddSaleOrderItem(
                   saleorderitem: null,
+                  listIn: null,
+                  saleOrderId: saleOrderId,
                   title: "Add Items",
                 )));
+    print('Result Test');
+    print(result.orderQty);
     if(result != null){
       setState(() {
+        if(listSaleItem == null)
+          listSaleItem = [];
         listSaleItem.add(result);
       });
     }
     return listSaleItem;
   }
 
-  _navigateEditSaleOrderItem(BuildContext context,SaleOrderItemModel itemModel,List<InventoryModel> listInventory) async {
+  _navigateEditSaleOrderItem(BuildContext context,SaleOrderItemModel itemModel,List<InventoryModel> listInventory,int index) async {
     SaleOrderItemModel result = await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddSaleOrderItem(
                   saleorderitem: itemModel,
                   listIn:listInventory,
+                  saleOrderId: itemModel.saleOrderId,
                   title: "Edit Items",
                 )));
-    print('Edit list item');
-    print(result.orderQty);
-    var index = listSaleItem.indexWhere((f)=>f.orderDetailId == result.orderDetailId);
-    print(index);
     setState(() {
       listSaleItem[index] = result;
     });
@@ -117,8 +124,13 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
           itemBuilder: (BuildContext context, int index) {
             return new Dismissible(
               key: new Key(listSaleItem[index].saleOrderId.toString()),
-              onDismissed: (direction) {
-                // deleteSaleOrder(listSaleItem[index].saleOrderId);
+              onDismissed: (direction) async{
+                if(listSaleItem[index].orderDetailId != 0){
+                  _deleteSaleorderItems += listSaleItem[index].orderDetailId.toString() + ',';
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setString('deleteItems', _deleteSaleorderItems);
+                  print(_deleteSaleorderItems);
+                }
                 listSaleItem.removeAt(index);
               },
               child: Card(
@@ -137,7 +149,7 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
                       listSaleItem[index].extendedPrice.toString()),
                   onTap: () async {
                     var inventoryList = await fetchInventoryById(listSaleItem[index].inventoryId);
-                    _navigateEditSaleOrderItem(context,listSaleItem[index],inventoryList);
+                    _navigateEditSaleOrderItem(context,listSaleItem[index],inventoryList,index);
                   },
                 ),
               ),
