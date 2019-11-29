@@ -15,17 +15,19 @@ import 'models/saleorderitemmodel.dart';
 class AddSaleOrder extends StatefulWidget {
   final SaleOrderModel saleorder;
   final String title;
+  final String customername;
   AddSaleOrder({
     Key key,
-    this.saleorder,this.title
+    this.saleorder,this.title,this.customername
   }) : super(key: key);
   @override
-  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder,this.title);
+  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder,this.title,this.customername);
 }
 
 class _AddSaleOrderState extends State<AddSaleOrder> {
   final SaleOrderModel saleorder;
   final String title;
+  final String customername;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   var _orderNbr = TextEditingController();
@@ -34,7 +36,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
   var _date = TextEditingController();
-  _AddSaleOrderState(this.saleorder,this.title);
+  _AddSaleOrderState(this.saleorder,this.title,this.customername);
   ApiHelper _apiHelper;
   ControlHelper _controlHelper = ControlHelper();
 
@@ -78,7 +80,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       'SaleOrderID': saleOrderId,
       'OrderNbr': _orderNbr.text,
       'CustomerID': _customerId.text,
-      'CustomerDescr': 'test',
+      'CustomerDescr': customername,
       'OrderDesc': _description.text,
       'OrderQty': _oderQty.text,
       'OrderTotal': _orderTotal.text,

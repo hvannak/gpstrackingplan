@@ -99,6 +99,7 @@ class _SaleOrderState extends State<SaleOrder> {
                       builder: (context) => AddSaleOrder(
                             saleorder: null,
                             title: "Add Order",
+                            customername: customer.customerName,
                           )));
             },
           )
@@ -182,6 +183,7 @@ class _SaleOrderState extends State<SaleOrder> {
                                 builder: (context) => AddSaleOrder(
                                       saleorder: snapshot.data[index],
                                       title: "Edit Order",
+                                      customername: customer.customerName,
                                     )));
                       },
                     ),
