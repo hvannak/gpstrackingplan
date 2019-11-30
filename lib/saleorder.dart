@@ -38,7 +38,8 @@ class _SaleOrderState extends State<SaleOrder> {
         await _apiHelper.fetchData('/api/Customer/CustomerID/' + id);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body) as List;
-      List<Customermodel> customerList = jsonData.map((i) => Customermodel.fromJson(i)).toList();
+      List<Customermodel> customerList =
+          jsonData.map((i) => Customermodel.fromJson(i)).toList();
       return customerList[0];
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
@@ -170,19 +171,54 @@ class _SaleOrderState extends State<SaleOrder> {
                             snapshot.data[index].orderTotal.toString(),
                       ),
                       onTap: () async {
-                        var customer = await fetchGetCustomerById(_apiHelper.linkedCustomerID);
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        setState(() {
-                          prefs.setString('priceclass', customer.priceclass);
-                        });
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddSaleOrder(
-                                      saleorder: snapshot.data[index],
-                                      title: "Edit Order",
-                                      customername: customer.customerName,
-                                    )));
+                        if (snapshot.data[index].issync == true) {
+                          // final snackBar = SnackBar(
+                          // content: Text(
+                          //     'Your order have processed. You cannot edit it.'));
+                          //     _globalKey.currentState.showSnackBar(snackBar);
+                          return showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Your order have processed'),
+                                content: const Text(
+                                    'You can review but can not edit'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddSaleOrder(
+                                                    saleorder:
+                                                        snapshot.data[index],
+                                                    title: "View Order",
+                                                  )));
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          var customer = await fetchGetCustomerById(
+                              _apiHelper.linkedCustomerID);
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          setState(() {
+                            prefs.setString('priceclass', customer.priceclass);
+                          });
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddSaleOrder(
+                                        saleorder: snapshot.data[index],
+                                        title: "Edit Order",
+                                        customername: customer.customerName,
+                                      )));
+                        }
                       },
                     ),
                   ),
