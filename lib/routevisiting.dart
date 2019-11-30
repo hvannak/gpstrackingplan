@@ -1,8 +1,5 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,14 +7,10 @@ import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/routemapping.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:auto_size_text/auto_size_text.dart';
-
 import 'helpers/apiHelper .dart';
-import 'helpers/preferenceHelper.dart';
+
 
 class Routevisiting extends StatelessWidget {
   @override

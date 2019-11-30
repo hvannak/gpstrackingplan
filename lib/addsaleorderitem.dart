@@ -90,8 +90,6 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   void initState() {
     super.initState();
     _loadSetting();
-    print('SaleId');
-    print(saleOrderId);
     if (saleorderitem != null) {
       _saleOrderDetailId = saleorderitem.orderDetailId;
       _inventory = _listInventory[0].inventoryId;
@@ -119,6 +117,12 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         appBar: AppBar(
+          leading: new IconButton(
+            icon: new Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context, saleorderitem);
+            },
+          ),
           title: Text('Add Sale Order Item'),
         ),
         body: Stack(

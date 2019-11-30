@@ -1,9 +1,8 @@
-import 'dart:convert';
+
 import 'dart:io' as io;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:gpstrackingplan/routevisiting.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 

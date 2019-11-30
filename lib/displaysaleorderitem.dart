@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorderitem.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'helpers/apiHelper .dart';
 import 'models/inventorymodel.dart';
 
@@ -46,8 +44,7 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
                   saleOrderId: saleOrderId,
                   title: "Add Items",
                 )));
-    print('Result Test');
-    print(result.orderQty);
+
     if(result != null){
       setState(() {
         if(listSaleItem == null)
@@ -129,7 +126,7 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
                   _deleteSaleorderItems += listSaleItem[index].orderDetailId.toString() + ',';
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   prefs.setString('deleteItems', _deleteSaleorderItems);
-                  print(_deleteSaleorderItems);
+                  // print(_deleteSaleorderItems);
                 }
                 listSaleItem.removeAt(index);
               },

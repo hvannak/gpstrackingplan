@@ -1,10 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
 import 'helpers/apiHelper .dart';
 
 class Register extends StatefulWidget {
@@ -15,7 +10,7 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _urlSetting = '';
+  // String _urlSetting = '';
   var _userName = TextEditingController();
   var _email = TextEditingController();
   var _fullName = TextEditingController();

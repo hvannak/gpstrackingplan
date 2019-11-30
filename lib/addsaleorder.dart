@@ -1,14 +1,10 @@
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-
 import 'package:gpstrackingplan/displaysaleorderitem.dart';
 import 'package:gpstrackingplan/helpers/controlHelper.dart';
 import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'helpers/apiHelper .dart';
 import 'models/saleorderitemmodel.dart';
 

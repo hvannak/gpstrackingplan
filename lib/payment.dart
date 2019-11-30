@@ -1,13 +1,13 @@
 
-import 'dart:convert';
-import 'dart:io';
+// import 'dart:convert';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:gpstrackingplan/displaypayment.dart';
-import 'models/payment.dart';
+// import 'models/payment.dart';
 
 class Payment extends StatefulWidget {
 
@@ -17,17 +17,17 @@ class Payment extends StatefulWidget {
 class _PaymentState extends State<Payment> {
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  String _token = '';
-  String _urlSetting = '';
+  // String _token = '';
+  // String _urlSetting = '';
   String customerId = '';
   var fromdate = TextEditingController();
   var todate = TextEditingController();
-  List<Paymentmodel> _list = [];
+  // List<Paymentmodel> _list = [];
    _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _token = (prefs.getString('token') ?? '');
-      _urlSetting = (prefs.getString('url') ?? '');
+      // _token = (prefs.getString('token') ?? '');
+      // _urlSetting = (prefs.getString('url') ?? '');
       customerId = (prefs.getString('linkedCustomerID') ?? '');
 
       print('test customerID = $customerId');
