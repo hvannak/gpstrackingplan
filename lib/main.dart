@@ -70,6 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MyDashboard()));
     }
+    else{
+      var jsonData = jsonDecode(respone.body)['message'];
+      final snackBar = SnackBar(content: Text(jsonData));
+      _globalKey.currentState.showSnackBar(snackBar);
+    }
   }
 
   @override
