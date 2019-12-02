@@ -108,7 +108,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
     double.parse(_orderQty.text);
     double total = double.parse(_unitPrice.text) * double.parse(_orderQty.text);
     setState(() {
-      _extendedPrice.text = total.toString();
+      _extendedPrice.text = total.toStringAsFixed(4);
     });
   }
 
