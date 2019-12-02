@@ -172,36 +172,11 @@ class _SaleOrderState extends State<SaleOrder> {
                       ),
                       onTap: () async {
                         if (snapshot.data[index].issync == true) {
-                          // final snackBar = SnackBar(
-                          // content: Text(
-                          //     'Your order have processed. You cannot edit it.'));
-                          //     _globalKey.currentState.showSnackBar(snackBar);
-                          return showDialog<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Your order have processed'),
-                                content: const Text(
-                                    'You can review but can not edit'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text('Ok'),
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddSaleOrder(
-                                                    saleorder:
-                                                        snapshot.data[index],
-                                                    title: "View Order",
-                                                  )));
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          final snackBar = SnackBar(
+                          content: Text(
+                              'Your order have processed. You cannot edit it.'));
+                              _globalKey.currentState.showSnackBar(snackBar);
+                          
                         } else {
                           var customer = await fetchGetCustomerById(
                               _apiHelper.linkedCustomerID);
