@@ -29,7 +29,6 @@ class _CustomerOutstandingState extends State<CustomerOutstanding> {
           });
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
-        print(total);
         setState(() {
           total = jsonData['BalancebyDocuments']['value'];
           isState = true;
