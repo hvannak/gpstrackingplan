@@ -112,7 +112,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     double total = 0;
     for (int i = 0; i < _listSaleItem.length; i++)
       total += _listSaleItem[i].extendedPrice;
-    return total.toString();
+    return total.toStringAsFixed(2);
   }
 
   @override

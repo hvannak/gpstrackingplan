@@ -33,7 +33,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   var _extendedPrice = TextEditingController();
   var _inventorySearch = TextEditingController();
   String _inventory = '';
-  String _warehouse = 'M000';
+  String _warehouse = 'F001';
   String _priceclass = '';
   int _saleOrderDetailId = 0;
   ApiHelper _apiHelper;
@@ -47,11 +47,12 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
   }
 
   Future<List<InventoryModel>> fetchInventoryData(String name) async {
-    final response = await _apiHelper.fetchData('/api/Inventory/InventoryName/' + name);
+    final response = await _apiHelper.fetchData('/api/Inventory/InventoryFeed/' + name);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
+      print('test json = $jsonData');
       _listInventory = [];
-      for (var item in jsonData) {
+      for (var item in jsonData['Results']) {
         InventoryModel inventorymodel = InventoryModel.fromJson(item);
         _listInventory.add(inventorymodel);
       }
