@@ -58,23 +58,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   fetchPost() async {
-    var body = {'UserName': _username.text, 'Password': _password.text};
-    var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body);
-    if (respone.statusCode == 200) {
-      Map<String, dynamic> tokenget = jsonDecode(respone.body);
-      var response1 = await _apiHelper.fetchData1('/api/UserProfile',tokenget['token']);
-      var jsonData = jsonDecode(response1.body);
-      Userprofile profile = Userprofile.fromJson(jsonData);
-      _setAppSetting(tokenget['token'], profile.fullName,
-          profile.linkedCustomerID, profile.iD);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MyDashboard()));
+    try{
+      var body = {'UserName': _username.text, 'Password': _password.text};
+      var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body);
+      if (respone.statusCode == 200) {
+        Map<String, dynamic> tokenget = jsonDecode(respone.body);
+        var response1 = await _apiHelper.fetchData1('/api/UserProfile',tokenget['token']);
+        var jsonData = jsonDecode(response1.body);
+        Userprofile profile = Userprofile.fromJson(jsonData);
+        _setAppSetting(tokenget['token'], profile.fullName,
+            profile.linkedCustomerID, profile.iD);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MyDashboard()));
+      }
+      else{
+        var jsonData = jsonDecode(respone.body)['message'];
+        final snackBar = SnackBar(content: Text(jsonData));
+        _globalKey.currentState.showSnackBar(snackBar);
+      }
     }
-    else{
-      var jsonData = jsonDecode(respone.body)['message'];
-      final snackBar = SnackBar(content: Text(jsonData));
+    catch(e){
+      final snackBar = SnackBar(content: Text(e.toString()));
       _globalKey.currentState.showSnackBar(snackBar);
-    }
+    }   
   }
 
   @override

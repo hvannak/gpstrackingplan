@@ -32,7 +32,6 @@ class ApiHelper {
         body: json.encode(body),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
     print('Fetch Post');
-    print(response.body);
     return response;
   }
 
