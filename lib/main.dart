@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   fetchPost() async {
     try{
       var body = {'UserName': _username.text, 'Password': _password.text};
-      var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body);
+      var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body).timeout(Duration(seconds: 20));
       if (respone.statusCode == 200) {
         Map<String, dynamic> tokenget = jsonDecode(respone.body);
         var response1 = await _apiHelper.fetchData1('/api/UserProfile',tokenget['token']);
@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     catch(e){
-      final snackBar = SnackBar(content: Text(e.toString()));
+      final snackBar = SnackBar(content: Text('Cannot connect to host'));
       _globalKey.currentState.showSnackBar(snackBar);
     }   
   }
