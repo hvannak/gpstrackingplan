@@ -29,30 +29,38 @@ class _RegisterState extends State<Register> {
   }
 
     Future<String> fetchPost() async {
-    var body = {
-      'UserName': _userName.text, 
-      'Password': _password.text,
-      'Email': _email.text,
-      'FullName': _fullName.text,
-      'LinkedCustomerID': _linkedCustomerID.text,
-      'Telephone': _telephone.text
-      };
-    final response = await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
-    if (response.statusCode == 200) {
-      print(response.body);
-      if(response.body != null){
-        Navigator.of(context).pop();
+      try{
+        var body = {
+          'UserName': _userName.text, 
+          'Password': _password.text,
+          'Email': _email.text,
+          'FullName': _fullName.text,
+          'LinkedCustomerID': _linkedCustomerID.text,
+          'Telephone': _telephone.text
+          };
+        final response = await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
+        if (response.statusCode == 200) {
+          print(response.body);
+          if(response.body != null){
+            Navigator.of(context).pop();
+          }
+          else{
+            final snackBar = SnackBar(content: Text('EntityID is not exist.'));
+            _globalKey.currentState.showSnackBar(snackBar);
+          }
+          return response.body;
+        } else {
+          final snackBar = SnackBar(content: Text('Failed to register'));
+          _globalKey.currentState.showSnackBar(snackBar);
+          throw Exception('Failed to load post');
+        }
       }
-      else{
-        final snackBar = SnackBar(content: Text('EntityID is not exist.'));
+      catch(e){
+        final snackBar = SnackBar(content: Text('Cannot connect to host'));
         _globalKey.currentState.showSnackBar(snackBar);
+        return e.toString();
       }
-      return response.body;
-    } else {
-      final snackBar = SnackBar(content: Text('Failed to register'));
-      _globalKey.currentState.showSnackBar(snackBar);
-      throw Exception('Failed to load post');
-    }
+ 
   }
 
   @override
