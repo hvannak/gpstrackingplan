@@ -34,6 +34,9 @@ dependencies:
   google_maps_flutter: ^0.5.21+8
   flutter_launcher_icons: ^0.7.4
 
+  # Sqlite database
+  sqflite: 
+
   # camera
   camera:
   path_provider:

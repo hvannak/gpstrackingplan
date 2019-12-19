@@ -1,11 +1,13 @@
 class Userprofile {
-  final String iD;
-  final String fullName;
-  final String email;
-  final String userName;
-  final String linkedCustomerID;
+   int  iD;
+   String fullName;
+   String email;
+   String userName;
+   String password;
+   String linkedCustomerID;
+   String telephone;
 
-  Userprofile({this.iD,this.fullName, this.email, this.userName,this.linkedCustomerID});
+  Userprofile({this.iD,this.fullName, this.email, this.userName,this.password,this.linkedCustomerID, this.telephone});
 
   factory Userprofile.fromJson(Map<String, dynamic> json) {
     return Userprofile(
@@ -13,7 +15,30 @@ class Userprofile {
       fullName: json['FullName'],
       email: json['Email'],
       userName: json['UserName'],
-      linkedCustomerID: json['LinkedCustomerID']
+      password: json['Password'],
+      linkedCustomerID: json['LinkedCustomerID'],
+      telephone: json['Telephone']
     );
   }
+
+  Userprofile.fromMap(dynamic obj) {
+    this.fullName = obj['FullName'];
+    this.email = obj['Email'];
+    this.userName = obj['UserName'];
+    this.password = obj['Password'];
+    this.linkedCustomerID = obj['LinkedCustomerID'];
+    this.telephone = obj['Telephone'];
+  }
+  
+  Map<String, dynamic> toMap()  {
+    var map = new Map<String, dynamic>();
+    map["FullName"] = fullName;
+    map["Email"] = email;
+    map["UserName"] = userName;
+    map["Password"] = password;
+    map["LinkedCustomerID"] = linkedCustomerID;
+    map["Telephone"] = telephone;
+    return map;
+  }
+
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gpstrackingplan/models/userprofile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
+import 'helpers/database_helper.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -20,7 +22,6 @@ class _RegisterState extends State<Register> {
   var _confirmPassword = TextEditingController();
   ApiHelper _apiHelper;
 
-
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -37,11 +38,22 @@ class _RegisterState extends State<Register> {
       'LinkedCustomerID': _linkedCustomerID.text,
       'Telephone': _telephone.text
       };
+    var user = Userprofile(
+      userName: _userName.text, 
+      password: _password.text,
+      email: _email.text,
+      fullName: _fullName.text,
+      linkedCustomerID: _linkedCustomerID.text,
+      telephone: _telephone.text
+    );
     final response = await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
     if (response.statusCode == 200) {
       print(response.body);
       if(response.body != null){
         Navigator.of(context).pop();
+        var db = DatabaseHelper();
+        db.saveUser(user);
+        print('user= $user');
       }
       else{
         final snackBar = SnackBar(content: Text('EntityID is not exist.'));

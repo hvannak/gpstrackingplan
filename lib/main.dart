@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/appsetting.dart';
 import 'package:gpstrackingplan/helpers/apiHelper%20.dart';
@@ -6,6 +7,7 @@ import 'package:gpstrackingplan/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard.dart';
 
+import 'helpers/database_helper.dart';
 import 'models/userprofile.dart';
 
 void main() => runApp(MyApp());
@@ -38,6 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   ApiHelper _apiHelper;
+  DatabaseHelper db;
+
+  bool _isLoading = false;
 
   _setAppSetting(
       String token, String fullname, String linkedCustomerID, String iD) async {
@@ -58,29 +63,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   fetchPost() async {
-    try{
+    try {
       var body = {'UserName': _username.text, 'Password': _password.text};
-      var respone = await _apiHelper.fetchPost('/api/ApplicationUser/Login', body).timeout(Duration(seconds: 20));
+      var respone = await _apiHelper
+          .fetchPost('/api/ApplicationUser/Login', body)
+          .timeout(Duration(seconds: 5));
       if (respone.statusCode == 200) {
         Map<String, dynamic> tokenget = jsonDecode(respone.body);
-        var response1 = await _apiHelper.fetchData1('/api/UserProfile',tokenget['token']);
+        var response1 =
+            await _apiHelper.fetchData1('/api/UserProfile', tokenget['token']);
         var jsonData = jsonDecode(response1.body);
         Userprofile profile = Userprofile.fromJson(jsonData);
         _setAppSetting(tokenget['token'], profile.fullName,
-            profile.linkedCustomerID, profile.iD);
+            profile.linkedCustomerID, profile.iD.toString());
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => MyDashboard()));
-      }
-      else{
+      } else {
         var jsonData = jsonDecode(respone.body)['message'];
         final snackBar = SnackBar(content: Text(jsonData));
         _globalKey.currentState.showSnackBar(snackBar);
       }
-    }
-    catch(e){
+    } catch (e) {
       final snackBar = SnackBar(content: Text('Cannot connect to host'));
       _globalKey.currentState.showSnackBar(snackBar);
-    }   
+    }
+  }
+
+  Future<Userprofile> _loginUser(String username, String password) async {
+    Userprofile user = await db.loginUser(username, password);
+    if (user != null) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyDashboard()));
+    } else {
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text("Wrong email or")));
+    }
+    return user;
   }
 
   @override
@@ -204,7 +222,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              fetchPost();
+                                              // fetchPost();
+                                              _loginUser(_username.text,
+                                                  _password.text);
                                             }
                                           },
                                           child: Text(
@@ -322,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              fetchPost();
+                                              // fetchPost();
                                               // showSnackbar(context);
                                             }
                                           },
