@@ -42,13 +42,10 @@ class DatabaseHelper {
 
   Future<Userprofile> loginUser(String username, String password) async {
     var dbClient = await db;
-    String sql =
-        "SELECT * FROM User WHERE UserName = $username AND Password = $password";
-    var result = await dbClient.rawQuery(sql);
+    var result = await dbClient.query('User',where: 'UserName = ? AND Password = ?',whereArgs: [username,password]);
     if (result.length > 0) {
       return new Userprofile.fromMap(result.first);
     }
-    print('test login = $result');
     return null;
   }
 

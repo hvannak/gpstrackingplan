@@ -40,7 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   ApiHelper _apiHelper;
-  DatabaseHelper db;
 
   bool _isLoading = false;
 
@@ -90,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Userprofile> _loginUser(String username, String password) async {
+    var db = DatabaseHelper();
     Userprofile user = await db.loginUser(username, password);
     if (user != null) {
       Navigator.push(
