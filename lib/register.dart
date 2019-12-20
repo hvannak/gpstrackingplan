@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/models/userprofile.dart';
+import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
 import 'helpers/database_helper.dart';
@@ -74,6 +75,23 @@ class _RegisterState extends State<Register> {
       return e.toString();
     }
   }
+
+  Future<void> _handleSubmit(BuildContext context) async {
+    try {
+      WaitingDialogs.showLoadingDialog(context, _globalKey);//invoking register
+      await fetchUserOrder();
+      Navigator.of(_globalKey.currentContext,rootNavigator: true).pop();//close the dialoge
+      Navigator.of(context).pop();
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<String>  fetchUserOrder() =>
+    Future.delayed(
+      Duration(seconds: 20),
+      () => 'Large Latte',
+    );
 
   @override
   void initState() {
@@ -275,7 +293,9 @@ class _RegisterState extends State<Register> {
                                         onPressed: () {
                                           if (_formKey.currentState
                                               .validate()) {
-                                            fetchPost();
+                                            print('Click');
+                                            // fetchPost();
+                                            _handleSubmit(context);
                                           }
                                         },
                                         child: Text(
