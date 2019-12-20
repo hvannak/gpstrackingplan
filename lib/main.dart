@@ -95,8 +95,8 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MyDashboard()));
     } else {
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text("Wrong email or")));
+      final snackBar = SnackBar(content: Text('wrong username or password'));
+      _globalKey.currentState.showSnackBar(snackBar);
     }
     return user;
   }

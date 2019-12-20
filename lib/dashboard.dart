@@ -64,36 +64,10 @@ class _MyDashboardState extends State<MyDashboard> {
                                   MaterialPageRoute(
                                       builder: (context) => Takeleave()));
                               break;
-                            // case 'payment':
-                            //   Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //           builder: (context) => Payment()));
-                            //   break;
-                            // case 'outstanding':
-                            //   Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //           builder: (context) =>
-                            //               CustomerOutstanding()));
-                            //   break;
-                            // case 'saleorder':
-                            //   Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //           builder: (context) => SaleOrder()));
-                            //   break;
-                            // case 'feedback':
-                            //   // Navigator.push(
-                            //   //     context,
-                            //   //     MaterialPageRoute(
-                            //   //         builder: (context) => Saleorders()));
-                            //   break;
+                            
                             default:
                           }
-                          // Navigator.push(
-                          //           context,
-                          //           MaterialPageRoute(builder: (context) => MyHomePage()));
+                         
                         },
                       ),
                     ),
@@ -128,24 +102,13 @@ class _MyDashboardState extends State<MyDashboard> {
         padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         children: <Widget>[
           myItems(Icons.map, "Route Visit", 0xffed622b, context, 'visit'),
-          // myItems(
-          //     Icons.graphic_eq, "Feedback", 0xffed622b, context, 'feedback'),
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
-          // myItems(
-          //     Icons.payment, "Payment", 0xffed622b, context, 'payment'),
-          // myItems(Icons.money_off, "Outstanding", 0xffed622b, context,
-          //     'outstanding'),
-          // myItems(Icons.account_box, "Sale Order", 0xffed622b, context,
-          //     'saleorder')
+          
         ],
         staggeredTiles: [
           StaggeredTile.extent(2, 130.0),
           StaggeredTile.extent(2, 130.0),
-          // StaggeredTile.extent(1, 130.0),
-          // StaggeredTile.extent(1, 130.0),
-          // StaggeredTile.extent(1, 130.0),
-          // StaggeredTile.extent(1, 130.0),
         ],
       ),
     );
@@ -235,33 +198,6 @@ class _MyDrawerState extends State<MyDrawer> {
                 context, MaterialPageRoute(builder: (context) => Takeleave()));
           },
         ),
-        // ListTile(
-        //   title: Text('Payment'),
-        //   leading: Icon(Icons.payment),
-        //   onTap: () {
-        //     Navigator.of(context).pop();
-        //     Navigator.push(
-        //         context, MaterialPageRoute(builder: (context) => Payment()));
-        //   },
-        // ),
-        // ListTile(
-        //   title: Text('Outstanding'),
-        //   leading: Icon(Icons.money_off),
-        //   onTap: () {
-        //     Navigator.of(context).pop();
-        //     Navigator.push(
-        //         context, MaterialPageRoute(builder: (context) => CustomerOutstanding()));
-        //   },
-        // ),
-        // ListTile(
-        //   title: Text('Sale Order'),
-        //   leading: Icon(Icons.account_box),
-        //   onTap: () {
-        //     Navigator.of(context).pop();
-        //     Navigator.push(
-        //         context, MaterialPageRoute(builder: (context) => SaleOrder()));
-        //   },
-        // ),
         ListTile(
           title: Text('Logout'),
           leading: Icon(Icons.backspace),

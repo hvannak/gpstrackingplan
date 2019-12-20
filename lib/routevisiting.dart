@@ -10,7 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'helpers/apiHelper .dart';
-
+import 'helpers/database_helper.dart';
+import 'models/gpsroutemodel.dart';
 
 class Routevisiting extends StatelessWidget {
   @override
@@ -90,14 +91,32 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
       'Customer': _customer,
       'Image': _imagebase64,
     };
-    final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      print(response.statusCode);
-      throw Exception('Failed to load post');
-    }
+
+    var gpsroute = Gpsroutemodel(
+      lat: _lat,
+      lng: _lng,
+      gpsdatetime: DateTime.now(),
+      checkType: _checkType,
+      customer: _customer,
+      image: _imagebase64,
+    );
+    var db = DatabaseHelper();
+    print('test gpsroute lat= ${gpsroute.lat}');
+    print('test gpsroute lng= ${gpsroute.lng}');
+    print('test gpsroute gpsdatetime= ${gpsroute.gpsdatetime}');
+    print('test gpsroute checkType= ${gpsroute.checkType}');
+    print('test gpsroute = ${gpsroute.customer}');
+    print('test gpsroute image= ${gpsroute.image}');
+    db.saveGpsroute(gpsroute);
+
+    // final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
+    // print(response.statusCode);
+    // if (response.statusCode == 200) {
+    //   return response.body;
+    // } else {
+    //   print(response.statusCode);
+    //   throw Exception('Failed to load post');
+    // }
   }
 
   Future<void> _initCamera() async {
@@ -106,7 +125,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   }
 
   Future<List<Customermodel>> fetchCustomerData(String name) async {
-    final response = await _apiHelper.fetchData('/api/Customer/CustomerName/' + name);
+    final response =
+        await _apiHelper.fetchData('/api/Customer/CustomerName/' + name);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       _listCustomer = [];

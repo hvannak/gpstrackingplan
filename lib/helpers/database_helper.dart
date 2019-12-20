@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:gpstrackingplan/models/gpsroutemodel.dart';
 import 'package:gpstrackingplan/models/userprofile.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,11 +32,21 @@ class DatabaseHelper {
     await db.execute(
         "CREATE TABLE User(Id INTEGER PRIMARY KEY, FullName TEXT, Email TEXT, UserName TEXT, Password TEXT, linkedCustomerID TEXT, Telephone TEXT )");
     print("Created user tables");
+    await db.execute(
+        "CREATE TABLE GpsRoute(GpsID INTEGER PRIMARY KEY, Lat TEXT, Lng TEXT, Gpsdatetime TEXT, CheckType TEXT, Customer TEXT, Image TEXT, UserId TEXT )");
+    print("Created user GpsRoute");
   }
 
   Future<int> saveUser(Userprofile user) async {
     var dbClient = await db;
     int res = await dbClient.insert("User", user.toMap());
+    return res;
+  }
+
+  Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
+    var dbClient = await db;
+    int res = await dbClient.insert("GpsRoute", gpsroute.toMap());
+    print('saveres=== $res');
     return res;
   }
 

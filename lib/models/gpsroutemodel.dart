@@ -1,12 +1,12 @@
 class Gpsroutemodel {
-  final int gpsID;
-  final double lat;
-  final double lng;
-  final DateTime gpsdatetime;
-  final String checkType;
-  final String customer;
-  final String image;
-  final String userId;
+   int gpsID;
+   double lat;
+   double lng;
+   DateTime gpsdatetime;
+   String checkType;
+   String customer;
+   String image;
+   String userId;
 
   Gpsroutemodel({this.gpsID, this.lat, this.lng,this.gpsdatetime,this.checkType,this.customer,this.image,this.userId});
 
@@ -21,5 +21,26 @@ class Gpsroutemodel {
       image:json['Image'],
       userId:json['UserId']
     );
+  }
+
+  Gpsroutemodel.fromMap(dynamic obj) {
+    this.lat = obj['Lat'];
+    this.lng = obj['Lng'];
+    this.gpsdatetime = DateTime.parse(obj['Gpsdatetime']);
+    this.checkType = obj['CheckType'];
+    this.customer = obj['Customer'];
+    this.image = obj['Image'];
+    
+  }
+  
+  Map<String, dynamic> toMap()  {
+    var map = new Map<String, dynamic>();
+    map["Lat"] = lat;
+    map["Lng"] = lng;
+    map["Gpsdatetime"] = gpsdatetime.toString();
+    map["CheckType"] = checkType;
+    map["Customer"] = customer;
+    map["Image"] = image;
+    return map;
   }
 }
