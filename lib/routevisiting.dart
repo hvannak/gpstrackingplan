@@ -95,10 +95,11 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     var gpsroute = Gpsroutemodel(
       lat: _lat,
       lng: _lng,
-      gpsdatetime: DateTime.now(),
+      gpsdatetime: DateTime.now().toIso8601String(),
       checkType: _checkType,
       customer: _customer,
       image: _imagebase64,
+      userId: null
     );
     var db = DatabaseHelper();
     print('test gpsroute lat= ${gpsroute.lat}');
