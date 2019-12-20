@@ -30,7 +30,7 @@ class DatabaseHelper {
   void _onCreate(Database db, int version) async {
     // When creating the db, create the table
     await db.execute(
-        "CREATE TABLE User(Id INTEGER PRIMARY KEY, FullName TEXT, Email TEXT, UserName TEXT, Password TEXT, linkedCustomerID TEXT, Telephone TEXT )");
+        "CREATE TABLE User(Id TEXT, FullName TEXT, Email TEXT, UserName TEXT, Password TEXT, linkedCustomerID TEXT, Telephone TEXT )");
     print("Created user tables");
     await db.execute(
         "CREATE TABLE GpsRoute(GpsID INTEGER PRIMARY KEY, Lat TEXT, Lng TEXT, Gpsdatetime TEXT, CheckType TEXT, Customer TEXT, Image TEXT, UserId TEXT )");

@@ -1,5 +1,5 @@
 class Userprofile {
-   int  iD;
+   String  iD;
    String fullName;
    String email;
    String userName;
@@ -7,7 +7,7 @@ class Userprofile {
    String linkedCustomerID;
    String telephone;
 
-  Userprofile({this.iD,this.fullName, this.email, this.userName,this.password,this.linkedCustomerID, this.telephone});
+  Userprofile({this.iD,this.fullName, this.email, this.userName,this.linkedCustomerID, this.password, this.telephone});
 
   factory Userprofile.fromJson(Map<String, dynamic> json) {
     return Userprofile(
@@ -15,9 +15,7 @@ class Userprofile {
       fullName: json['FullName'],
       email: json['Email'],
       userName: json['UserName'],
-      password: json['Password'],
-      linkedCustomerID: json['LinkedCustomerID'],
-      telephone: json['Telephone']
+      linkedCustomerID: json['LinkedCustomerID']
     );
   }
 

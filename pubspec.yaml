@@ -36,6 +36,9 @@ dependencies:
 
   # Sqlite database
   sqflite: 
+  
+  # connection
+  connectivity: 
 
   # camera
   camera:

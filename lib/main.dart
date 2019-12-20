@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/appsetting.dart';
 import 'package:gpstrackingplan/helpers/apiHelper%20.dart';
@@ -9,6 +8,7 @@ import 'dashboard.dart';
 
 import 'helpers/database_helper.dart';
 import 'models/userprofile.dart';
+import 'package:connectivity/connectivity.dart';
 
 void main() => runApp(MyApp());
 
@@ -62,30 +62,72 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   fetchPost() async {
-    try {
-      var body = {'UserName': _username.text, 'Password': _password.text};
-      var respone = await _apiHelper
-          .fetchPost('/api/ApplicationUser/Login', body)
-          .timeout(Duration(seconds: 5));
-      if (respone.statusCode == 200) {
-        Map<String, dynamic> tokenget = jsonDecode(respone.body);
-        var response1 =
-            await _apiHelper.fetchData1('/api/UserProfile', tokenget['token']);
-        var jsonData = jsonDecode(response1.body);
-        Userprofile profile = Userprofile.fromJson(jsonData);
-        _setAppSetting(tokenget['token'], profile.fullName,
-            profile.linkedCustomerID, profile.iD.toString());
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      print("Internet Connection");
+      try {
+        var body = {'UserName': _username.text, 'Password': _password.text};
+        var respone = await _apiHelper
+            .fetchPost('/api/ApplicationUser/Login', body)
+            .timeout(Duration(seconds: 100));   
+        if (respone.statusCode == 200) {
+          Map<String, dynamic> tokenget = jsonDecode(respone.body);
+          var response1 = await _apiHelper.fetchData1(
+              '/api/UserProfile', tokenget['token']);
+          var jsonData = jsonDecode(response1.body);
+          Userprofile profile = Userprofile.fromJson(jsonData);
+          _setAppSetting(tokenget['token'], profile.fullName,
+              profile.linkedCustomerID, profile.iD.toString());
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MyDashboard()));
+        } else {
+          var jsonData = jsonDecode(respone.body)['message'];
+          final snackBar = SnackBar(content: Text(jsonData));
+          _globalKey.currentState.showSnackBar(snackBar);
+        }
+      } catch (e) {
+        final snackBar = SnackBar(content: Text('Cannot connect to host'));
+        _globalKey.currentState.showSnackBar(snackBar);
+      }
+    } else {
+      print("Unable to connect");
+      var db = DatabaseHelper();
+      Userprofile user = await db.loginUser(_username.text, _password.text);
+      if (user != null) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => MyDashboard()));
       } else {
-        var jsonData = jsonDecode(respone.body)['message'];
-        final snackBar = SnackBar(content: Text(jsonData));
+        final snackBar = SnackBar(content: Text('wrong username or password'));
         _globalKey.currentState.showSnackBar(snackBar);
       }
-    } catch (e) {
-      final snackBar = SnackBar(content: Text('Cannot connect to host'));
-      _globalKey.currentState.showSnackBar(snackBar);
+      return user;
     }
+
+    // try {
+    //   var body = {'UserName': _username.text, 'Password': _password.text};
+    //   var respone = await _apiHelper
+    //       .fetchPost('/api/ApplicationUser/Login', body)
+    //       .timeout(Duration(seconds: 5));
+    //   if (respone.statusCode == 200) {
+    //     Map<String, dynamic> tokenget = jsonDecode(respone.body);
+    //     var response1 =
+    //         await _apiHelper.fetchData1('/api/UserProfile', tokenget['token']);
+    //     var jsonData = jsonDecode(response1.body);
+    //     Userprofile profile = Userprofile.fromJson(jsonData);
+    //     _setAppSetting(tokenget['token'], profile.fullName,
+    //         profile.linkedCustomerID, profile.iD.toString());
+    //     Navigator.push(
+    //         context, MaterialPageRoute(builder: (context) => MyDashboard()));
+    //   } else {
+    //     var jsonData = jsonDecode(respone.body)['message'];
+    //     final snackBar = SnackBar(content: Text(jsonData));
+    //     _globalKey.currentState.showSnackBar(snackBar);
+    //   }
+    // } catch (e) {
+    //   final snackBar = SnackBar(content: Text('Cannot connect to host'));
+    //   _globalKey.currentState.showSnackBar(snackBar);
+    // }
   }
 
   Future<Userprofile> _loginUser(String username, String password) async {
@@ -222,9 +264,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              // fetchPost();
-                                              _loginUser(_username.text,
-                                                  _password.text);
+                                              fetchPost();
+                                              // _loginUser(_username.text,
+                                              //     _password.text);
                                             }
                                           },
                                           child: Text(
