@@ -41,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   ApiHelper _apiHelper;
+  String _token;
 
   bool _isLoading = false;
 
@@ -71,17 +72,19 @@ class _MyHomePageState extends State<MyHomePage> {
         var body = {'UserName': _username.text, 'Password': _password.text};
         var respone = await _apiHelper
             .fetchPost('/api/ApplicationUser/Login', body)
-            .timeout(Duration(seconds: 100));   
+            .timeout(Duration(seconds: 100));
         if (respone.statusCode == 200) {
           Map<String, dynamic> tokenget = jsonDecode(respone.body);
-          var response1 = await _apiHelper.fetchData1(
-              '/api/UserProfile', tokenget['token']);
-          var jsonData = jsonDecode(response1.body);
-          Userprofile profile = Userprofile.fromJson(jsonData);
-          _setAppSetting(tokenget['token'], profile.fullName,
-              profile.linkedCustomerID, profile.iD.toString());
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => MyDashboard()));
+          _token = tokenget['token'];
+          // Map<String, dynamic> tokenget = jsonDecode(respone.body);
+          // var response1 = await _apiHelper.fetchData1(
+          //     '/api/UserProfile', tokenget['token']);
+          // var jsonData = jsonDecode(response1.body);
+          // Userprofile profile = Userprofile.fromJson(jsonData);
+          // _setAppSetting(tokenget['token'], profile.fullName,
+          //     profile.linkedCustomerID, profile.iD.toString());
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => MyDashboard()));
         } else {
           var jsonData = jsonDecode(respone.body)['message'];
           final snackBar = SnackBar(content: Text(jsonData));
@@ -106,13 +109,21 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  fetchProfile() async {
+    var response1 = await _apiHelper.fetchData1('/api/UserProfile', _token);
+    var jsonData = jsonDecode(response1.body);
+    Userprofile profile = Userprofile.fromJson(jsonData);
+    _setAppSetting(_token, profile.fullName,profile.linkedCustomerID, profile.iD.toString());
+  }
+
   Future<void> _handleSubmit(BuildContext context) async {
     try {
-      WaitingDialogs.showLoadingDialog(context, _globalKey);//invoking register
-     
+      WaitingDialogs.showLoadingDialog(context, _globalKey); //invoking register
       await fetchPost();
-      Navigator.of(_globalKey.currentContext,rootNavigator: true).pop();//close the dialoge
       Navigator.of(context).pop();
+      await fetchProfile();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyDashboard()));
     } catch (error) {
       print(error);
     }
@@ -252,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                                  _handleSubmit(context)
+                                              _handleSubmit(context);
                                               // fetchPost();
                                               // _loginUser(_username.text,
                                               //     _password.text);
