@@ -48,27 +48,27 @@ class _RegisterState extends State<Register> {
           fullName: _fullName.text,
           linkedCustomerID: _linkedCustomerID.text,
           telephone: _telephone.text);
-      var db = DatabaseHelper();
-          db.saveUser(user);
-      // final response =
-      //     await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
-      // if (response.statusCode == 200) {
-      //   print(response.body);
-      //   if (response.body != null) {
-      //     Navigator.of(context).pop();
-      //     var db = DatabaseHelper();
+      // var db = DatabaseHelper();
       //     db.saveUser(user);
-      //     print('user= $user');
-      //   } else {
-      //     final snackBar = SnackBar(content: Text('EntityID is not exist.'));
-      //     _globalKey.currentState.showSnackBar(snackBar);
-      //   }
-      //   return response.body;
-      // } else {
-      //   final snackBar = SnackBar(content: Text('Failed to register'));
-      //   _globalKey.currentState.showSnackBar(snackBar);
-      //   throw Exception('Failed to load post');
-      // }
+      final response =
+          await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
+      if (response.statusCode == 200) {
+        print(response.body);
+        if (response.body != null) {
+          var db = DatabaseHelper();
+          db.saveUser(user);
+          print('user= $user');
+          Navigator.of(context).pop();
+        } else {
+          final snackBar = SnackBar(content: Text('EntityID is not exist.'));
+          _globalKey.currentState.showSnackBar(snackBar);
+        }
+        return response.body;
+      } else {
+        final snackBar = SnackBar(content: Text('Failed to register'));
+        _globalKey.currentState.showSnackBar(snackBar);
+        throw Exception('Failed to load post');
+      }
     } catch (e) {
       final snackBar = SnackBar(content: Text('Cannot connect to host'));
       _globalKey.currentState.showSnackBar(snackBar);
@@ -79,7 +79,8 @@ class _RegisterState extends State<Register> {
   Future<void> _handleSubmit(BuildContext context) async {
     try {
       WaitingDialogs.showLoadingDialog(context, _globalKey);//invoking register
-      await fetchUserOrder();
+      // await fetchUserOrder();
+      await fetchPost();
       Navigator.of(_globalKey.currentContext,rootNavigator: true).pop();//close the dialoge
       Navigator.of(context).pop();
     } catch (error) {
