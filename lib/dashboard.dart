@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisiting.dart';
-import 'package:gpstrackingplan/saleorder.dart';
 import 'package:gpstrackingplan/takeleave.dart';
-import 'package:gpstrackingplan/payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'customeroutstanding.dart';
+import 'helpers/apiHelper .dart';
+import 'helpers/database_helper.dart';
+import 'models/gpsroutemodel.dart';
 
 class MyDashboard extends StatefulWidget {
   @override
@@ -16,6 +16,28 @@ class MyDashboard extends StatefulWidget {
 }
 
 class _MyDashboardState extends State<MyDashboard> {
+ApiHelper _apiHelper;
+Future<String> fetchPost() async {
+    var db = DatabaseHelper();
+    var _listgpsroute = await db.getGpsRoute();
+    // List<Gpsroutemodel> gpsroute = Gpsroutemodel.encondeToJson(_listgpsroute);
+    print('listgpasroute = ${_listgpsroute.length}');
+    for (int i = 0; i < _listgpsroute.length; i++) {
+      print('object= ${_listgpsroute[i].lat}');
+    }
+    
+    return null;
+
+    // final response = await _apiHelper.fetchPost1('/api/Gpstrackings', gpsroute);
+    // print(response.statusCode);
+    // if (response.statusCode == 200) {
+    //   return response.body;
+    // } else {
+    //   print(response.statusCode);
+    //   throw Exception('Failed to load post');
+    // }
+  }
+
   Material myItems(IconData icon, String heading, int color,
       BuildContext context, String page) {
     return Material(
@@ -84,6 +106,7 @@ class _MyDashboardState extends State<MyDashboard> {
   @override
   void initState() {
     super.initState();
+    fetchPost();
   }
 
   @override

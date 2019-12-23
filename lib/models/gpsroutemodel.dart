@@ -24,6 +24,29 @@ class Gpsroutemodel {
     );
   }
 
+
+  Map<String,dynamic> toJson(){
+      return {
+        "GpsID": this.gpsID,
+        "Lat": this.lat,
+        "Lng": this.lng,
+        "Gpsdatetime": this.gpsdatetime,
+        "CheckType": this.checkType,
+        "Customer": this.customer,
+        "Image": this.image,
+        "UserId": this.userId,
+      };
+    }
+
+    static List encondeToJson(List<Gpsroutemodel>list){
+      List jsonList = List();
+      list.map((item)=>
+        jsonList.add(item.toJson())
+      ).toList();
+      return jsonList;
+  }
+
+
   Gpsroutemodel.fromMap(dynamic obj) {
     this.lat = obj['Lat'];
     this.lng = obj['Lng'];

@@ -45,7 +45,7 @@ class DatabaseHelper {
   }
 
 
-  Future<List<Gpsroutemodel>> getGpsRote() async {
+  Future<List<Gpsroutemodel>> getGpsRoute() async {
     var dbClient = await db;
     List<Map> list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
     List<Gpsroutemodel> gpsroute = new List();
