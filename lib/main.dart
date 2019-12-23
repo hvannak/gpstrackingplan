@@ -9,7 +9,6 @@ import 'dashboard.dart';
 
 import 'helpers/database_helper.dart';
 import 'models/userprofile.dart';
-import 'package:connectivity/connectivity.dart';
 
 void main() => runApp(MyApp());
 
@@ -41,9 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   ApiHelper _apiHelper;
-  String _token;
-
-  bool _isLoading = false;
 
   _setAppSetting(
       String token, String fullname, String linkedCustomerID, String iD) async {
@@ -63,66 +59,68 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  fetchPost() async {
-    var db  = DatabaseHelper();
-    if (await db.checkconnection()){
-      print("Internet Connection");
-      try {
-        var body = {'UserName': _username.text, 'Password': _password.text};
-        var respone = await _apiHelper
-            .fetchPost('/api/ApplicationUser/Login', body)
-            .timeout(Duration(seconds: 100));
-        if (respone.statusCode == 200) {
-          Map<String, dynamic> tokenget = jsonDecode(respone.body);
-          _token = tokenget['token'];
-          // Navigator.push(
-          //     context, MaterialPageRoute(builder: (context) => MyDashboard()));
-        } else {
-          var jsonData = jsonDecode(respone.body)['message'];
-          final snackBar = SnackBar(content: Text(jsonData));
-          _globalKey.currentState.showSnackBar(snackBar);
-        }
-      } catch (e) {
-        final snackBar = SnackBar(content: Text('Cannot connect to host'));
-        _globalKey.currentState.showSnackBar(snackBar);
-      }
-    } else {
-      print("Unable to connect");
-      var db = DatabaseHelper();
-      Userprofile user = await db.loginUser(_username.text, _password.text);
-      if (user != null) {
+  fetchPostOnline() async {
+    try {
+      WaitingDialogs().showLoadingDialog(context,_globalKey);
+      var body = {'UserName': _username.text, 'Password': _password.text};
+      var respone = await _apiHelper
+          .fetchPost('/api/ApplicationUser/Login', body)
+          .timeout(Duration(seconds: 100));
+      if (respone.statusCode == 200) {
+        Map<String, dynamic> tokenget = jsonDecode(respone.body);
+        await fetchProfile(tokenget['token']);
+        Navigator.of(context).pop();
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => MyDashboard()));
+              context, MaterialPageRoute(builder: (context) => MyDashboard()));
       } else {
-        final snackBar = SnackBar(content: Text('wrong username or password'));
+        Navigator.of(context).pop();
+        var jsonData = jsonDecode(respone.body)['message'];
+        final snackBar = SnackBar(content: Text(jsonData));
+        print(_globalKey.currentState);
         _globalKey.currentState.showSnackBar(snackBar);
       }
-      return user;
+    } catch (e) {
+      Navigator.of(context).pop();
+      final snackBar = SnackBar(content: Text('Cannot connect to host'));
+      _globalKey.currentState.showSnackBar(snackBar);
     }
   }
 
-  fetchProfile() async {
-    var response1 = await _apiHelper.fetchData1('/api/UserProfile', _token);
+  fetchPostOffline() async {
+    WaitingDialogs().showLoadingDialog(context,_globalKey);
+    var db = DatabaseHelper();
+    Userprofile user = await db.loginUser(_username.text, _password.text);
+    if (user == null) {
+      final snackBar = SnackBar(content: Text('Invalid username or password'));
+      _globalKey.currentState.showSnackBar(snackBar);
+      Navigator.of(context).pop();
+    } 
+    else{
+      Navigator.of(context).pop();
+      Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MyDashboard()));
+    }
+  }
+
+  fetchProfile(String token) async {
+    var response1 = await _apiHelper.fetchData1('/api/UserProfile', token);
     var jsonData = jsonDecode(response1.body);
     Userprofile profile = Userprofile.fromJson(jsonData);
-    _setAppSetting(_token, profile.fullName,profile.linkedCustomerID, profile.iD.toString());
+    _setAppSetting(token, profile.fullName,profile.linkedCustomerID, profile.iD.toString());
   }
 
   Future<void> _handleSubmit(BuildContext context) async {
-    try {
-      WaitingDialogs.showLoadingDialog(context, _globalKey); //invoking register
-      await fetchPost();
-      Navigator.of(context).pop();
-      var db = DatabaseHelper();
+    try{
+      var db  = DatabaseHelper();
       if (await db.checkconnection()){
-         fetchProfile();
-         print('fetchproflite');
+         fetchPostOnline();
       }
-      
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MyDashboard()));
-    } catch (error) {
-      print(error);
+      else{
+        fetchPostOffline();        
+      }
+    }
+    catch(e){
+      print(e);
     }
   }
 

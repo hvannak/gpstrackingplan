@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class WaitingDialogs {
-  static Future<void> showLoadingDialog(
+  final _globalKey = GlobalKey<ScaffoldState>();
+  Future<void> showLoadingDialog(
       BuildContext context, GlobalKey key) async {
     return showDialog<void>(
         context: context,
@@ -10,7 +11,7 @@ class WaitingDialogs {
           return new WillPopScope(
               onWillPop: () async => false,
               child: SimpleDialog(
-                  key: key,
+                  key: _globalKey,
                   backgroundColor: Colors.black54,
                   children: <Widget>[
                     Center(

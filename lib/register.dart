@@ -13,7 +13,6 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
-  // String _urlSetting = '';
   var _userName = TextEditingController();
   var _email = TextEditingController();
   var _fullName = TextEditingController();
@@ -48,8 +47,6 @@ class _RegisterState extends State<Register> {
           fullName: _fullName.text,
           linkedCustomerID: _linkedCustomerID.text,
           telephone: _telephone.text);
-      // var db = DatabaseHelper();
-      //     db.saveUser(user);
       final response =
           await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
       if (response.statusCode == 200) {
@@ -78,8 +75,7 @@ class _RegisterState extends State<Register> {
 
   Future<void> _handleSubmit(BuildContext context) async {
     try {
-      WaitingDialogs.showLoadingDialog(context, _globalKey);//invoking register
-      // await fetchUserOrder();
+      WaitingDialogs().showLoadingDialog(context, _globalKey);//invoking register
       await fetchPost();
       Navigator.of(_globalKey.currentContext,rootNavigator: true).pop();//close the dialoge
       Navigator.of(context).pop();
@@ -87,12 +83,6 @@ class _RegisterState extends State<Register> {
       print(error);
     }
   }
-
-  Future<String>  fetchUserOrder() =>
-    Future.delayed(
-      Duration(seconds: 20),
-      () => 'Large Latte',
-    );
 
   @override
   void initState() {
