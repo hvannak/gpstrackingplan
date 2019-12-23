@@ -64,9 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   fetchPost() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    var db  = DatabaseHelper();
+    if (await db.checkconnection()){
       print("Internet Connection");
       try {
         var body = {'UserName': _username.text, 'Password': _password.text};
@@ -76,13 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
         if (respone.statusCode == 200) {
           Map<String, dynamic> tokenget = jsonDecode(respone.body);
           _token = tokenget['token'];
-          // Map<String, dynamic> tokenget = jsonDecode(respone.body);
-          // var response1 = await _apiHelper.fetchData1(
-          //     '/api/UserProfile', tokenget['token']);
-          // var jsonData = jsonDecode(response1.body);
-          // Userprofile profile = Userprofile.fromJson(jsonData);
-          // _setAppSetting(tokenget['token'], profile.fullName,
-          //     profile.linkedCustomerID, profile.iD.toString());
           // Navigator.push(
           //     context, MaterialPageRoute(builder: (context) => MyDashboard()));
         } else {
@@ -121,26 +113,18 @@ class _MyHomePageState extends State<MyHomePage> {
       WaitingDialogs.showLoadingDialog(context, _globalKey); //invoking register
       await fetchPost();
       Navigator.of(context).pop();
-      await fetchProfile();
+      var db = DatabaseHelper();
+      if (await db.checkconnection()){
+         fetchProfile();
+         print('fetchproflite');
+      }
+      
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MyDashboard()));
     } catch (error) {
       print(error);
     }
   }
-
-  // Future<Userprofile> _loginUser(String username, String password) async {
-  //   var db = DatabaseHelper();
-  //   Userprofile user = await db.loginUser(username, password);
-  //   if (user != null) {
-  //     Navigator.push(
-  //         context, MaterialPageRoute(builder: (context) => MyDashboard()));
-  //   } else {
-  //     final snackBar = SnackBar(content: Text('wrong username or password'));
-  //     _globalKey.currentState.showSnackBar(snackBar);
-  //   }
-  //   return user;
-  // }
 
   @override
   void initState() {

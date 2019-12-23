@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:connectivity/connectivity.dart';
 import 'package:gpstrackingplan/models/gpsroutemodel.dart';
 import 'package:gpstrackingplan/models/userprofile.dart';
 import 'package:path/path.dart';
@@ -43,6 +44,18 @@ class DatabaseHelper {
     return res;
   }
 
+
+  Future<List<Gpsroutemodel>> getGpsRote() async {
+    var dbClient = await db;
+    List<Map> list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
+    List<Gpsroutemodel> gpsroute = new List();
+    for (int i = 0; i < list.length; i++) {
+      gpsroute.add(new Gpsroutemodel());
+    }
+    print('getGpsRote==${gpsroute.length}');
+    return gpsroute;
+  }
+
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
     var dbClient = await db;
     int res = await dbClient.insert("GpsRoute", gpsroute.toMap());
@@ -58,6 +71,19 @@ class DatabaseHelper {
       return new Userprofile.fromMap(result.first);
     }
     return null;
+  }
+
+
+  Future<bool> checkconnection() async{
+  var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      print("Internet Connection");
+      return  true;
+    }else{
+      print("Unable to connect");
+      return false;
+    }
   }
 
 }
