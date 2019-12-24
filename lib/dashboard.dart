@@ -5,10 +5,8 @@ import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisiting.dart';
 import 'package:gpstrackingplan/takeleave.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'helpers/apiHelper .dart';
 import 'helpers/database_helper.dart';
-import 'models/gpsroutemodel.dart';
+
 
 class MyDashboard extends StatefulWidget {
   @override
@@ -16,26 +14,15 @@ class MyDashboard extends StatefulWidget {
 }
 
 class _MyDashboardState extends State<MyDashboard> {
-ApiHelper _apiHelper;
-Future<String> fetchPost() async {
+  Future fetchPost() async {
     var db = DatabaseHelper();
-    var _listgpsroute = await db.getGpsRoute();
-    // List<Gpsroutemodel> gpsroute = Gpsroutemodel.encondeToJson(_listgpsroute);
-    print('listgpasroute = ${_listgpsroute.length}');
-    for (int i = 0; i < _listgpsroute.length; i++) {
-      print('object= ${_listgpsroute[i].lat}');
-    }
-    
-    return null;
-
-    // final response = await _apiHelper.fetchPost1('/api/Gpstrackings', gpsroute);
-    // print(response.statusCode);
-    // if (response.statusCode == 200) {
-    //   return response.body;
-    // } else {
-    //   print(response.statusCode);
-    //   throw Exception('Failed to load post');
-    // }
+        if (await db.checkconnection()){
+          await db.getGpsRoute();
+          print('sync');
+        }
+        else{
+          print('can not sync');   
+        }
   }
 
   Material myItems(IconData icon, String heading, int color,
@@ -86,7 +73,13 @@ Future<String> fetchPost() async {
                                   MaterialPageRoute(
                                       builder: (context) => Takeleave()));
                               break;
-                            
+                            case 'sync':
+                              fetchPost();
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => Takeleave()));
+                              break;
                             default:
                           }
                          
@@ -106,7 +99,7 @@ Future<String> fetchPost() async {
   @override
   void initState() {
     super.initState();
-    fetchPost();
+    // fetchPost();
   }
 
   @override
@@ -127,9 +120,11 @@ Future<String> fetchPost() async {
           myItems(Icons.map, "Route Visit", 0xffed622b, context, 'visit'),
           myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
-          
+          myItems(
+              Icons.time_to_leave, "Sync", 0xffed622b, context, 'sync'),
         ],
         staggeredTiles: [
+          StaggeredTile.extent(2, 130.0),
           StaggeredTile.extent(2, 130.0),
           StaggeredTile.extent(2, 130.0),
         ],

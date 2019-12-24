@@ -48,8 +48,9 @@ class Gpsroutemodel {
 
 
   Gpsroutemodel.fromMap(dynamic obj) {
-    this.lat = obj['Lat'];
-    this.lng = obj['Lng'];
+    this.gpsID = obj['GpsID'];
+    this.lat = double.parse(obj['Lat']);
+    this.lng = double.parse(obj['Lng']);
     this.gpsdatetime = obj['Gpsdatetime'];
     this.checkType = obj['CheckType'];
     this.customer = obj['Customer'];

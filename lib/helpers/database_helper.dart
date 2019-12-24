@@ -1,18 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:connectivity/connectivity.dart';
 import 'package:gpstrackingplan/models/gpsroutemodel.dart';
 import 'package:gpstrackingplan/models/userprofile.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'apiHelper .dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
   factory DatabaseHelper() => _instance;
   static Database _db;
-
+  ApiHelper _apiHelper;
   Future<Database> get db async {
     if (_db != null) return _db;
     _db = await initDb();
@@ -45,15 +50,39 @@ class DatabaseHelper {
   }
 
 
-  Future<List<Gpsroutemodel>> getGpsRoute() async {
+  Future<String> getGpsRoute() async {
     var dbClient = await db;
-    List<Map> list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
-    List<Gpsroutemodel> gpsroute = new List();
+    var list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
     for (int i = 0; i < list.length; i++) {
-      gpsroute.add(new Gpsroutemodel());
+      var model = Gpsroutemodel.fromMap(list[i]);
+      print(model.lat);
+      var body = {
+        'GpsID': '0',
+        'Lat': model.lat,
+        'Lng': model.lng,
+        'Gpsdatetime': DateFormat('yyyy-MM-dd,HH:mm:ss').format(DateTime.parse(model.gpsdatetime)),
+        'CheckType': model.checkType,
+        'Customer': model.customer,
+        'Image': model.image,
+      };
+      // print('body');
+      // print(jsonEncode(body));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      _apiHelper = ApiHelper(prefs);
+      final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        await dbClient.rawDelete('DELETE FROM GpsRoute');
+        print('delete = ${await dbClient.rawQuery('SELECT * FROM GpsRoute')}');
+        return response.body;
+        
+      } else {
+        print(response.statusCode);
+        throw Exception('Failed to load post');
+      }
     }
-    print('getGpsRote==${gpsroute.length}');
-    return gpsroute;
+   
+    return null;
   }
 
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
