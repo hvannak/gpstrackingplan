@@ -72,7 +72,7 @@ class DatabaseHelper {
       final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
       print(response.statusCode);
       if (response.statusCode == 200) {
-        await dbClient.rawDelete('DELETE FROM GpsRoute');
+        await dbClient.delete('GpsRoute',where: "GpsID = ?",whereArgs: [model.gpsID]);
         print('delete = ${await dbClient.rawQuery('SELECT * FROM GpsRoute')}');
         return response.body;
         
