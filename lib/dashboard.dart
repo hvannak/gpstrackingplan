@@ -17,7 +17,7 @@ class _MyDashboardState extends State<MyDashboard> {
   Future fetchPost() async {
     var db = DatabaseHelper();
         if (await db.checkconnection()){
-          await db.getGpsRoute();
+           db.getGpsRoute();
           print('sync');
         }
         else{
