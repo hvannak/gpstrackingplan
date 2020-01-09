@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
 import 'package:gpstrackingplan/routevisiting.dart';
+import 'package:gpstrackingplan/saleorder.dart';
 import 'package:gpstrackingplan/takeleave.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/database_helper.dart';
@@ -73,6 +74,12 @@ class _MyDashboardState extends State<MyDashboard> {
                                   MaterialPageRoute(
                                       builder: (context) => Takeleave()));
                               break;
+                            case 'saleorder':
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SaleOrder()));
+                              break;
                             case 'sync':
                               fetchPost();
                               // Navigator.push(
@@ -119,14 +126,17 @@ class _MyDashboardState extends State<MyDashboard> {
         children: <Widget>[
           myItems(Icons.map, "Route Visit", 0xffed622b, context, 'visit'),
           myItems(
+              Icons.time_to_leave, "Saleorder", 0xffed622b, context, 'saleorder'),
+          myItems(
               Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
           myItems(
               Icons.time_to_leave, "Sync", 0xffed622b, context, 'sync'),
         ],
         staggeredTiles: [
-          StaggeredTile.extent(2, 130.0),
-          StaggeredTile.extent(2, 130.0),
-          StaggeredTile.extent(2, 130.0),
+          StaggeredTile.extent(1, 150.0),
+          StaggeredTile.extent(1, 150.0),
+          StaggeredTile.extent(1, 150.0),
+          StaggeredTile.extent(1, 150.0),
         ],
       ),
     );

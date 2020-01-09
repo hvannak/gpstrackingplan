@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorderitem.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
+import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
 import 'models/inventorymodel.dart';
@@ -27,6 +28,8 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
   ApiHelper _apiHelper;
 
   _loadSetting() async {
+    print('list item');
+    print(listSaleItem.length);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _apiHelper = ApiHelper(prefs);
@@ -145,7 +148,9 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
                       ' Total ' +
                       listSaleItem[index].extendedPrice.toString()),
                   onTap: () async {
+                    WaitingDialogs().showLoadingDialog(context,_globalKey);
                     var inventoryList = await fetchInventoryById(listSaleItem[index].inventoryId);
+                    Navigator.of(context).pop();
                     _navigateEditSaleOrderItem(context,listSaleItem[index],inventoryList,index);
                   },
                 ),

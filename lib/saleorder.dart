@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/addsaleorder.dart';
+import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
@@ -29,6 +30,23 @@ class _SaleOrderState extends State<SaleOrder> {
       }
       return _list;
     } else {
+      throw Exception('Failed to load post');
+    }
+  }
+
+  Future<List<Customermodel>> fetchCustomerData() async {
+    final response = await _apiHelper.fetchData('/api/Customer/SalespersonID/' + _apiHelper.linkedCustomerID);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      List<Customermodel> _listCustomers= [];
+      for (var item in jsonData['Results']) {
+        Customermodel customermodel = Customermodel.fromJson(item);
+        _listCustomers.add(customermodel);
+      }
+      return _listCustomers;
+    } else {
+      final snackBar = SnackBar(content: Text('Failed to load'));
+      _globalKey.currentState.showSnackBar(snackBar);
       throw Exception('Failed to load post');
     }
   }
@@ -86,19 +104,16 @@ class _SaleOrderState extends State<SaleOrder> {
           IconButton(
             icon: Icon(Icons.add_circle),
             onPressed: () async {
-              var customer =
-                  await fetchGetCustomerById(_apiHelper.linkedCustomerID);
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              setState(() {
-                prefs.setString('priceclass', customer.priceclass);
-              });
+              WaitingDialogs().showLoadingDialog(context,_globalKey);
+              var customer = await fetchCustomerData();
+              Navigator.of(context).pop();
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => AddSaleOrder(
                             saleorder: null,
                             title: "Add Order",
-                            customername: customer.customerName,
+                            listCustomers: customer,
                           )));
             },
           )
@@ -178,20 +193,16 @@ class _SaleOrderState extends State<SaleOrder> {
                               _globalKey.currentState.showSnackBar(snackBar);
                           
                         } else {
-                          var customer = await fetchGetCustomerById(
-                              _apiHelper.linkedCustomerID);
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          setState(() {
-                            prefs.setString('priceclass', customer.priceclass);
-                          });
+                          WaitingDialogs().showLoadingDialog(context,_globalKey);
+                          var customer = await fetchCustomerData();
+                          Navigator.of(context).pop();
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddSaleOrder(
                                         saleorder: snapshot.data[index],
                                         title: "Edit Order",
-                                        customername: customer.customerName,
+                                        listCustomers: customer,
                                       )));
                         }
                       },

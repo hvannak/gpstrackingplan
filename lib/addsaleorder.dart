@@ -1,7 +1,11 @@
 
+import 'dart:convert';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gpstrackingplan/displaysaleorderitem.dart';
 import 'package:gpstrackingplan/helpers/controlHelper.dart';
+import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,19 +15,21 @@ import 'models/saleorderitemmodel.dart';
 class AddSaleOrder extends StatefulWidget {
   final SaleOrderModel saleorder;
   final String title;
-  final String customername;
+  final  List<Customermodel> listCustomers;
   AddSaleOrder({
     Key key,
-    this.saleorder,this.title,this.customername
+    this.saleorder,this.title,
+    this.listCustomers
   }) : super(key: key);
   @override
-  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder,this.title,this.customername);
+  _AddSaleOrderState createState() => _AddSaleOrderState(this.saleorder,this.title,this.listCustomers);
 }
 
 class _AddSaleOrderState extends State<AddSaleOrder> {
   final SaleOrderModel saleorder;
   final String title;
-  final String customername;
+  final List<Customermodel> listCustomers;
+  String customername;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   var _orderNbr = TextEditingController();
@@ -32,7 +38,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
   var _oderQty = TextEditingController();
   var _orderTotal = TextEditingController();
   var _date = TextEditingController();
-  _AddSaleOrderState(this.saleorder,this.title,this.customername);
+  _AddSaleOrderState(this.saleorder,this.title,this.listCustomers);
   ApiHelper _apiHelper;
   ControlHelper _controlHelper = ControlHelper();
 
@@ -40,7 +46,6 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _apiHelper = ApiHelper(prefs);
-      _customerId.text = _apiHelper.linkedCustomerID;
     });
   }
 
@@ -57,8 +62,9 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
         _orderTotal.text = getTotalPrice().toString();
       });
     } else {
+      print('Else');
       List<SaleOrderItemModel> result = await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: null,title: "Add List Items",saleOrderId: 0,)));
+          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: _listSaleItem,title: "Add List Items",saleOrderId: 0,)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty();
@@ -120,6 +126,8 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     super.initState();
     _loadSetting();
     _orderNbr.text = 'NEW';
+    _customerId.text = listCustomers[0].customerID;
+    customername = listCustomers[0].customerName;
     if (saleorder != null) {
       _orderNbr.text = saleorder.orderNumber.toString();
       _customerId.text = saleorder.customerId.toString();
@@ -178,24 +186,45 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                 contentPadding: EdgeInsets.all(15.0),
                               ),
                             )),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextFormField(
-                            controller: _customerId,
-                            validator: (val) =>
-                                val.isEmpty ? "CustomerID is required" : null,
-                            autocorrect: false,
-                            autofocus: false,
-                            enabled: false,
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                                hintText: "CustomerID",
-                                border: InputBorder.none,
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                contentPadding: EdgeInsets.all(15.0)),
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10.0),
+                            child: DropdownButtonFormField(
+                                  items: listCustomers
+                                      .map((f) => DropdownMenuItem(
+                                            child: AutoSizeText(
+                                              f.customerName,
+                                              style: TextStyle(fontSize: 10.0),
+                                              maxLines: 5,
+                                            ),
+                                            value: f.customerID,
+                                          ))
+                                      .toList(),
+                                  onChanged: (String value) async {
+                                    int index = listCustomers.indexWhere((x)=>x.customerID == value);
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    setState(() {
+                                      _customerId.text = value;
+                                      customername = listCustomers[index].customerName;
+                                      prefs.setString('priceclass', listCustomers[index].priceclass);
+                                    });
+                                  },
+                                  validator: (val) => val == null
+                                      ? "Customer is required"
+                                      : null,
+                                  hint: Text('Select Item'),
+                                  value: _customerId.text,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                          style: BorderStyle.solid,
+                                        )),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    contentPadding: EdgeInsets.all(15.0),
+                                  ),
+                                ),
                           ),
-                        ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 10.0),
                           child: TextFormField(
