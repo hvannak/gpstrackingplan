@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io' as io;
 
 import 'package:connectivity/connectivity.dart';
