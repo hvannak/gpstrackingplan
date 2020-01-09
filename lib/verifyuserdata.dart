@@ -8,7 +8,7 @@ import 'helpers/database_helper.dart';
 
 class VerifyUserData extends StatefulWidget {
   final Map<String, dynamic> body;
-  Userprofile user;
+  final Userprofile user;
   final int random;
   VerifyUserData({this.body,this.random, this.user});
   @override

@@ -153,9 +153,12 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => TakePictureScreen(camera: _firstCamera)));
+            builder: (context) => TakePictureScreen(camera: _firstCamera),
+            fullscreenDialog: true,));
+            imageCache.clear();
     setState(() {
       _imagePath = result;
+      print('test image = $_imagePath');
       File imagefile = new File(_imagePath);
       List<int> imageBytes = imagefile.readAsBytesSync();
       _imagebase64 = "data:image/png;base64," + base64Encode(imageBytes);

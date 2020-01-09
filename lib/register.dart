@@ -6,7 +6,6 @@ import 'package:gpstrackingplan/verifyuserdata.dart';
 import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/apiHelper .dart';
-import 'helpers/database_helper.dart';
 
 class Register extends StatefulWidget {
   @override
