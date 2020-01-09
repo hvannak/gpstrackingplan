@@ -65,8 +65,6 @@ class DatabaseHelper {
         'Customer': model.customer,
         'Image': model.image,
       };
-      // print('body');
-      // print(jsonEncode(body));
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _apiHelper = ApiHelper(prefs);
       final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
