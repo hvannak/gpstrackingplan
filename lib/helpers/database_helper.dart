@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io' as io;
 
 import 'package:connectivity/connectivity.dart';
@@ -50,7 +51,7 @@ class DatabaseHelper {
   }
 
 
-  Future<String> getGpsRoute() async {
+  void getGpsRoute() async {
     var dbClient = await db;
     var list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
     for (int i = 0; i < list.length; i++) {
@@ -70,29 +71,29 @@ class DatabaseHelper {
       final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
       print(response.statusCode);
       if (response.statusCode == 200) {
-        await dbClient.rawDelete('DELETE FROM GpsRoute');
+        await dbClient.delete('GpsRoute',where: "GpsID = ?",whereArgs: [model.gpsID]);
         print('delete = ${await dbClient.rawQuery('SELECT * FROM GpsRoute')}');
-        return response.body;
-        
+        // return response.body;
       } else {
         print(response.statusCode);
         throw Exception('Failed to load post');
       }
     }
-   
-    return null;
+    // return null;
   }
 
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
     var dbClient = await db;
     int res = await dbClient.insert("GpsRoute", gpsroute.toMap());
-    print('saveres=== $res');
+    // print('saveres=== $res');
     return res;
   }
 
 
   Future<Userprofile> loginUser(String username, String password) async {
     var dbClient = await db;
+    // var getuser =  await dbClient.rawQuery('SELECT * FROM User');
+    // print('get user = $getuser');
     var result = await dbClient.query('User',where: 'UserName = ? AND Password = ?',whereArgs: [username,password]);
     if (result.length > 0) {
       return new Userprofile.fromMap(result.first);

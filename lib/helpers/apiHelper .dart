@@ -31,7 +31,7 @@ class ApiHelper {
     final response = await http.post(_urlSetting + url,
         body: json.encode(body),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    print('Fetch Post');
+    // print('Fetch Post');
     return response;
   }
 
@@ -42,7 +42,7 @@ class ApiHelper {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer " + _token
     });
-    print('Fetch Post');
+    // print('Fetch Post');
     return response;
   }
 
