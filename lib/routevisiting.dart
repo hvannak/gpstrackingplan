@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gpstrackingplan/cameraphoto.dart';
 import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/routemapping.dart';
+import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -80,44 +81,66 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     });
   }
 
-  Future<String> fetchPost() async {
-    var body = {
-      'GpsID': '0',
-      'Lat': _lat,
-      'Lng': _lng,
-      'Gpsdatetime':
-          DateFormat('yyyy-MM-dd,HH:mm:ss').format(new DateTime.now()),
-      'CheckType': _checkType,
-      'Customer': _customer,
-      'Image': _imagebase64,
-    };
+  fetchPostOnline() async {
+    try {
+      WaitingDialogs().showLoadingDialog(context, _globalKey);
+      var body = {
+        'GpsID': '0',
+        'Lat': _lat,
+        'Lng': _lng,
+        'Gpsdatetime':
+            DateFormat('yyyy-MM-dd,HH:mm:ss').format(new DateTime.now()),
+        'CheckType': _checkType,
+        'Customer': _customer,
+        'Image': _imagebase64,
+      };
+      print('save online');
+      final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        Navigator.of(context).pop();
+        Navigator.pop(context);
+        return response.body;
+        
+      } else {
+        print(response.statusCode);
+        throw Exception('Failed to load post');
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      final snackBar = SnackBar(content: Text('Cannot connect to host'));
+      _globalKey.currentState.showSnackBar(snackBar);
+    }
+  }
 
+  fetchPostOffline() async {
+    WaitingDialogs().showLoadingDialog(context,_globalKey);
     var gpsroute = Gpsroutemodel(
-      lat: _lat,
-      lng: _lng,
-      gpsdatetime: DateTime.now().toIso8601String(),
-      checkType: _checkType,
-      customer: _customer,
-      image: _imagebase64,
-      userId: null
-    );
+        lat: _lat,
+        lng: _lng,
+        gpsdatetime: DateTime.now().toIso8601String(),
+        checkType: _checkType,
+        customer: _customer,
+        image: _imagebase64,
+        userId: null);
     var db = DatabaseHelper();
-    print('test gpsroute lat= ${gpsroute.lat}');
-    print('test gpsroute lng= ${gpsroute.lng}');
-    print('test gpsroute gpsdatetime= ${gpsroute.gpsdatetime}');
-    print('test gpsroute checkType= ${gpsroute.checkType}');
-    print('test gpsroute = ${gpsroute.customer}');
-    print('test gpsroute image= ${gpsroute.image}');
+    print('save offine');
     db.saveGpsroute(gpsroute);
+    Navigator.of(context).pop();
+    Navigator.pop(context);
+  }
 
-    // final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
-    // print(response.statusCode);
-    // if (response.statusCode == 200) {
-    //   return response.body;
-    // } else {
-    //   print(response.statusCode);
-    //   throw Exception('Failed to load post');
-    // }
+  Future<void> _handleSubmit(BuildContext context) async {
+    try {
+      var db = DatabaseHelper();
+      if (await db.checkconnection()) {
+        fetchPostOnline();
+      } else {
+        fetchPostOffline();
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> _initCamera() async {
@@ -153,9 +176,10 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => TakePictureScreen(camera: _firstCamera),
-            fullscreenDialog: true,));
-            imageCache.clear();
+          builder: (context) => TakePictureScreen(camera: _firstCamera),
+          fullscreenDialog: true,
+        ));
+    imageCache.clear();
     setState(() {
       _imagePath = result;
       print('test image = $_imagePath');
@@ -381,8 +405,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                             if (_formKey.currentState
                                                     .validate() &&
                                                 _imagePath != '') {
-                                              fetchPost();
-                                              Navigator.pop(context);
+                                              _handleSubmit(context);
+                                              // Navigator.pop(context);
                                             } else {
                                               final snackBar = SnackBar(
                                                   content: Text(
