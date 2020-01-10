@@ -212,7 +212,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
                                       hintText: "Username",
-                                      border: InputBorder.none,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            width: 0,
+                                            style: BorderStyle.none,
+                                          )),
                                       filled: true,
                                       fillColor: Colors.grey[200],
                                       contentPadding: EdgeInsets.all(15.0),
@@ -228,7 +234,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 style: TextStyle(fontSize: 14.0),
                                 decoration: InputDecoration(
                                     hintText: "Password",
-                                    border: InputBorder.none,
+                                    border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            width: 0,
+                                            style: BorderStyle.none,
+                                          )),
                                     filled: true,
                                     fillColor: Colors.grey[200],
                                     contentPadding: EdgeInsets.all(15.0)),
@@ -242,6 +254,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: RaisedButton(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 15.0),
+                                          shape: new RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(8.0),
+                                          ),
+                                          color: Colors.lightBlue,
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
@@ -253,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           },
                                           child: Text(
                                             'Login',
-                                            style: TextStyle(fontSize: 14.0),
+                                            style: TextStyle(fontSize: 16.0, color: Colors.white),
                                           ),
                                         ),
                                       ),

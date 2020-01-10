@@ -217,13 +217,13 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _linkedCustomerID,
                                   validator: (val) => val.isEmpty
-                                      ? "CustomerID is required"
+                                      ? "Sale Person ID is required"
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "CustomerID",
+                                    hintText: "Sale Person ID",
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -316,6 +316,7 @@ class _RegisterState extends State<Register> {
                                       child: RaisedButton(
                                         padding: EdgeInsets.symmetric(
                                             vertical: 15.0),
+                                        color: Colors.lightBlue,    
                                         shape: new RoundedRectangleBorder(
                                           borderRadius:
                                               new BorderRadius.circular(8.0),
@@ -331,7 +332,7 @@ class _RegisterState extends State<Register> {
                                         },
                                         child: Text(
                                           'Register',
-                                          style: TextStyle(fontSize: 14.0),
+                                          style: TextStyle(fontSize: 16.0 , color: Colors.white),
                                         ),
                                       ),
                                     )
