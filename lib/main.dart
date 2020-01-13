@@ -107,6 +107,20 @@ class _MyHomePageState extends State<MyHomePage> {
     var jsonData = jsonDecode(response1.body);
     Userprofile profile = Userprofile.fromJson(jsonData);
     _setAppSetting(token, profile.fullName,profile.linkedCustomerID, profile.iD.toString());
+    var db = DatabaseHelper();
+    Userprofile userData = await db.checkUser(_username.text);
+      if (userData == null) {
+        var user = Userprofile(
+        userName: profile.userName,
+        password: _password.text,
+        email: profile.email,
+        fullName: profile.fullName,
+        linkedCustomerID: profile.linkedCustomerID,
+        telephone: profile.telephone);
+        db.saveUser(user);
+      }else{
+        print('user already exist');
+      } 
   }
 
   Future<void> _handleSubmit(BuildContext context) async {

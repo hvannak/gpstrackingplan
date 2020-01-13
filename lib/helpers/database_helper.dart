@@ -48,7 +48,6 @@ class DatabaseHelper {
     return res;
   }
 
-
   void getGpsRoute() async {
     var dbClient = await db;
     var list = await dbClient.rawQuery('SELECT * FROM GpsRoute');
@@ -99,6 +98,14 @@ class DatabaseHelper {
     return null;
   }
 
+  Future<Userprofile> checkUser(String username) async {
+    var dbClient = await db;
+     var result = await dbClient.query('User',where: 'UserName = ?', whereArgs: [username]);
+    if (result.length > 0) {
+      return new Userprofile.fromMap(result.first);
+    }
+    return null;
+  }
 
   Future<bool> checkconnection() async{
   var connectivityResult = await (Connectivity().checkConnectivity());
