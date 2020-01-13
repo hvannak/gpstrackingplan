@@ -1,28 +1,61 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gpstrackingplan/app_localizations.dart';
+import 'package:gpstrackingplan/application.dart';
 import 'package:gpstrackingplan/appsetting.dart';
 import 'package:gpstrackingplan/helpers/apiHelper%20.dart';
 import 'package:gpstrackingplan/register.dart';
 import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_translations_delegate.dart';
 import 'dashboard.dart';
 
 import 'helpers/database_helper.dart';
 import 'models/userprofile.dart';
 
-void main() => runApp(MyApp());
+Future<Null> main() async {
+  runApp(new MyApp());
+}
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() {
+    return new MyAppState();
+  }
+}
+
+class MyAppState extends State<MyApp> {
+  AppTranslationsDelegate _newLocaleDelegate;
+
+  @override
+  void initState() {
+    super.initState();
+    _newLocaleDelegate = AppTranslationsDelegate(newLocale: null);
+    application.onLocaleChanged = onLocaleChange;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Main Page'),
+      localizationsDelegates: [
+        _newLocaleDelegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'),
+        const Locale('km', 'KH'),
+      ],
     );
+  }
+
+  void onLocaleChange(Locale locale) {
+    setState(() {
+      _newLocaleDelegate = AppTranslationsDelegate(newLocale: locale);
+    });
   }
 }
 
@@ -40,6 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
   final _username = TextEditingController();
   final _password = TextEditingController();
   ApiHelper _apiHelper;
+  static final List<String> languagesList = application.supportedLanguages;
+  static final List<String> languageCodesList =
+      application.supportedLanguagesCodes;
+
+  final Map<dynamic, dynamic> languagesMap = {
+    languagesList[0]: languageCodesList[0],
+    languagesList[1]: languageCodesList[1],
+  };
+
+  String label = languagesList[0];
 
   _setAppSetting(
       String token, String fullname, String linkedCustomerID, String iD) async {
@@ -57,6 +100,22 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _apiHelper = ApiHelper(prefs);
     });
+  }
+
+  _loadlanguage() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String languagecode = (prefs.getString('language') ?? '');
+    setState(() {
+       if(languagecode == ''){
+         label = 'English';
+         languagecode = 'en';
+       }
+       else{
+         label = languagecode;
+         languagecode = (languagecode == 'English' ? 'en' : 'km');
+       }
+    });
+   await onLocaleChange(Locale(languagecode));
   }
 
   fetchPostOnline() async {
@@ -138,15 +197,62 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> onLocaleChange(Locale locale) async {
+    var currentLang = await AppLocalizations.load(locale);
+    setState(() {
+      currentLang.currentLanguage;
+    });
+  } 
+  void _select(String language) async{
+    final SharedPreferences prefs = await  SharedPreferences.getInstance();
+    print("language== "+language);
+    onLocaleChange(Locale(languagesMap[language]));
+    
+    setState(() {
+      label = "English";
+      prefs.setString('language', language);
+      if (language == "English") {
+        label = "English";
+      } else {
+        label = language;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadSetting();
+     _loadlanguage();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () => Future.value(false),
+      child: Scaffold(
+      appBar: new AppBar(
+          automaticallyImplyLeading:false,
+          title: new Text(
+            label,
+            style: new TextStyle(color: Colors.white),
+          ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: _select,
+              icon: new Icon(Icons.language, color: Colors.white),
+              itemBuilder: (BuildContext context) {
+                return languagesList
+                    .map<PopupMenuItem<String>>((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
         resizeToAvoidBottomPadding: false,
         key: _globalKey,
         floatingActionButton: FloatingActionButton.extended(
@@ -154,7 +260,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => Register()));
           },
-          label: Text('Register'),
+          // label: Text('Register'),
+          label:Text(AppLocalizations.of(context).translate('register')),
           icon: Icon(Icons.supervised_user_circle),
           backgroundColor: Colors.pink,
         ),
@@ -164,9 +271,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: orientation == Orientation.portrait
                   ? _veticalLayout()
                   : _horizontalLayout());
-        }));
+        }))
+    );
   }
-
   _veticalLayout() {
     return Stack(
       fit: StackFit.expand,
@@ -219,13 +326,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: TextFormField(
                                     controller: _username,
                                     validator: (val) => val.isEmpty
-                                        ? "Username is required"
+                                        ? AppLocalizations.of(context).translate('username_required')
                                         : null,
                                     autocorrect: false,
                                     autofocus: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
-                                      hintText: "Username",
+                                      hintText: AppLocalizations.of(context).translate('username'),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -241,13 +348,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               TextFormField(
                                 controller: _password,
                                 validator: (val) =>
-                                    val.isEmpty ? "Password is required" : null,
+                                    val.isEmpty ? AppLocalizations.of(context).translate('password_required')  : null,
                                 autocorrect: false,
                                 autofocus: false,
                                 obscureText: true,
                                 style: TextStyle(fontSize: 14.0),
                                 decoration: InputDecoration(
-                                    hintText: "Password",
+                                    hintText: AppLocalizations.of(context).translate('password'),
                                     border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -283,7 +390,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             }
                                           },
                                           child: Text(
-                                            'Login',
+                                            AppLocalizations.of(context).translate('login'),
                                             style: TextStyle(fontSize: 16.0, color: Colors.white),
                                           ),
                                         ),
@@ -357,13 +464,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: TextFormField(
                                     controller: _username,
                                     validator: (val) => val.isEmpty
-                                        ? "Username is required"
+                                        ? AppLocalizations.of(context).translate('username')
                                         : null,
                                     autocorrect: false,
                                     autofocus: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
-                                      hintText: "Username",
+                                      hintText: AppLocalizations.of(context).translate('username'),
                                       border: InputBorder.none,
                                       filled: true,
                                       fillColor: Colors.grey[200],
@@ -373,13 +480,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               TextFormField(
                                 controller: _password,
                                 validator: (val) =>
-                                    val.isEmpty ? "Password is required" : null,
+                                    val.isEmpty ? AppLocalizations.of(context).translate('password_required') : null,
                                 autocorrect: false,
                                 autofocus: false,
                                 obscureText: true,
                                 style: TextStyle(fontSize: 14.0),
                                 decoration: InputDecoration(
-                                    hintText: "Password",
+                                    hintText: AppLocalizations.of(context).translate('password'),
                                     border: InputBorder.none,
                                     filled: true,
                                     fillColor: Colors.grey[200],
@@ -402,7 +509,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             }
                                           },
                                           child: Text(
-                                            'Login',
+                                            AppLocalizations.of(context).translate('login'),
                                             style: TextStyle(fontSize: 14.0),
                                           ),
                                         ),
