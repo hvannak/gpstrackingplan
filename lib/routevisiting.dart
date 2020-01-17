@@ -10,6 +10,7 @@ import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'app_localizations.dart';
 import 'helpers/apiHelper .dart';
 import 'helpers/database_helper.dart';
 import 'models/gpsroutemodel.dart';
@@ -19,7 +20,7 @@ class Routevisiting extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Route Visiting'),
+        title: Text(AppLocalizations.of(context).translate('route_visit'),),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.view_list),

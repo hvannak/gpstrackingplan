@@ -5,6 +5,7 @@ import 'package:gpstrackingplan/models/userprofile.dart';
 import 'package:gpstrackingplan/verifyuserdata.dart';
 import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_localizations.dart';
 import 'helpers/apiHelper .dart';
 
 class Register extends StatefulWidget {
@@ -31,59 +32,6 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  // Future<String> fetchPost() async {
-  //   try {
-  //      WaitingDialogs().showLoadingDialog(context,_globalKey);
-  //     var body = {
-  //       'UserName': _userName.text,
-  //       'Password': _password.text,
-  //       'Email': _email.text,
-  //       'FullName': _fullName.text,
-  //       'LinkedCustomerID': _linkedCustomerID.text,
-  //       'Telephone': _telephone.text,
-  //       'DefaultRole': 'DefaultEmployee'
-  //     };
-
-  //     var user = Userprofile(
-  //         userName: _userName.text,
-  //         password: _password.text,
-  //         email: _email.text,
-  //         fullName: _fullName.text,
-  //         linkedCustomerID: _linkedCustomerID.text,
-  //         telephone: _telephone.text);
-  //     final response =
-  //         await _apiHelper.fetchPost1('/api/ApplicationUser/Register', body);
-  //     if (response.statusCode == 200) {
-  //       if (response.body != null) {
-  //         var db = DatabaseHelper();
-  //         db.saveUser(user);
-  //         Navigator.of(context).pop();
-  //       } else {
-  //         final snackBar = SnackBar(content: Text('EntityID is not exist.'));
-  //         _globalKey.currentState.showSnackBar(snackBar);
-  //       }
-  //       Navigator.of(context).pop();
-  //       return response.body;
-        
-  //     } else {
-  //       final snackBar = SnackBar(content: Text('Failed to register'));
-  //       _globalKey.currentState.showSnackBar(snackBar);
-  //       throw Exception('Failed to load post');
-  //     }
-  //   } catch (e) {
-  //     final snackBar = SnackBar(content: Text('Cannot connect to host'));
-  //     _globalKey.currentState.showSnackBar(snackBar);
-  //     return e.toString();
-  //   }
-  // }
-
-  // Future<void> _handleSubmit(BuildContext context) async {
-  //   try {
-  //     await fetchPost();
-  //   } catch (error) {
-  //     print(error);
-  //   }
-  // }
   Future<void> verifyNumber() async {
       Random rnd = new Random();
       int rndnumber = rnd.nextInt(1000);
@@ -132,7 +80,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).translate('register'))),
       key: _globalKey,
       body: Stack(
         children: <Widget>[
@@ -151,13 +99,13 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _userName,
                                   validator: (val) => val.isEmpty
-                                      ? "Username is required"
+                                      ? AppLocalizations.of(context).translate('username_required')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Username",
+                                    hintText: AppLocalizations.of(context).translate('username'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -174,13 +122,13 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _fullName,
                                   validator: (val) => val.isEmpty
-                                      ? "Full name is required"
+                                      ? AppLocalizations.of(context).translate('fullname_required')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Full name",
+                                    hintText: AppLocalizations.of(context).translate('fullname'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -200,7 +148,7 @@ class _RegisterState extends State<Register> {
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Email",
+                                    hintText: AppLocalizations.of(context).translate('email'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -217,13 +165,13 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _linkedCustomerID,
                                   validator: (val) => val.isEmpty
-                                      ? "Sale Person ID is required"
+                                      ? AppLocalizations.of(context).translate('salepersonid_required')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Sale Person ID",
+                                    hintText: AppLocalizations.of(context).translate('salepersonid'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -241,13 +189,13 @@ class _RegisterState extends State<Register> {
                                   controller: _telephone,
                                   keyboardType: TextInputType.number,
                                   validator: (val) => val.isEmpty
-                                      ? "Telephone is required"
+                                      ? AppLocalizations.of(context).translate('phone_required')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Telephone",
+                                    hintText: AppLocalizations.of(context).translate('phone'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -264,14 +212,14 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _password,
                                   validator: (val) => val.isEmpty
-                                      ? "Password is required"
+                                      ? AppLocalizations.of(context).translate('password_required')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   obscureText: true,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Password",
+                                    hintText: AppLocalizations.of(context).translate('password'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -288,14 +236,14 @@ class _RegisterState extends State<Register> {
                                 child: TextFormField(
                                   controller: _confirmPassword,
                                   validator: (val) => val != _password.text
-                                      ? "Confirm password is not match"
+                                      ? AppLocalizations.of(context).translate('confirm_not_match')
                                       : null,
                                   autocorrect: false,
                                   autofocus: false,
                                   obscureText: true,
                                   style: TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration(
-                                    hintText: "Confirm Password",
+                                    hintText: AppLocalizations.of(context).translate('confirm_password'),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
@@ -331,7 +279,7 @@ class _RegisterState extends State<Register> {
                                           }
                                         },
                                         child: Text(
-                                          'Register',
+                                          AppLocalizations.of(context).translate('register'),
                                           style: TextStyle(fontSize: 16.0 , color: Colors.white),
                                         ),
                                       ),

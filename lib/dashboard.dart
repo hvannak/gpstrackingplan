@@ -6,6 +6,7 @@ import 'package:gpstrackingplan/routevisiting.dart';
 import 'package:gpstrackingplan/saleorder.dart';
 import 'package:gpstrackingplan/takeleave.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_localizations.dart';
 import 'helpers/database_helper.dart';
 
 
@@ -114,7 +115,7 @@ class _MyDashboardState extends State<MyDashboard> {
     return Scaffold(
       appBar: AppBar(
           title: Text(
-        'Dashboard',
+        AppLocalizations.of(context).translate('dashboard'),
         style: TextStyle(color: Colors.white),
       )),
       drawer: Drawer(child: MyDrawer()),
@@ -124,13 +125,13 @@ class _MyDashboardState extends State<MyDashboard> {
         mainAxisSpacing: 12.0,
         padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         children: <Widget>[
-          myItems(Icons.map, "Route Visit", 0xffed622b, context, 'visit'),
+          myItems(Icons.map, AppLocalizations.of(context).translate('route_visit'), 0xffed622b, context, 'visit'),
           myItems(
-              Icons.time_to_leave, "Saleorder", 0xffed622b, context, 'saleorder'),
+              Icons.time_to_leave, AppLocalizations.of(context).translate('saleorder'), 0xffed622b, context, 'saleorder'),
           myItems(
-              Icons.time_to_leave, "Take Leave", 0xffed622b, context, 'leave'),
+              Icons.time_to_leave, AppLocalizations.of(context).translate('take_leave'), 0xffed622b, context, 'leave'),
           myItems(
-              Icons.time_to_leave, "Sync", 0xffed622b, context, 'sync'),
+              Icons.time_to_leave, AppLocalizations.of(context).translate('sync'), 0xffed622b, context, 'sync'),
         ],
         staggeredTiles: [
           StaggeredTile.extent(1, 150.0),
@@ -209,7 +210,7 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
         ),
         ListTile(
-          title: Text('Route Visit'),
+          title: Text(AppLocalizations.of(context).translate('route_visit')),
           leading: Icon(Icons.map),
           onTap: () {
             Navigator.of(context).pop();
@@ -218,7 +219,7 @@ class _MyDrawerState extends State<MyDrawer> {
           },
         ),
         ListTile(
-          title: Text('Take Leave'),
+          title: Text(AppLocalizations.of(context).translate('take_leave')),
           leading: Icon(Icons.time_to_leave),
           onTap: () {
             Navigator.of(context).pop();
@@ -227,7 +228,16 @@ class _MyDrawerState extends State<MyDrawer> {
           },
         ),
         ListTile(
-          title: Text('Logout'),
+          title: Text(AppLocalizations.of(context).translate('saleorder')),
+          leading: Icon(Icons.time_to_leave),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => SaleOrder()));
+          },
+        ),
+        ListTile(
+          title: Text(AppLocalizations.of(context).translate('logout')),
           leading: Icon(Icons.backspace),
           onTap: () {
             _removeAppSetting();
