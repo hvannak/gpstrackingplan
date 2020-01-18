@@ -417,7 +417,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                             }
                                           },
                                           child: Text(
-                                            'Save',
+                                            AppLocalizations.of(context).translate('save'),
                                             style: TextStyle(
                                               fontSize: 18.0,
                                               color: Colors.white,

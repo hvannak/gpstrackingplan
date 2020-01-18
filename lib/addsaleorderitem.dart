@@ -5,6 +5,7 @@ import 'package:gpstrackingplan/models/inventorymodel.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_localizations.dart';
 import 'helpers/apiHelper .dart';
 
 class AddSaleOrderItem extends StatefulWidget {
@@ -124,7 +125,7 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
               Navigator.pop(context, saleorderitem);
             },
           ),
-          title: Text('Add Sale Order Item'),
+          title: Text(AppLocalizations.of(context).translate('add_sale_item')),
         ),
         body: Stack(
           children: <Widget>[
@@ -194,7 +195,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                                       _inventorySearch.text);
                                                 },
                                                 child: Text(
-                                                  'Search',
+                                                  AppLocalizations.of(context)
+                                                      .translate('search'),
                                                   style:
                                                       TextStyle(fontSize: 14.0),
                                                 ),
@@ -228,7 +230,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   validator: (val) => val == null
                                       ? "Customer is required"
                                       : null,
-                                  hint: Text('Select Item'),
+                                  hint: Text(AppLocalizations.of(context)
+                                      .translate('select_item')),
                                   value: _inventory,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
@@ -263,7 +266,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   validator: (val) => val == null
                                       ? "Check type is required"
                                       : null,
-                                  hint: Text('Select Item'),
+                                  hint: Text(AppLocalizations.of(context)
+                                      .translate('select_item')),
                                   value: _warehouse,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
@@ -291,7 +295,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                     autofocus: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
-                                      hintText: "OrderQtyr",
+                                      hintText: AppLocalizations.of(context)
+                                          .translate('orderqty'),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -318,7 +323,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                     autofocus: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
-                                      hintText: "UnitPrice",
+                                      hintText: AppLocalizations.of(context)
+                                          .translate('unit_price'),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -343,7 +349,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                     enabled: false,
                                     style: TextStyle(fontSize: 14.0),
                                     decoration: InputDecoration(
-                                      hintText: "ExtendedPrice",
+                                      hintText: AppLocalizations.of(context)
+                                          .translate('extended_price'),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -389,7 +396,8 @@ class _AddSaleOrderItemState extends State<AddSaleOrderItem> {
                                   }
                                 },
                                 child: Text(
-                                  'Submit',
+                                  AppLocalizations.of(context)
+                                      .translate('submit'),
                                   style: TextStyle(
                                     fontSize: 18.0,
                                     color: Colors.white,

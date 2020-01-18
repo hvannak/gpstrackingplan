@@ -7,6 +7,7 @@ import 'package:gpstrackingplan/models/customermodel.dart';
 import 'package:gpstrackingplan/models/saleordermodel.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_localizations.dart';
 import 'helpers/apiHelper .dart';
 import 'models/saleorderitemmodel.dart';
 
@@ -53,7 +54,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
       List<SaleOrderItemModel> result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => DisplaySaleOrderItem(listSaleItem: saleorder.details,title: "Edit List Items",saleOrderId: saleorder.saleOrderId,)));
+              builder: (context) => DisplaySaleOrderItem(listSaleItem: saleorder.details,title: AppLocalizations.of(context).translate('edit_order'),saleOrderId: saleorder.saleOrderId,)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty().toString();
@@ -62,7 +63,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
     } else {
       print('Else');
       List<SaleOrderItemModel> result = await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: _listSaleItem,title: "Add List Items",saleOrderId: 0,)));
+          MaterialPageRoute(builder: (context) => DisplaySaleOrderItem(listSaleItem: _listSaleItem,title: AppLocalizations.of(context).translate('list_sale_order_item'),saleOrderId: 0,)));
       setState(() {
         _listSaleItem = result;
         _oderQty.text = getSumQty();
@@ -237,7 +238,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             autofocus: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
-                                hintText: "Description",
+                                hintText: AppLocalizations.of(context).translate('description'),
                                 border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -260,7 +261,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             autofocus: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
-                                hintText: "Date",
+                                hintText: AppLocalizations.of(context).translate('date'),
                                 border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -289,7 +290,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             enabled: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
-                                hintText: "OrderQty",
+                                hintText: AppLocalizations.of(context).translate('orderqty'),
                                 border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -313,7 +314,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                             enabled: false,
                             style: TextStyle(fontSize: 14.0),
                             decoration: InputDecoration(
-                                hintText: "OrderTotal",
+                                hintText: AppLocalizations.of(context).translate('ordertotal'),
                                 border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -351,7 +352,7 @@ class _AddSaleOrderState extends State<AddSaleOrder> {
                                       }
                                     },
                                     child: Text(
-                                      'Submit',
+                                      AppLocalizations.of(context).translate('submit'),
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         color: Colors.white,

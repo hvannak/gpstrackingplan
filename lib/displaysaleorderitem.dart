@@ -4,6 +4,7 @@ import 'package:gpstrackingplan/addsaleorderitem.dart';
 import 'package:gpstrackingplan/models/saleorderitemmodel.dart';
 import 'package:gpstrackingplan/waitingdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_localizations.dart';
 import 'helpers/apiHelper .dart';
 import 'models/inventorymodel.dart';
 
@@ -160,16 +161,16 @@ class _DisplaySaleOrderItemState extends State<DisplaySaleOrderItem> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text("Confirm"),
-                      content: const Text(
-                          "Are you sure you want to delete this item?"),
+                      title:  Text(AppLocalizations.of(context).translate('confirm')),
+                      content:  Text(
+                          AppLocalizations.of(context).translate('confirm_delete')),
                       actions: <Widget>[
                         FlatButton(
                             onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text("DELETE")),
+                            child: Text(AppLocalizations.of(context).translate('delete'))),
                         FlatButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text("CANCEL"),
+                          child: Text(AppLocalizations.of(context).translate('cancel')),
                         ),
                       ],
                     );
