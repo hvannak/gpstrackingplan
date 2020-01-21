@@ -306,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 SingleChildScrollView(
                   child: Container(
-                    height: 300.0,
+                    height: 320.0,
                     width: 450.0,
                     padding:
                         EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),

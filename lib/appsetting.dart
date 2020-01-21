@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_localizations.dart';
+
 class Appsetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('App Setting')
+        title: Text(AppLocalizations.of(context).translate('appsetting'))
       ),
-      body: MySetting(title: 'App Setting')
+      body: MySetting(title: AppLocalizations.of(context).translate('appsetting'))
     );
   }
 }
@@ -91,14 +93,19 @@ class _MySettingState extends State<MySetting> {
                             Center(
                               child: RaisedButton(
                                 padding: EdgeInsets.symmetric(vertical: 15.0),
+                                shape: new RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(8.0),
+                                          ),
+                                          color: Colors.lightBlue,
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
                                     showSnackbar(context);
                                   }
                                 },
                                 child: Text(
-                                  'Save',
-                                  style: TextStyle(fontSize: 14.0),
+                                  AppLocalizations.of(context).translate('save'),
+                                  style: TextStyle(fontSize: 16.0, color: Colors.white),
                                 ),
                               ),
                             )
