@@ -127,9 +127,13 @@ class _RouteMappingState extends State<RouteMapping> {
                                         subtitle: Text(
                                             snapshot.data[index].checkType +
                                                 "=>" +
-                                                DateFormat("yyy/MM/dd,HH:mm:ss")
-                                                    .format(snapshot.data[index]
+                                                // DateFormat("yyy/MM/dd,HH:mm:ss")
+                                                //     .format(snapshot.data[index]
+                                                //         .gpsdatetime)),
+                                                        ///////////
+                                                    (snapshot.data[index]
                                                         .gpsdatetime)),
+                                 
                                         onTap: () {
                                           final CameraPosition _location = CameraPosition(
                                                             bearing: 100,
