@@ -128,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (respone.statusCode == 200) {
         Map<String, dynamic> tokenget = jsonDecode(respone.body);
         await fetchProfile(tokenget['token']);
+        await syncData();
         Navigator.of(context).pop();
         Navigator.push(
               context, MaterialPageRoute(builder: (context) => MyDashboard()));
@@ -159,6 +160,17 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(
               context, MaterialPageRoute(builder: (context) => MyDashboard()));
     }
+  }
+
+  Future syncData() async {
+    var db = DatabaseHelper();
+        if (await db.checkconnection()){
+           db.getGpsRoute();
+          print('sync');
+        }
+        else{
+          print('can not sync');   
+        }
   }
 
   fetchProfile(String token) async {

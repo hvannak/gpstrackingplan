@@ -16,16 +16,16 @@ class MyDashboard extends StatefulWidget {
 }
 
 class _MyDashboardState extends State<MyDashboard> {
-  Future fetchPost() async {
-    var db = DatabaseHelper();
-        if (await db.checkconnection()){
-           db.getGpsRoute();
-          print('sync');
-        }
-        else{
-          print('can not sync');   
-        }
-  }
+  // Future fetchPost() async {
+  //   var db = DatabaseHelper();
+  //       if (await db.checkconnection()){
+  //          db.getGpsRoute();
+  //         print('sync');
+  //       }
+  //       else{
+  //         print('can not sync');   
+  //       }
+  // }
 
   Material myItems(IconData icon, String heading, int color,
       BuildContext context, String page) {
@@ -81,13 +81,13 @@ class _MyDashboardState extends State<MyDashboard> {
                                   MaterialPageRoute(
                                       builder: (context) => SaleOrder()));
                               break;
-                            case 'sync':
-                              fetchPost();
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => Takeleave()));
-                              break;
+                            // case 'sync':
+                            //   fetchPost();
+                            //   // Navigator.push(
+                            //   //     context,
+                            //   //     MaterialPageRoute(
+                            //   //         builder: (context) => Takeleave()));
+                            //   break;
                             default:
                           }
                          
@@ -130,14 +130,14 @@ class _MyDashboardState extends State<MyDashboard> {
               Icons.time_to_leave, AppLocalizations.of(context).translate('saleorder'), 0xffed622b, context, 'saleorder'),
           myItems(
               Icons.time_to_leave, AppLocalizations.of(context).translate('take_leave'), 0xffed622b, context, 'leave'),
-          myItems(
-              Icons.time_to_leave, AppLocalizations.of(context).translate('sync'), 0xffed622b, context, 'sync'),
+          // myItems(
+          //     Icons.time_to_leave, AppLocalizations.of(context).translate('sync'), 0xffed622b, context, 'sync'),
         ],
         staggeredTiles: [
-          StaggeredTile.extent(1, 150.0),
-          StaggeredTile.extent(1, 150.0),
-          StaggeredTile.extent(1, 150.0),
-          StaggeredTile.extent(1, 150.0),
+          StaggeredTile.extent(2, 150.0),
+          StaggeredTile.extent(2, 150.0),
+          StaggeredTile.extent(2, 150.0),
+          // StaggeredTile.extent(1, 150.0),
         ],
       ),
     );
