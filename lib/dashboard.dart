@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gpstrackingplan/main.dart';
@@ -8,14 +7,28 @@ import 'package:gpstrackingplan/takeleave.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_localizations.dart';
 import 'helpers/database_helper.dart';
-
+import 'models/customermodel.dart';
 
 class MyDashboard extends StatefulWidget {
+  final List<Customermodel> listCustomers;
+  MyDashboard({Key key, this.listCustomers}) : super(key: key);
   @override
-  _MyDashboardState createState() => _MyDashboardState();
+  _MyDashboardState createState() => _MyDashboardState(this.listCustomers);
 }
 
 class _MyDashboardState extends State<MyDashboard> {
+  final List<Customermodel> listCustomers;
+  _MyDashboardState(this.listCustomers);
+
+  saveCustomer() async {
+    for (int i = 0; i < listCustomers.length; i++) {
+      var model = Customermodel.fromMap(listCustomers[i]);
+      print(model.customerName);
+      var db = DatabaseHelper();
+      db.saveCustomer(model);
+    }
+  }
+
   // Future fetchPost() async {
   //   var db = DatabaseHelper();
   //       if (await db.checkconnection()){
@@ -23,7 +36,7 @@ class _MyDashboardState extends State<MyDashboard> {
   //         print('sync');
   //       }
   //       else{
-  //         print('can not sync');   
+  //         print('can not sync');
   //       }
   // }
 
@@ -90,7 +103,6 @@ class _MyDashboardState extends State<MyDashboard> {
                             //   break;
                             default:
                           }
-                         
                         },
                       ),
                     ),
@@ -107,7 +119,7 @@ class _MyDashboardState extends State<MyDashboard> {
   @override
   void initState() {
     super.initState();
-    // fetchPost();
+    saveCustomer();
   }
 
   @override
@@ -125,11 +137,24 @@ class _MyDashboardState extends State<MyDashboard> {
         mainAxisSpacing: 12.0,
         padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         children: <Widget>[
-          myItems(Icons.map, AppLocalizations.of(context).translate('route_visit'), 0xffed622b, context, 'visit'),
           myItems(
-              Icons.time_to_leave, AppLocalizations.of(context).translate('saleorder'), 0xffed622b, context, 'saleorder'),
+              Icons.map,
+              AppLocalizations.of(context).translate('route_visit'),
+              0xffed622b,
+              context,
+              'visit'),
           myItems(
-              Icons.time_to_leave, AppLocalizations.of(context).translate('take_leave'), 0xffed622b, context, 'leave'),
+              Icons.time_to_leave,
+              AppLocalizations.of(context).translate('saleorder'),
+              0xffed622b,
+              context,
+              'saleorder'),
+          myItems(
+              Icons.time_to_leave,
+              AppLocalizations.of(context).translate('take_leave'),
+              0xffed622b,
+              context,
+              'leave'),
           // myItems(
           //     Icons.time_to_leave, AppLocalizations.of(context).translate('sync'), 0xffed622b, context, 'sync'),
         ],

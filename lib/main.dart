@@ -12,6 +12,7 @@ import 'app_translations_delegate.dart';
 import 'dashboard.dart';
 
 import 'helpers/database_helper.dart';
+import 'models/customermodel.dart';
 import 'models/userprofile.dart';
 
 Future<Null> main() async {
@@ -129,9 +130,12 @@ class _MyHomePageState extends State<MyHomePage> {
         Map<String, dynamic> tokenget = jsonDecode(respone.body);
         await fetchProfile(tokenget['token']);
         await syncData();
+        var customers= await fetchCustomerData();
         Navigator.of(context).pop();
         Navigator.push(
-              context, MaterialPageRoute(builder: (context) => MyDashboard()));
+              context, MaterialPageRoute(builder: (context) => MyDashboard(
+                listCustomers: customers,
+              )));
       } else {
         Navigator.of(context).pop();
         var jsonData = jsonDecode(respone.body)['message'];
@@ -171,6 +175,23 @@ class _MyHomePageState extends State<MyHomePage> {
         else{
           print('can not sync');   
         }
+  }
+
+  Future<List<Customermodel>> fetchCustomerData() async {
+    final response = await _apiHelper.fetchData('/api/Customer/SalespersonID/' + _apiHelper.linkedCustomerID);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      List<Customermodel> _listCustomers= [];
+      for (var item in jsonData['Results']) {
+        Customermodel customermodel = Customermodel.fromJson(item);
+        _listCustomers.add(customermodel);
+      }
+      return _listCustomers;
+    } else {
+      final snackBar = SnackBar(content: Text('Failed to load'));
+      _globalKey.currentState.showSnackBar(snackBar);
+      throw Exception('Failed to load post');
+    }
   }
 
   fetchProfile(String token) async {
