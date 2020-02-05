@@ -85,9 +85,12 @@ class DatabaseHelper {
     // return null;
   }
 
-  Future<List<Customermodel>> getCustomerlocal() async {
+  Future<List<Customermodel>> getCustomerlocal(String text) async {
     var dbClient = await db;
-    var list = await dbClient.rawQuery('SELECT * FROM Customers');
+    // var list = await dbClient.rawQuery('SELECT * FROM Customers');
+    var sql = "SELECT * FROM Customers WHERE TRIM(CustomerID) = '01ACH3'";
+    var list = await dbClient.rawQuery(sql);
+    print(list.length);
           List<Customermodel> _listCustomers= [];
       for (var item in list) {
         Customermodel customermodel = Customermodel.fromMap(item);
@@ -136,7 +139,6 @@ class DatabaseHelper {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile ||
         connectivityResult == ConnectivityResult.wifi) {
-          getCustomerlocal();
       print("Internet Connection");
       return true;
     } else {

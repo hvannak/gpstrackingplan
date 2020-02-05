@@ -177,6 +177,20 @@ class _MyRouteVisitingState extends State<Routevisiting> {
       ..showSnackBar(SnackBar(content: Text("Image is captured")));
   }
 
+  // Future<List<Customermodel>> fetchCustomerData(String name) async {
+  //   var db = DatabaseHelper();
+  //   List<Customermodel> _listCustomer = await db.getCustomerlocal();
+  //   print('fetchCustomerData = ${_listCustomer.length}');
+  //     setState(() {
+  //       _customer = _listCustomer[0].customerName;
+  //       _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
+  //       print(_listCustomer.length);
+  //     });
+  //     return _listCustomer;
+  // }
+
+
+
   @override
   void initState() {
     super.initState();
@@ -187,10 +201,16 @@ class _MyRouteVisitingState extends State<Routevisiting> {
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
     _listCustomer
         .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
-  customerLocal.insert(0, new Customermodel(customerID: 'NEW', customerName: 'NEW'));
-  customerLocal.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
-    _customerId.text = customerLocal[0].customerID;
-    customername = customerLocal[0].customerName;    
+
+    // _listCustomer.insert(0, new Customermodel(customerID: 'NEW', customerName: 'NEW'));
+    // _listCustomer.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+    _customerId.text = _listCustomer[0].customerID;
+    customername = _listCustomer[0].customerName;   
+
+  // customerLocal.insert(0, new Customermodel(customerID: 'NEW', customerName: 'NEW'));
+  // customerLocal.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+  //   _customerId.text = customerLocal[0].customerID;
+  //   customername = customerLocal[0].customerName;    
   }
 
   @override
@@ -274,48 +294,74 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10.0),
-                                child: DropdownButtonFormField(
-                                  items: customerLocal
-                                      .map((f) => DropdownMenuItem(
-                                            child: AutoSizeText(
-                                              f.customerName,
-                                              style: TextStyle(fontSize: 10.0),
-                                              maxLines: 5,
-                                            ),
-                                            value: f.customerID,
-                                          ))
-                                      .toList(),
-                                  onChanged: (String value) async {
-                                    int index = customerLocal.indexWhere(
-                                        (x) => x.customerID == value);
-                                    SharedPreferences prefs =
-                                        await SharedPreferences.getInstance();
-                                    setState(() {
-                                      _customerId.text = value;
-                                      customername =
-                                          customerLocal[index].customerName;
-                                      prefs.setString('priceclass',
-                                          customerLocal[index].priceclass);
-                                    });
-                                  },
-                                  validator: (val) => val == null
-                                      ? "Customer is required"
-                                      : null,
-                                  hint: Text('Select Item'),
-                                  value: _customerId.text,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                          style: BorderStyle.solid,
+                              Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Padding(
+                                            padding:
+                                                EdgeInsets.symmetric(vertical: 1.0),
+                                            child: TextFormField(
+                                              controller: _customerSearch,
+                                              textInputAction:
+                                                  TextInputAction.search,
+                                              onFieldSubmitted: (valueget) {
+                                                var db = DatabaseHelper();
+                                                db.getCustomerlocal(valueget);
+                                              },
+                                              autocorrect: false,
+                                              autofocus: false,
+                                              style: TextStyle(fontSize: 14.0),
+                                              decoration: InputDecoration(
+                                                hintText: "Search Customer",
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                    borderSide: BorderSide(
+                                                      width: 0,
+                                                      style: BorderStyle.none,
+                                                    )),
+                                                filled: true,
+                                                fillColor: Colors.grey[200],
+                                                contentPadding:
+                                                    EdgeInsets.all(15.0),
+                                          ),
                                         )),
-                                    filled: true,
-                                    fillColor: Colors.grey[200],
-                                    contentPadding: EdgeInsets.all(15.0),
                                   ),
-                                ),
+                                  Expanded(
+                                    child: Padding(
+                                        padding: EdgeInsets.only(top: 5.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Center(
+                                              child: RaisedButton(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 15.0),
+                                                shape:
+                                                    new RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      new BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                onPressed: () {
+                                                  var db = DatabaseHelper();
+                                                db.getCustomerlocal(_customerSearch.text);
+                                                  // fetchCustomerData(
+                                                  //     _customerSearch.text);
+                                                },
+                                                child: Text(
+                                                  'Search',
+                                                  style:
+                                                      TextStyle(fontSize: 14.0),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        )),
+                                  )
+                                ],
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -352,6 +398,52 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                   ),
                                 ),
                               ),
+                              
+                              // Padding(
+                              //   padding: EdgeInsets.symmetric(vertical: 10.0),
+                              //   child: DropdownButtonFormField(
+                              //     items: customerLocal
+                              //         .map((f) => DropdownMenuItem(
+                              //               child: AutoSizeText(
+                              //                 f.customerName,
+                              //                 style: TextStyle(fontSize: 10.0),
+                              //                 maxLines: 5,
+                              //               ),
+                              //               value: f.customerID,
+                              //             ))
+                              //         .toList(),
+                              //     onChanged: (String value) async {
+                              //       int index = customerLocal.indexWhere(
+                              //           (x) => x.customerID == value);
+                              //       SharedPreferences prefs =
+                              //           await SharedPreferences.getInstance();
+                              //       setState(() {
+                              //         _customerId.text = value;
+                              //         customername =
+                              //             customerLocal[index].customerName;
+                              //         prefs.setString('priceclass',
+                              //             customerLocal[index].priceclass);
+                              //       });
+                              //     },
+                              //     validator: (val) => val == null
+                              //         ? "Customer is required"
+                              //         : null,
+                              //     hint: Text('Select Item'),
+                              //     value: _customerId.text,
+                              //     decoration: InputDecoration(
+                              //       border: OutlineInputBorder(
+                              //           borderRadius: BorderRadius.circular(8),
+                              //           borderSide: BorderSide(
+                              //             style: BorderStyle.solid,
+                              //           )),
+                              //       filled: true,
+                              //       fillColor: Colors.grey[200],
+                              //       contentPadding: EdgeInsets.all(15.0),
+                              //     ),
+                              //   ),
+                              // ),
+
+                              
                               Padding(
                                   padding: EdgeInsets.only(top: 5.0),
                                   child: Container(
@@ -385,7 +477,6 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                                     .validate() &&
                                                 _imagePath != '') {
                                               _handleSubmit(context);
-                                              // Navigator.pop(context);
                                             } else {
                                               final snackBar = SnackBar(
                                                   content: Text(

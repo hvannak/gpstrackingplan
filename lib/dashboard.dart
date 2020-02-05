@@ -67,13 +67,13 @@ class _MyDashboardState extends State<MyDashboard> {
                           switch (page) {
                             case 'visit':
                               var db = DatabaseHelper();
-                              List<Customermodel> list = await db.getCustomerlocal();
-                              print('test = $list');
+                              // List<Customermodel> list = await db.getCustomerlocal();
+                              // print('test = $list');
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Routevisiting(
-                                         customerLocal: list,
+                                        //  customerLocal: list,
                                       )));
                               break;
                             case 'leave':
