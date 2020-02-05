@@ -128,9 +128,9 @@ class _MyHomePageState extends State<MyHomePage> {
           .timeout(Duration(seconds: 100));
       if (respone.statusCode == 200) {
         Map<String, dynamic> tokenget = jsonDecode(respone.body);
-        await fetchProfile(tokenget['token']);
+        Userprofile userprofile = await fetchProfile(tokenget['token']);
         await syncData();
-        var customers= await fetchCustomerData();
+        var customers= await fetchCustomerData(userprofile.linkedCustomerID,tokenget['token']);
         Navigator.of(context).pop();
         Navigator.push(
               context, MaterialPageRoute(builder: (context) => MyDashboard(
@@ -177,8 +177,10 @@ class _MyHomePageState extends State<MyHomePage> {
         }
   }
 
-  Future<List<Customermodel>> fetchCustomerData() async {
-    final response = await _apiHelper.fetchData('/api/Customer/SalespersonID/' + _apiHelper.linkedCustomerID);
+  Future<List<Customermodel>> fetchCustomerData(String entityId,String token) async {
+    print('customeId:$entityId');
+    final response = await _apiHelper.fetchData1('/api/Customer/SalespersonID/' + entityId,token);
+    print('fetchCustomer:${response.statusCode}');
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       List<Customermodel> _listCustomers= [];
@@ -195,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  fetchProfile(String token) async {
+  Future<Userprofile> fetchProfile(String token) async {
     var response1 = await _apiHelper.fetchData1('/api/UserProfile', token);
     var jsonData = jsonDecode(response1.body);
     Userprofile profile = Userprofile.fromJson(jsonData);
@@ -214,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }else{
         print('user already exist');
       } 
+    return profile;
   }
 
   Future<void> _handleSubmit(BuildContext context) async {
@@ -538,6 +541,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           onPressed: () {
                                             if (_formKey.currentState
                                                 .validate()) {
+                                                _handleSubmit(context);
                                               // fetchPost();
                                               // showSnackbar(context);
                                             }
