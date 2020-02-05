@@ -18,27 +18,16 @@ class MyDashboard extends StatefulWidget {
 
 class _MyDashboardState extends State<MyDashboard> {
   final List<Customermodel> listCustomers;
+
   _MyDashboardState(this.listCustomers);
 
   saveCustomer() async {
-    for (int i = 0; i < listCustomers.length; i++) {
-      var model = Customermodel.fromMap(listCustomers[i]);
-      print(model.customerName);
+    List<Customermodel> list = listCustomers;
+    for (int i = 0; i < list.length; i++) {
       var db = DatabaseHelper();
-      db.saveCustomer(model);
+      db.saveCustomer(list[i]);
     }
   }
-
-  // Future fetchPost() async {
-  //   var db = DatabaseHelper();
-  //       if (await db.checkconnection()){
-  //          db.getGpsRoute();
-  //         print('sync');
-  //       }
-  //       else{
-  //         print('can not sync');
-  //       }
-  // }
 
   Material myItems(IconData icon, String heading, int color,
       BuildContext context, String page) {
@@ -74,13 +63,18 @@ class _MyDashboardState extends State<MyDashboard> {
                           color: Colors.white,
                           size: 30.0,
                         ),
-                        onTap: () {
+                        onTap: () async {
                           switch (page) {
                             case 'visit':
+                              var db = DatabaseHelper();
+                              List<Customermodel> list = await db.getCustomerlocal();
+                              print('test = $list');
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Routevisiting()));
+                                      builder: (context) => Routevisiting(
+                                         customerLocal: list,
+                                      )));
                               break;
                             case 'leave':
                               Navigator.push(
@@ -94,13 +88,6 @@ class _MyDashboardState extends State<MyDashboard> {
                                   MaterialPageRoute(
                                       builder: (context) => SaleOrder()));
                               break;
-                            // case 'sync':
-                            //   fetchPost();
-                            //   // Navigator.push(
-                            //   //     context,
-                            //   //     MaterialPageRoute(
-                            //   //         builder: (context) => Takeleave()));
-                            //   break;
                             default:
                           }
                         },
@@ -155,14 +142,11 @@ class _MyDashboardState extends State<MyDashboard> {
               0xffed622b,
               context,
               'leave'),
-          // myItems(
-          //     Icons.time_to_leave, AppLocalizations.of(context).translate('sync'), 0xffed622b, context, 'sync'),
         ],
         staggeredTiles: [
           StaggeredTile.extent(2, 150.0),
           StaggeredTile.extent(2, 150.0),
           StaggeredTile.extent(2, 150.0),
-          // StaggeredTile.extent(1, 150.0),
         ],
       ),
     );
@@ -203,7 +187,6 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      // Important: Remove any padding from the ListView.
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(

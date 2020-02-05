@@ -15,38 +15,43 @@ import 'helpers/apiHelper .dart';
 import 'helpers/database_helper.dart';
 import 'models/gpsroutemodel.dart';
 
-class Routevisiting extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).translate('route_visit'),),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.view_list),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => RouteMapping()));
-            },
-          )
-        ],
-      ),
-      body: MyRouteVisiting(),
-    );
-  }
-}
+// class Routevisiting extends StatelessWidget {
+//   List<Customermodel> customerLocal;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(
+//           AppLocalizations.of(context).translate('route_visit'),
+//         ),
+//         actions: <Widget>[
+//           IconButton(
+//             icon: Icon(Icons.view_list),
+//             onPressed: () {
+//               Navigator.push(context,
+//                   MaterialPageRoute(builder: (context) => RouteMapping()));
+//             },
+//           )
+//         ],
+//       ),
+//       body: MyRouteVisiting(),
+//     );
+//   }
+// }
 
 //    //yyyy-MM-dd,HH:mm:ss
 
-class MyRouteVisiting extends StatefulWidget {
+class Routevisiting extends StatefulWidget {
   final String imagePath;
-  const MyRouteVisiting({Key key, this.imagePath}) : super(key: key);
+  final  List<Customermodel> customerLocal;
+   Routevisiting({Key key, this.imagePath , this.customerLocal}) : super(key: key);
 
   @override
-  _MyRouteVisitingState createState() => _MyRouteVisitingState();
+  _MyRouteVisitingState createState() => _MyRouteVisitingState(this.customerLocal);
 }
 
-class _MyRouteVisitingState extends State<MyRouteVisiting> {
+class _MyRouteVisitingState extends State<Routevisiting> {
+  final List<Customermodel> customerLocal;
   final _formKey = GlobalKey<FormState>();
   final _globalKey = GlobalKey<ScaffoldState>();
   var _firstCamera;
@@ -60,6 +65,9 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   var _customerSearch = TextEditingController();
   List<Customermodel> _listCustomer = [];
   ApiHelper _apiHelper;
+  var _customerId = TextEditingController();
+  String customername;
+  _MyRouteVisitingState(this.customerLocal);
 
   _loadSetting() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -102,7 +110,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         Navigator.of(context).pop();
         Navigator.pop(context);
         return response.body;
-        
       } else {
         print(response.statusCode);
         throw Exception('Failed to load post');
@@ -115,7 +122,7 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
   }
 
   fetchPostOffline() async {
-    WaitingDialogs().showLoadingDialog(context,_globalKey);
+    WaitingDialogs().showLoadingDialog(context, _globalKey);
     var gpsroute = Gpsroutemodel(
         lat: _lat,
         lng: _lng,
@@ -149,30 +156,6 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
     _firstCamera = cameras.first;
   }
 
-  Future<List<Customermodel>> fetchCustomerData(String name) async {
-    final response =
-        await _apiHelper.fetchData('/api/Customer/CustomerName/' + name);
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      _listCustomer = [];
-      for (var item in jsonData) {
-        Customermodel customermodel = Customermodel.fromJson(item);
-        _listCustomer.add(customermodel);
-      }
-      setState(() {
-        _customer = _listCustomer[0].customerName;
-        _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
-        print(_listCustomer.length);
-      });
-      return _listCustomer;
-    } else {
-      final snackBar = SnackBar(content: Text('Failed to load'));
-      _globalKey.currentState.showSnackBar(snackBar);
-      print(response.statusCode);
-      throw Exception('Failed to load post');
-    }
-  }
-
   _navigateTakePictureScreen(BuildContext context) async {
     final result = await Navigator.push(
         context,
@@ -204,11 +187,29 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
         .add(new Customermodel(customerID: 'NEW', customerName: 'NEW'));
     _listCustomer
         .add(new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+  customerLocal.insert(0, new Customermodel(customerID: 'NEW', customerName: 'NEW'));
+  customerLocal.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
+    _customerId.text = customerLocal[0].customerID;
+    customername = customerLocal[0].customerName;    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            AppLocalizations.of(context).translate('route_visit'),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.view_list),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => RouteMapping()));
+              },
+            )
+          ],
+        ),
         backgroundColor: Colors.grey[300],
         key: _globalKey,
         floatingActionButton: FloatingActionButton(
@@ -273,73 +274,49 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                   ),
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 1.0),
-                                        child: TextFormField(
-                                          controller: _customerSearch,
-                                          textInputAction:
-                                              TextInputAction.search,
-                                          onFieldSubmitted: (valueget) {
-                                            fetchCustomerData(valueget);
-                                          },
-                                          autocorrect: false,
-                                          autofocus: false,
-                                          style: TextStyle(fontSize: 14.0),
-                                          decoration: InputDecoration(
-                                            hintText: "Search Customer",
-                                            border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                borderSide: BorderSide(
-                                                  width: 0,
-                                                  style: BorderStyle.none,
-                                                )),
-                                            filled: true,
-                                            fillColor: Colors.grey[200],
-                                            contentPadding:
-                                                EdgeInsets.all(15.0),
-                                          ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10.0),
+                                child: DropdownButtonFormField(
+                                  items: customerLocal
+                                      .map((f) => DropdownMenuItem(
+                                            child: AutoSizeText(
+                                              f.customerName,
+                                              style: TextStyle(fontSize: 10.0),
+                                              maxLines: 5,
+                                            ),
+                                            value: f.customerID,
+                                          ))
+                                      .toList(),
+                                  onChanged: (String value) async {
+                                    int index = customerLocal.indexWhere(
+                                        (x) => x.customerID == value);
+                                    SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+                                    setState(() {
+                                      _customerId.text = value;
+                                      customername =
+                                          customerLocal[index].customerName;
+                                      prefs.setString('priceclass',
+                                          customerLocal[index].priceclass);
+                                    });
+                                  },
+                                  validator: (val) => val == null
+                                      ? "Customer is required"
+                                      : null,
+                                  hint: Text('Select Item'),
+                                  value: _customerId.text,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                          style: BorderStyle.solid,
                                         )),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    contentPadding: EdgeInsets.all(15.0),
                                   ),
-                                  Expanded(
-                                    child: Padding(
-                                        padding: EdgeInsets.only(top: 5.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Center(
-                                              child: RaisedButton(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 15.0),
-                                                shape:
-                                                    new RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      new BorderRadius.circular(
-                                                          8.0),
-                                                ),
-                                                onPressed: () {
-                                                  fetchCustomerData(
-                                                      _customerSearch.text);
-                                                },
-                                                child: Text(
-                                                  'Search',
-                                                  style:
-                                                      TextStyle(fontSize: 14.0),
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        )),
-                                  )
-                                ],
+                                ),
                               ),
-                              
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10.0),
                                 child: DropdownButtonFormField(
@@ -418,7 +395,8 @@ class _MyRouteVisitingState extends State<MyRouteVisiting> {
                                             }
                                           },
                                           child: Text(
-                                            AppLocalizations.of(context).translate('save'),
+                                            AppLocalizations.of(context)
+                                                .translate('save'),
                                             style: TextStyle(
                                               fontSize: 18.0,
                                               color: Colors.white,

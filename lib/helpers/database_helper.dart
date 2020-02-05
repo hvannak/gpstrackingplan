@@ -71,11 +71,11 @@ class DatabaseHelper {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _apiHelper = ApiHelper(prefs);
       final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
-      print(response.statusCode);
+      // print(response.statusCode);
       if (response.statusCode == 200) {
         await dbClient
             .delete('GpsRoute', where: "GpsID = ?", whereArgs: [model.gpsID]);
-        print('delete = ${await dbClient.rawQuery('SELECT * FROM GpsRoute')}');
+        // print('delete = ${await dbClient.rawQuery('SELECT * FROM GpsRoute')}');
         // return response.body;
       } else {
         print(response.statusCode);
@@ -83,6 +83,17 @@ class DatabaseHelper {
       }
     }
     // return null;
+  }
+
+  Future<List<Customermodel>> getCustomerlocal() async {
+    var dbClient = await db;
+    var list = await dbClient.rawQuery('SELECT * FROM Customers');
+          List<Customermodel> _listCustomers= [];
+      for (var item in list) {
+        Customermodel customermodel = Customermodel.fromMap(item);
+        _listCustomers.add(customermodel);
+      }
+      return _listCustomers;
   }
 
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
@@ -125,6 +136,7 @@ class DatabaseHelper {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile ||
         connectivityResult == ConnectivityResult.wifi) {
+          getCustomerlocal();
       print("Internet Connection");
       return true;
     } else {

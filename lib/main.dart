@@ -186,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Customermodel customermodel = Customermodel.fromJson(item);
         _listCustomers.add(customermodel);
       }
+      print(_listCustomers.length);
       return _listCustomers;
     } else {
       final snackBar = SnackBar(content: Text('Failed to load'));
