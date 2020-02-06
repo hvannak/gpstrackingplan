@@ -345,9 +345,13 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                                       new BorderRadius.circular(
                                                           8.0),
                                                 ),
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   var db = DatabaseHelper();
-                                                db.getCustomerlocal(_customerSearch.text);
+                                                  var searchList = await db.getCustomerlocal(_customerSearch.text);                                               
+                                                  setState(() {
+                                                    _listCustomer.addAll(searchList);
+                                                    _customerId.text = _listCustomer[0].customerID;
+                                                  });
                                                   // fetchCustomerData(
                                                   //     _customerSearch.text);
                                                 },
