@@ -85,18 +85,11 @@ class DatabaseHelper {
     // return null;
   }
 
-  Future<List<Customermodel>> getCustomerlocal(String text) async {
+  Future<dynamic> getCustomerlocal(String text) async {
     var dbClient = await db;
-    // var list = await dbClient.rawQuery('SELECT * FROM Customers');
-    var sql = "SELECT * FROM Customers WHERE CustomerName LIKE '%$text%'";
+    var sql = "SELECT DISTINCT * FROM Customers WHERE CustomerName LIKE '%$text%'";
     var list = await dbClient.rawQuery(sql);
-          List<Customermodel> _listCustomers= [];
-      for (var item in list) {
-        print(item);
-        Customermodel customermodel = Customermodel.fromMap(item);       
-        _listCustomers.add(customermodel);
-      }
-      return _listCustomers;
+    return list;
   }
 
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {

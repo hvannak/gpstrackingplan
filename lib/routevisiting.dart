@@ -63,7 +63,7 @@ class _MyRouteVisitingState extends State<Routevisiting> {
   double _lng;
   String _imagebase64;
   var _customerSearch = TextEditingController();
-  List<Customermodel> _listCustomer = [];
+  List<Customermodel> _listCustomer=[];
   ApiHelper _apiHelper;
   var _customerId = TextEditingController();
   String customername;
@@ -177,17 +177,18 @@ class _MyRouteVisitingState extends State<Routevisiting> {
       ..showSnackBar(SnackBar(content: Text("Image is captured")));
   }
 
-  // Future<List<Customermodel>> fetchCustomerData(String name) async {
-  //   var db = DatabaseHelper();
-  //   List<Customermodel> _listCustomer = await db.getCustomerlocal();
-  //   print('fetchCustomerData = ${_listCustomer.length}');
-  //     setState(() {
-  //       _customer = _listCustomer[0].customerName;
-  //       _listCustomer.sort((a, b) => b.customerName.compareTo(a.customerName));
-  //       print(_listCustomer.length);
-  //     });
-  //     return _listCustomer;
-  // }
+ Future<List<Customermodel>> fetchCustomerData(String name) async {
+    // _listCustomer = [];
+    var db = DatabaseHelper();
+    var searchList = await db.getCustomerlocal(name);
+    for(var itm in searchList){
+      Customermodel customermodel = Customermodel.fromMap(itm);
+      _listCustomer.add(customermodel);
+    }
+    setState(() {
+      _customer = _listCustomer[0].customerName;
+    });
+  }
 
 
 
@@ -206,7 +207,7 @@ class _MyRouteVisitingState extends State<Routevisiting> {
     // _listCustomer.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
     _customerId.text = _listCustomer[0].customerID;
     customername = _listCustomer[0].customerName;   
-
+    // _customer = _listCustomer[0].customerName;
   // customerLocal.insert(0, new Customermodel(customerID: 'NEW', customerName: 'NEW'));
   // customerLocal.insert(1, new Customermodel(customerID: 'OLD', customerName: 'OLD'));
   //   _customerId.text = customerLocal[0].customerID;
@@ -345,15 +346,8 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                                       new BorderRadius.circular(
                                                           8.0),
                                                 ),
-                                                onPressed: () async {
-                                                  var db = DatabaseHelper();
-                                                  var searchList = await db.getCustomerlocal(_customerSearch.text);                                               
-                                                  setState(() {
-                                                    _listCustomer.addAll(searchList);
-                                                    _customerId.text = _listCustomer[0].customerID;
-                                                  });
-                                                  // fetchCustomerData(
-                                                  //     _customerSearch.text);
+                                                onPressed: () {     
+                                                  fetchCustomerData(_customerSearch.text);                                          
                                                 },
                                                 child: Text(
                                                   'Search',
@@ -381,8 +375,9 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                           ))
                                       .toList(),
                                   onChanged: (String value) {
+                                    print(value);
                                     setState(() {
-                                      _customer = value;
+                                      _customer = value;                                       
                                     });
                                   },
                                   validator: (val) => val == null
