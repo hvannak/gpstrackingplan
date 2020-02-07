@@ -178,7 +178,7 @@ class _MyRouteVisitingState extends State<Routevisiting> {
   }
 
  Future<List<Customermodel>> fetchCustomerData(String name) async {
-    // _listCustomer.clear();
+    _listCustomer.clear();
     var db = DatabaseHelper();
     var searchList = await db.getCustomerlocal(name);
     for(var itm in searchList){
