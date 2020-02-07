@@ -306,8 +306,9 @@ class _MyRouteVisitingState extends State<Routevisiting> {
                                               textInputAction:
                                                   TextInputAction.search,
                                               onFieldSubmitted: (valueget) {
-                                                var db = DatabaseHelper();
-                                                db.getCustomerlocal(valueget);
+                                                // var db = DatabaseHelper();
+                                                // db.getCustomerlocal(valueget);
+                                                fetchCustomerData(valueget);
                                               },
                                               autocorrect: false,
                                               autofocus: false,
