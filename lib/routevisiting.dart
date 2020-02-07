@@ -178,7 +178,7 @@ class _MyRouteVisitingState extends State<Routevisiting> {
   }
 
  Future<List<Customermodel>> fetchCustomerData(String name) async {
-    // _listCustomer = [];
+    // _listCustomer.clear();
     var db = DatabaseHelper();
     var searchList = await db.getCustomerlocal(name);
     for(var itm in searchList){
@@ -188,9 +188,8 @@ class _MyRouteVisitingState extends State<Routevisiting> {
     setState(() {
       _customer = _listCustomer[0].customerName;
     });
+    return _listCustomer;
   }
-
-
 
   @override
   void initState() {

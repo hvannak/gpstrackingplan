@@ -178,9 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<Customermodel>> fetchCustomerData(String entityId,String token) async {
-    print('customeId:$entityId');
     final response = await _apiHelper.fetchData1('/api/Customer/SalespersonID/' + entityId,token);
-    print('fetchCustomer:${response.statusCode}');
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       List<Customermodel> _listCustomers= [];

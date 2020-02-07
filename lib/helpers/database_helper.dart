@@ -92,6 +92,13 @@ class DatabaseHelper {
     return list;
   }
 
+  Future<dynamic> getAllCustomerlocal() async {
+    var dbClient = await db;
+    var sql = "SELECT DISTINCT * FROM Customers";
+    var list = await dbClient.rawQuery(sql);
+    return list;
+  }
+
   Future<int> saveGpsroute(Gpsroutemodel gpsroute) async {
     var dbClient = await db;
     int res = await dbClient.insert("GpsRoute", gpsroute.toMap());
@@ -103,6 +110,12 @@ class DatabaseHelper {
     var dbClient = await db;
     int res = await dbClient.insert("Customers", customer.toMap());
     return res;
+  }
+
+  Future<void> deleteCustomer(String customerID) async {
+    var dbClient = await db;
+    await dbClient
+            .delete('Customers', where: "CustomerID = ?", whereArgs: [customerID]);
   }
 
   Future<Userprofile> loginUser(String username, String password) async {

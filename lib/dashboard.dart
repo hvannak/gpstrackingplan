@@ -22,10 +22,32 @@ class _MyDashboardState extends State<MyDashboard> {
   _MyDashboardState(this.listCustomers);
 
   saveCustomer() async {
-    List<Customermodel> list = listCustomers;
-    for (int i = 0; i < list.length; i++) {
-      var db = DatabaseHelper();
-      db.saveCustomer(list[i]);
+    var db = DatabaseHelper();
+    var getList = await db.getAllCustomerlocal();
+    List<Customermodel> listLocal=[];
+    for(var itm in getList){
+      Customermodel customermodel = Customermodel.fromMap(itm);
+      listLocal.add(customermodel);
+    }
+    if(listLocal.length > 0){
+      print('update');
+      var mapLocal = listLocal.map((f)=>f.customerID);
+      var mapServer = listCustomers.map((f)=>f.customerID);
+      var addList = mapServer.where((x)=>!mapLocal.contains(x)).toList();
+      var deleteList = mapLocal.where((x)=>!mapServer.contains(x)).toList();
+      for (int i = 0; i < addList.length; i++) {
+        var customer = listCustomers.where((x)=>x.customerID == addList[i]).toList();
+        db.saveCustomer(customer[0]);
+      }
+      for (int i = 0; i < deleteList.length; i++) {
+        db.deleteCustomer(deleteList[i]);
+      }
+    }
+    else{
+      print('add new');
+      for (int i = 0; i < listCustomers.length; i++) {
+        db.saveCustomer(listCustomers[i]);
+      }
     }
   }
 
