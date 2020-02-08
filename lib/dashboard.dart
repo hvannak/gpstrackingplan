@@ -159,7 +159,7 @@ class _MyDashboardState extends State<MyDashboard> {
               context,
               'saleorder'),
           myItems(
-              Icons.time_to_leave,
+              Icons.smartphone,
               AppLocalizations.of(context).translate('take_leave'),
               0xffed622b,
               context,
@@ -250,7 +250,7 @@ class _MyDrawerState extends State<MyDrawer> {
         ),
         ListTile(
           title: Text(AppLocalizations.of(context).translate('take_leave')),
-          leading: Icon(Icons.time_to_leave),
+          leading: Icon(Icons.smartphone),
           onTap: () {
             Navigator.of(context).pop();
             Navigator.push(

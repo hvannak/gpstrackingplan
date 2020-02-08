@@ -71,7 +71,7 @@ class DatabaseHelper {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _apiHelper = ApiHelper(prefs);
       final response = await _apiHelper.fetchPost1('/api/Gpstrackings', body);
-      // print(response.statusCode);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         await dbClient
             .delete('GpsRoute', where: "GpsID = ?", whereArgs: [model.gpsID]);
