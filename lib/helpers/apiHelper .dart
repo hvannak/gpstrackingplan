@@ -22,8 +22,8 @@ class ApiHelper {
     _priceClass = (sharedPreferences.getString('priceclass') ?? '');
     _deleteSaleorderItems = (sharedPreferences.getString('deleteItems') ?? '');
     if (_urlSetting == '') {
-      sharedPreferences.setString('url', 'http://192.168.100.140:8184');
-      _urlSetting = 'http://192.168.100.140:8184';
+      sharedPreferences.setString('url', 'http://203.189.132.22:8184');
+      _urlSetting = 'http://203.189.132.22:8184';
     }
   }
 

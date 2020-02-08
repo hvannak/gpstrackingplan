@@ -1,4 +1,4 @@
-package com.example.gpstrackingplan
+package com.medivet.gpstrackingplan
 
 import android.os.Bundle
 
