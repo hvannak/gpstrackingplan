@@ -133,7 +133,9 @@ class _MyDashboardState extends State<MyDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () => Future.value(false),
+      child:Scaffold(
       appBar: AppBar(
           title: Text(
         AppLocalizations.of(context).translate('dashboard'),
@@ -171,6 +173,7 @@ class _MyDashboardState extends State<MyDashboard> {
           StaggeredTile.extent(2, 150.0),
         ],
       ),
+    )
     );
   }
 }
